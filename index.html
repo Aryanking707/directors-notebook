@@ -9,233 +9,159 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
+        /* CORE BASE (DARK MODE DEFAULT) */
+        :root {
+            --bg-color: #0d0d0d;
+            --card-bg: #161616;
+            --text-main: #ffffff;
+            --text-sub: #888888;
+            --border-color: #2d2d2d;
+            --accent: #f39c12;
+            --input-bg: #161616;
+        }
+
+        /* LIGHT MODE OVERRIDES */
+        body.light-mode {
+            --bg-color: #f4f5f7;
+            --card-bg: #ffffff;
+            --text-main: #111111;
+            --text-sub: #555555;
+            --border-color: #dddddd;
+            --accent: #e67e22;
+            --input-bg: #ffffff;
+        }
+
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             max-width: 1100px; 
             margin: 40px auto; 
             padding: 20px; 
-            background: #0d0d0d; 
-            color: #fff; 
+            background: var(--bg-color); 
+            color: var(--text-main); 
+            transition: background 0.3s ease, color 0.3s ease;
         }
         
-        /* Cinematic Glowing Title */
         h1 { 
-            text-align: center; 
-            color: #f39c12; 
-            letter-spacing: 3px; 
-            text-transform: uppercase;
-            text-shadow: 0 0 12px rgba(243, 156, 18, 0.6), 0 0 25px rgba(243, 156, 18, 0.2); 
-            margin-bottom: 40px;
+            text-align: center; color: var(--accent); letter-spacing: 3px; text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(243, 156, 18, 0.4); margin-bottom: 40px;
         }
         
-        /* Auth Screen Styling */
         #auth-container { 
-            max-width: 400px; 
-            margin: 80px auto; 
-            background: #161616; 
-            padding: 40px 30px; 
-            border-radius: 12px; 
-            border-top: 4px solid #f39c12; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7); 
-            text-align: center;
+            max-width: 400px; margin: 80px auto; background: var(--card-bg); padding: 40px 30px; 
+            border-radius: 12px; border-top: 4px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.4); text-align: center;
         }
-        .auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid #2d2d2d;}
-        .auth-tab { flex: 1; padding: 12px; cursor: pointer; color: #666; font-weight: bold; transition: 0.3s;}
-        .auth-tab.active { color: #f39c12; border-bottom: 2px solid #f39c12; }
+        .auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid var(--border-color);}
+        .auth-tab { flex: 1; padding: 12px; cursor: pointer; color: var(--text-sub); font-weight: bold; transition: 0.3s;}
+        .auth-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
         
-        /* Workspace Controls */
         .hidden { display: none !important; }
         .profile-bar { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: #161616; 
-            padding: 15px 25px; 
-            border-radius: 10px; 
-            margin-bottom: 40px; 
-            border: 1px solid #252525;
+            display: flex; justify-content: space-between; align-items: center; 
+            background: var(--card-bg); padding: 15px 25px; border-radius: 10px; margin-bottom: 40px; border: 1px solid var(--border-color);
         }
-        .logout-btn { background: #c0392b !important; width: auto !important; margin-top: 0 !important; padding: 8px 18px !important; border-radius: 6px;}
+        .controls-group { display: flex; gap: 10px; align-items: center; }
+        
+        .theme-toggle { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 16px; margin: 0; width: auto; }
+        .theme-toggle:hover { border-color: var(--accent); }
+        
+        .logout-btn { background: #c0392b !important; width: auto !important; margin: 0 !important; padding: 8px 18px !important; border-radius: 6px; color: white !important;}
         .logout-btn:hover { background-color: #e74c3c !important;}
 
         .form-group { margin-bottom: 20px; }
         input { 
-            width: 100%; 
-            padding: 14px; 
-            margin-top: 6px; 
-            border-radius: 8px; 
-            border: 1px solid #2d2d2d; 
-            background: #161616; 
-            color: #fff; 
-            box-sizing: border-box; 
-            font-size: 16px;
-            transition: all 0.3s ease;
+            width: 100%; padding: 14px; margin-top: 6px; border-radius: 8px; border: 1px solid var(--border-color); 
+            background: var(--input-bg); color: var(--text-main); box-sizing: border-box; font-size: 16px; transition: all 0.3s ease;
         }
-        input:focus { 
-            outline: none;
-            border-color: #f39c12; 
-            box-shadow: 0 0 8px rgba(243, 156, 18, 0.4);
-        }
+        input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 8px rgba(243, 156, 18, 0.2); }
         
-        /* File Input Node Wrapper */
-        .file-upload-box { 
-            background: #161616; 
-            border: 1px dashed #333; 
-            padding: 15px; 
-            border-radius: 8px; 
-            text-align: center; 
-            cursor: pointer;
-            margin-top: 6px;
-            transition: 0.2s;
-        }
-        .file-upload-box:hover { border-color: #f39c12; }
+        .file-upload-box { background: var(--card-bg); border: 1px dashed var(--border-color); padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; margin-top: 6px; transition: 0.2s; }
+        .file-upload-box:hover { border-color: var(--accent); }
         .file-upload-box input[type="file"] { display: none; }
-        .file-upload-box label { cursor: pointer; font-size: 14px; color: #aaa; display: block; width: 100%; }
+        .file-upload-box label { cursor: pointer; font-size: 14px; color: var(--text-sub); display: block; width: 100%; }
 
-        /* Rich Text Editor Shell */
-        .editor-wrapper { border-radius: 8px 8px 0 0; margin-top: 6px; color: #000; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.5);}
+        .editor-wrapper { border-radius: 8px 8px 0 0; margin-top: 6px; color: #000; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2);}
         #editor-container { height: 200px; font-size: 16px; font-family: 'Georgia', serif; background: #fff;}
         .ql-toolbar { background: #f4f4f4; border: none !important; border-bottom: 1px solid #ddd !important; }
         .ql-container { border: none !important; }
 
-        /* Word Counter Live Node Dashboard Panel */
-        .counter-panel {
-            display: flex;
-            justify-content: space-between;
-            background: #161616;
-            padding: 10px 16px;
-            border-radius: 0 0 8px 8px;
-            font-size: 12px;
-            color: #888;
-            border: 1px solid #222;
-            border-top: none;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .counter-highlight { color: #f39c12; }
+        .counter-panel { display: flex; justify-content: space-between; background: var(--card-bg); padding: 10px 16px; border-radius: 0 0 8px 8px; font-size: 12px; color: var(--text-sub); border: 1px solid var(--border-color); border-top: none; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .counter-highlight { color: var(--accent); }
 
-        /* THE DOODLE PAD INFRASTRUCTURE (Engineered for Stylus Touch Pacing) */
-        .canvas-toggle-btn {
-            background: #222; color: #aaa; border: 1px solid #333; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; margin-top: 10px;
-        }
-        .canvas-toggle-btn:hover, .canvas-toggle-btn.active { border-color: #f39c12; color: #fff; background: #1a1a1a; }
-        
-        .canvas-wrapper {
-            background: #111; border: 1px dashed #333; border-radius: 8px; margin-top: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px;
-        }
+        .canvas-toggle-btn { background: var(--card-bg); color: var(--text-sub); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; margin-top: 10px; }
+        .canvas-toggle-btn:hover, .canvas-toggle-btn.active { border-color: var(--accent); color: var(--text-main); }
+        .canvas-wrapper { background: var(--bg-color); border: 1px dashed var(--border-color); border-radius: 8px; margin-top: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
         .canvas-toolbar { display: flex; justify-content: space-between; align-items: center; }
         .canvas-tools-group { display: flex; gap: 8px; }
-        .canvas-control-btn { background: #222; border: 1px solid #333; color: #aaa; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .canvas-control-btn:hover { background: #333; color: #fff; }
-        
-        #doodle-canvas {
-            background: #ffffff; border-radius: 6px; width: 100%; height: 250px; cursor: crosshair; touch-action: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-        }
+        .canvas-control-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-sub); padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .canvas-control-btn:hover { background: var(--border-color); color: var(--text-main); }
+        #doodle-canvas { background: #ffffff; border-radius: 6px; width: 100%; height: 250px; cursor: crosshair; touch-action: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
 
-        /* Search Infrastructure Layout */
         .search-container { margin-top: 50px; margin-bottom: 35px; position: relative;}
-        #search-bar { background: #161616; padding-left: 45px; margin-top: 0; border-radius: 30px;} 
-        .search-icon { position: absolute; left: 16px; top: 15px; font-size: 18px; color: #666; }
+        #search-bar { padding-left: 45px; margin-top: 0; border-radius: 30px;} 
+        .search-icon { position: absolute; left: 16px; top: 15px; font-size: 18px; color: var(--text-sub); }
 
-        button { 
-            background: #f39c12; color: #0d0d0d; padding: 14px 20px; border: none; border-radius: 8px; 
-            cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 15px; 
-            transition: 0.3s;
-        }
-        button:hover { background: #e67e22; transform: translateY(-2px); }
+        button { background: var(--accent); color: #000; padding: 14px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s; }
         
-        /* Grid Layout */
-        #entries-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
-            gap: 25px; 
-            margin-top: 20px;
-        }
+        #entries-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px; margin-top: 20px; }
         
-        /* Premium Dashboard Block Configurations */
+        /* PREMIUM DASHBOARD CARDS */
         .movie-card { 
-            background: #161616; 
-            padding: 24px; 
-            border-radius: 12px; 
-            border-top: 4px solid #2d2d2d; 
-            box-shadow: 0 6px 18px rgba(0,0,0,0.4); 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between;
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            background: var(--card-bg); padding: 24px; border-radius: 12px; border-top: 4px solid var(--border-color); 
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15); display: flex; flex-direction: column; justify-content: space-between; 
+            position: relative; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        .movie-card:hover {
-            transform: translateY(-6px);
-            border-top-color: #f39c12; 
-            box-shadow: 0 12px 25px rgba(0,0,0,0.6);
-        }
+        .movie-card:hover { transform: translateY(-6px); border-top-color: var(--accent); box-shadow: 0 12px 25px rgba(0,0,0,0.25); }
+        .movie-card.pinned { border-top-color: #f1c40f; }
         
-        .movie-title { font-size: 1.35em; margin: 0 0 6px 0; font-weight: bold; color: #f39c12; padding-right: 60px;}
-        .movie-director { font-size: 0.75em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 16px;}
+        .pin-badge { position: absolute; top: 15px; right: 20px; font-size: 20px; cursor: pointer; opacity: 0.3; transition: 0.2s;}
+        .pin-badge:hover { opacity: 0.8; transform: scale(1.1); }
+        .pinned .pin-badge { opacity: 1; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
+
+        .movie-title { font-size: 1.35em; margin: 0 0 6px 0; font-weight: bold; color: var(--accent); padding-right: 30px;}
+        .movie-director { font-size: 0.75em; color: var(--text-sub); font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 16px;}
         
-        /* Base Internal Script Wrapper */
-        .script-display { 
-            background: #0d0d0d; padding: 16px; border-radius: 8px; border: 1px solid #222; 
-            color: #ddd; font-family: 'Georgia', serif; line-height: 1.6; font-size: 14px; max-height: 180px; overflow-y: auto;
-        }
-        .script-display::-webkit-scrollbar { width: 4px; }
-        .script-display::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 8px; }
+        .script-display { background: var(--bg-color); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-main); font-family: 'Georgia', serif; line-height: 1.6; font-size: 14px; max-height: 180px; overflow-y: auto; }
+        .pdf-attachment { display: block; background: var(--card-bg); color: var(--text-sub); text-decoration: none; padding: 10px; font-size: 13px; border-radius: 6px; font-weight: bold; text-align: center; margin-top: 15px; transition: 0.2s; border: 1px solid var(--border-color); }
+        .pdf-attachment:hover { border-color: var(--accent); color: var(--text-main); }
+        .sketch-display-frame { width: 100%; background: #ffffff; border-radius: 6px; margin-top: 15px; border: 1px solid var(--border-color); display: block; max-height: 180px; object-fit: contain; }
 
-        .pdf-attachment {
-            display: block; background: #222; color: #aaa; text-decoration: none; padding: 10px; 
-            font-size: 13px; border-radius: 6px; font-weight: bold; text-align: center; margin-top: 15px;
-            transition: 0.2s; border: 1px solid #333;
-        }
-        .pdf-attachment:hover { background: #2a2a2a; color: #fff; border-color: #f39c12; }
-
-        /* Integrated saved drawing thumbnail render panel */
-        .sketch-display-frame {
-            width: 100%; background: #ffffff; border-radius: 6px; margin-top: 15px; border: 1px solid #222; display: block; max-height: 180px; object-fit: contain;
-        }
-
-        /* Footer Utilities (Timestamps and Management Keys) */
-        .card-footer { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-top: 20px; 
-            padding-top: 15px; 
-            border-top: 1px solid #222;
-        }
-        .card-timestamp { font-size: 11px; color: #555; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-footer { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        .card-timestamp { font-size: 11px; color: var(--text-sub); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .card-actions { display: flex; gap: 8px; }
-        .action-btn { 
-            background: none; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; 
-            border-radius: 4px; cursor: pointer; transition: 0.2s; margin-top: 0; width: auto;
-        }
+        .card-actions { display: flex; gap: 8px; width: 100%; justify-content: space-between;}
+        .action-btn { background: none; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; margin-top: 0; width: auto; flex: 1;}
+        
+        .btn-view { color: #9b59b6; background: rgba(155, 89, 182, 0.1); }
+        .btn-view:hover { background: #9b59b6; color: #fff; }
+
         .btn-edit { color: #3498db; background: rgba(52, 152, 219, 0.1); }
         .btn-edit:hover { background: #3498db; color: #fff; }
+        
+        .btn-export { color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+        .btn-export:hover { background: #2ecc71; color: #fff; }
+        
         .btn-delete { color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
         .btn-delete:hover { background: #e74c3c; color: #fff; }
 
-        /* 📱 MOBILE RESPONSIVE CALIBRATION MATRIX */
+        /* VIEW MODAL OVERLAY */
+        #view-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(5px); }
+        #view-modal.active { opacity: 1; pointer-events: all; }
+        .modal-box { background: var(--card-bg); width: 90%; max-width: 800px; max-height: 85vh; border-radius: 12px; overflow-y: auto; padding: 40px; position: relative; border: 1px solid var(--border-color); box-shadow: 0 15px 50px rgba(0,0,0,0.7); }
+        .close-modal-btn { position: absolute; top: 20px; right: 25px; font-size: 20px; cursor: pointer; color: var(--text-sub); background: none; border: none; transition: 0.2s; }
+        .close-modal-btn:hover { color: #e74c3c; transform: scale(1.1); }
+
         @media (max-width: 600px) {
             body { padding: 10px; margin: 20px auto; }
             h1 { font-size: 1.8em; letter-spacing: 1px; margin-bottom: 25px; }
-            
             .profile-bar { flex-direction: column; gap: 15px; text-align: center; padding: 15px; }
-            .logout-btn { width: 100% !important; }
-            
-            #entries-container { 
-                grid-template-columns: 1fr; 
-                gap: 15px; 
-            }
-            
-            .movie-card { padding: 16px; }
-            .movie-title { font-size: 1.2em; }
-            
-            .card-footer { flex-direction: column; gap: 12px; align-items: flex-start; }
-            .card-actions { width: 100%; display: flex; gap: 8px; }
-            .action-btn { flex: 1; text-align: center; padding: 8px; }
+            .controls-group { width: 100%; justify-content: space-between; }
+            #entries-container { grid-template-columns: 1fr; gap: 15px; }
+            .card-actions { flex-direction: row; flex-wrap: wrap; }
+            .action-btn { flex: 1 1 45%; padding: 10px; }
+            .modal-box { padding: 25px 20px; }
         }
     </style>
 </head>
@@ -246,7 +172,7 @@
             <div id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
             <div id="tab-signup" class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</div>
         </div>
-        <h3 id="auth-title" style="color: #f39c12; margin-bottom: 20px; font-weight: bold;">Welcome Back</h3>
+        <h3 id="auth-title" style="color: var(--accent); margin-bottom: 20px; font-weight: bold;">Welcome Back</h3>
         <input type="email" id="auth-email" placeholder="Email Address">
         <input type="password" id="auth-password" placeholder="Password">
         <button id="auth-submit-btn" onclick="handleAuth()">Sign In</button>
@@ -256,10 +182,13 @@
         
         <div class="profile-bar">
             <div>
-                <span style="color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: bold;">Console Producer</span>
-                <p id="user-display-email" style="margin: 4px 0 0 0; font-weight: bold; color: #f39c12; font-size: 15px;"></p>
+                <span style="color: var(--text-sub); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: bold;">Console Producer</span>
+                <p id="user-display-email" style="margin: 4px 0 0 0; font-weight: bold; color: var(--accent); font-size: 15px;"></p>
             </div>
-            <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+            <div class="controls-group">
+                <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Light</button>
+                <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+            </div>
         </div>
 
         <h1>🎬 THE DIRECTOR'S NOTEBOOK</h1>
@@ -295,7 +224,7 @@
 
             <div class="canvas-wrapper hidden" id="canvas-section">
                 <div class="canvas-toolbar">
-                    <span style="font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Storyboard sketch canvas:</span>
+                    <span style="font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Storyboard sketch canvas:</span>
                     <div class="canvas-tools-group">
                         <button class="canvas-control-btn" onclick="undoCanvasStroke()">Undo</button>
                         <button class="canvas-control-btn" style="color: #e74c3c;" onclick="clearCanvasSurface()">Clear Pad</button>
@@ -315,6 +244,17 @@
         <div id="entries-container"></div>
     </div>
 
+    <div id="view-modal">
+        <div class="modal-box">
+            <button class="close-modal-btn" onclick="closeViewModal()">✖</button>
+            <h1 id="view-title" style="margin-top: 10px; margin-bottom: 5px; font-size: 2em; text-align: left; letter-spacing: 1px;"></h1>
+            <h3 id="view-director" style="color: var(--text-sub); margin-top: 0; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9em;"></h3>
+            <div id="view-script" style="margin-top: 30px; font-family: 'Georgia', serif; line-height: 1.8; font-size: 16px;"></div>
+            <img id="view-sketch" class="sketch-display-frame hidden" style="margin-top: 30px; border-color: #333;" />
+            <a id="view-pdf-link" class="pdf-attachment hidden" target="_blank" style="margin-top: 20px;">📄 View Attached Original PDF</a>
+        </div>
+    </div>
+
     <script>
         const supabaseUrl = 'https://ovdzrydvtqmzwsuestaf.supabase.co';
         const supabaseKey = 'sb_publishable_bgZqcUz1ZzF7yvMweC4Hpw_t_n308Ep';
@@ -324,6 +264,22 @@
         let currentUser = null;
         let editingId = null; 
 
+        // UI Theme Logic
+        function checkTheme() {
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-btn').innerText = '🌙 Dark';
+            }
+        }
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            document.getElementById('theme-btn').innerText = isLight ? '🌙 Dark' : '☀️ Light';
+        }
+        checkTheme();
+
+        // Canvas Logic
         let canvas, ctx;
         let isDrawing = false;
         let canvasHistory = [];
@@ -334,43 +290,27 @@
             modules: { toolbar: [[{ 'header': [1, 2, false] }], ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
         });
 
-        // LIVE METRIC CALCULATOR ENGINE HOOK
         quill.on('text-change', function() {
             const rawText = quill.getText().trim();
-            
             if (rawText.length === 0) {
                 document.getElementById('word-count-val').innerText = "0";
                 document.getElementById('run-time-val').innerText = "0s";
                 return;
             }
-
             const wordArray = rawText.split(/\s+/);
             const wordCount = wordArray.length;
-            
             const totalSeconds = Math.round((wordCount / 130) * 60);
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
-            
-            let displayTime = "";
-            if (minutes > 0) {
-                displayTime = `${minutes}m ${seconds}s`;
-            } else {
-                displayTime = `${seconds}s`;
-            }
-
             document.getElementById('word-count-val').innerText = wordCount;
-            document.getElementById('run-time-val').innerText = displayTime;
+            document.getElementById('run-time-val').innerText = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
         });
 
-        // VISUAL CANVAS CONTROLLER MODULE ENGINE
         function initCanvasEngine() {
             canvas = document.getElementById('doodle-canvas');
             ctx = canvas.getContext('2d');
-            
-            // Recalculate layout metrics dynamically across responsive platforms
             canvas.width = canvas.parentElement.clientWidth - 24; 
             canvas.height = 250;
-            
             ctx.strokeStyle = '#000000'; 
             ctx.lineWidth = 3;            
             ctx.lineCap = 'round';
@@ -381,7 +321,6 @@
             canvas.addEventListener('mouseup', stopDrawing);
             canvas.addEventListener('mouseout', stopDrawing);
 
-            // SPECIAL MOBILE AND IPAD TOUCH ENGINE CAPTURE MATRIX
             canvas.addEventListener('touchstart', (e) => {
                 const touch = e.touches[0];
                 const rect = canvas.getBoundingClientRect();
@@ -390,7 +329,6 @@
                 ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
                 e.preventDefault();
             }, { passive: false });
-
             canvas.addEventListener('touchmove', (e) => {
                 if (!isDrawing) return;
                 const touch = e.touches[0];
@@ -399,51 +337,23 @@
                 ctx.stroke();
                 e.preventDefault();
             }, { passive: false });
-
-            canvas.addEventListener('touchend', () => {
-                if (isDrawing) saveCanvasState();
-                isDrawing = false;
-            });
+            canvas.addEventListener('touchend', () => { if (isDrawing) saveCanvasState(); isDrawing = false; });
         }
 
-        function startDrawing(e) {
-            isDrawing = true;
-            ctx.beginPath();
-            ctx.moveTo(e.offsetX, e.offsetY);
-        }
-
-        function drawStroke(e) {
-            if (!isDrawing) return;
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.stroke();
-        }
-
-        function stopDrawing() {
-            if (isDrawing) saveCanvasState();
-            isDrawing = false;
-        }
-
-        function saveCanvasState() {
-            if (canvasHistory.length >= 15) canvasHistory.shift(); 
-            canvasHistory.push(canvas.toDataURL());
-        }
-
+        function startDrawing(e) { isDrawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); }
+        function drawStroke(e) { if (!isDrawing) return; ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); }
+        function stopDrawing() { if (isDrawing) saveCanvasState(); isDrawing = false; }
+        function saveCanvasState() { if (canvasHistory.length >= 15) canvasHistory.shift(); canvasHistory.push(canvas.toDataURL()); }
         function undoCanvasStroke() {
             if (canvasHistory.length === 0) return;
             canvasHistory.pop(); 
-            
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (canvasHistory.length === 0) return;
-
             let prevImg = new Image();
             prevImg.src = canvasHistory[canvasHistory.length - 1];
             prevImg.onload = function() { ctx.drawImage(prevImg, 0, 0); };
         }
-
-        function clearCanvasSurface() {
-            if(ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-            canvasHistory = [];
-        }
+        function clearCanvasSurface() { if(ctx) ctx.clearRect(0, 0, canvas.width, canvas.height); canvasHistory = []; }
 
         function toggleDoodlePad() {
             const padSection = document.getElementById('canvas-section');
@@ -452,10 +362,7 @@
             const isActive = !padSection.classList.contains('hidden');
             toggleBtn.classList.toggle('active', isActive);
             toggleBtn.querySelector('span').innerText = isActive ? "Close Visual Storyboard Doodle Pad" : "Open Visual Storyboard Doodle Pad";
-            
-            if (isActive && !canvas) {
-                setTimeout(initCanvasEngine, 100); 
-            }
+            if (isActive && !canvas) { setTimeout(initCanvasEngine, 100); }
         }
 
         function updateFileLabel() {
@@ -463,7 +370,7 @@
             const label = document.getElementById('label-pdf');
             if (input.files.length > 0) {
                 label.innerText = `✔️ Attached: ${input.files[0].name.substring(0, 25)}...`;
-                label.style.color = "#f39c12";
+                label.style.color = "var(--accent)";
             }
         }
 
@@ -493,7 +400,6 @@
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             if (!email || !password) return alert("Fill in authentication fields.");
-
             if (currentAuthMode === 'signup') {
                 const { error } = await supabaseClient.auth.signUp({ email, password });
                 if (error) alert(error.message);
@@ -509,34 +415,22 @@
         async function uploadPDFToStorage() {
             const fileInput = document.getElementById('file-pdf');
             if (fileInput.files.length === 0) return null;
-            
             const file = fileInput.files[0];
             const fileName = `${currentUser.id}-${Date.now()}.pdf`;
             const filePath = `documents/${fileName}`;
-
-            const { data, error } = await supabaseClient.storage
-                .from('project-files')
-                .upload(filePath, file);
-
+            const { data, error } = await supabaseClient.storage.from('project-files').upload(filePath, file);
             if (error) return null;
-            
-            const { data: urlData } = supabaseClient.storage
-                .from('project-files')
-                .getPublicUrl(filePath);
-
+            const { data: urlData } = supabaseClient.storage.from('project-files').getPublicUrl(filePath);
             return urlData.publicUrl;
         }
 
         function formatDisplayDate(isoString) {
-            const date = new Date(isoString);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            return new Date(isoString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
-
         function isCanvasSurfaceBlank() {
             if (!canvas) return true;
             const blank = document.createElement('canvas');
-            blank.width = canvas.width;
-            blank.height = canvas.height;
+            blank.width = canvas.width; blank.height = canvas.height;
             return canvas.toDataURL() === blank.toDataURL();
         }
 
@@ -547,16 +441,21 @@
             const { data, error } = await supabaseClient.from('Movies').select('*').order('created_at', { ascending: false });
 
             if (error) {
-                container.innerHTML = `<p style="color: red;">Dashboard loop connection error: ${error.message}</p>`;
+                container.innerHTML = `<p style="color: red;">Dashboard error: ${error.message}</p>`;
                 return;
             }
+
+            data.sort((a, b) => {
+                if (a.is_pinned === b.is_pinned) return 0;
+                return a.is_pinned ? -1 : 1;
+            });
 
             rawFetchedMovies = data; 
             container.innerHTML = ''; 
             
             data.forEach(movie => {
                 const card = document.createElement('div');
-                card.className = 'movie-card';
+                card.className = `movie-card ${movie.is_pinned ? 'pinned' : ''}`;
                 
                 let scriptHtml = movie.script && movie.script !== '<p><br></p>' ? `<div class="script-display">${movie.script}</div>` : '';
                 let pdfHtml = movie.pdf_url ? `<a href="${movie.pdf_url}" target="_blank" class="pdf-attachment">📄 View Attached Script PDF</a>` : '';
@@ -564,6 +463,7 @@
                 let formattedDate = formatDisplayDate(movie.created_at);
 
                 card.innerHTML = `
+                    <div class="pin-badge" onclick="togglePin('${movie.id}', ${movie.is_pinned})" title="Pin to top">📌</div>
                     <div>
                         <p class="movie-title">${movie.title}</p>
                         <span class="movie-director">Directed/Written by ${movie.director}</span>
@@ -574,8 +474,10 @@
                     <div class="card-footer">
                         <span class="card-timestamp">Logged: ${formattedDate}</span>
                         <div class="card-actions">
+                            <button class="action-btn btn-view" onclick="viewProject('${movie.id}')">View</button>
+                            <button class="action-btn btn-export" onclick="exportProjectToPDF('${movie.id}', this)">PDF</button>
                             <button class="action-btn btn-edit" onclick="startEditSession('${movie.id}')">Edit</button>
-                            <button class="action-btn btn-delete" onclick="triggerDeleteRecord('${movie.id}')">Delete</button>
+                            <button class="action-btn btn-delete" onclick="triggerDeleteRecord('${movie.id}')">Del</button>
                         </div>
                     </div>
                 `;
@@ -583,46 +485,140 @@
             });
         }
 
-        function startEditSession(id) {
-            editingId = id;
-            const project = rawFetchedMovies.find(m => m.id === id);
+        async function togglePin(id, currentState) {
+            const newPinState = !currentState;
+            const { error } = await supabaseClient.from('Movies').update({ is_pinned: newPinState }).eq('id', id);
+            if (!error) fetchEntries();
+        }
+
+        // 👀 VIEW PROJECT FULL SCREEN MODAL
+        function viewProject(id) {
+            const project = rawFetchedMovies.find(m => String(m.id) === String(id));
             if (!project) return;
 
-            document.getElementById('title').value = project.title;
-            document.getElementById('director').value = project.director;
-            quill.root.innerHTML = project.script || '';
+            document.getElementById('view-title').innerText = project.title || 'Untitled Project';
+            document.getElementById('view-director').innerText = 'Directed/Written by: ' + (project.director || 'Unknown');
+            
+            if (project.script && project.script !== '<p><br></p>') {
+                document.getElementById('view-script').innerHTML = project.script;
+            } else {
+                document.getElementById('view-script').innerHTML = '<p style="color:var(--text-sub); font-style:italic;">No script text provided.</p>';
+            }
+            
+            const sketchEl = document.getElementById('view-sketch');
+            if (project.sketch_data) {
+                sketchEl.src = project.sketch_data;
+                sketchEl.classList.remove('hidden');
+            } else {
+                sketchEl.classList.add('hidden');
+                sketchEl.src = '';
+            }
 
-            if(project.pdf_url) {
-                document.getElementById('label-pdf').innerText = "✔️ Current PDF Linked (Upload new to replace)";
-                document.getElementById('label-pdf').style.color = "#3498db";
+            const pdfEl = document.getElementById('view-pdf-link');
+            if (project.pdf_url) {
+                pdfEl.href = project.pdf_url;
+                pdfEl.classList.remove('hidden');
+            } else {
+                pdfEl.classList.add('hidden');
+                pdfEl.href = '#';
+            }
+
+            document.getElementById('view-modal').classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeViewModal() {
+            document.getElementById('view-modal').classList.remove('active');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        // 🖨️ STRING-BASED PDF EXPORT WITH SCROLL-LOCK BUG FIX
+        function exportProjectToPDF(id, btnElement) {
+            const project = rawFetchedMovies.find(m => String(m.id) === String(id));
+            if (!project) return;
+
+            const originalText = btnElement.innerText;
+            btnElement.innerText = "⏳ Loading...";
+
+            const htmlString = `
+                <div style="padding: 40px; font-family: 'Georgia', serif; color: #000; background: #fff; width: 800px; box-sizing: border-box;">
+                    <h1 style="color: #333; text-transform: uppercase; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-top: 0; margin-bottom: 5px;">${project.title || 'Untitled'}</h1>
+                    <h3 style="color: #666; font-style: italic; margin-top: 0;">Directed/Written by: ${project.director || 'Unknown'}</h3>
+                    <p style="font-size: 12px; color: #999;">Studio Elite Log Date: ${formatDisplayDate(project.created_at)}</p>
+                    <div style="margin-top: 40px; line-height: 1.8; font-size: 14px;">${project.script || '<p>No script text logged.</p>'}</div>
+                    ${project.sketch_data ? `<div style="margin-top: 50px; page-break-inside: avoid;"><p style="font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px;">Storyboard Sketch Reference</p><img src="${project.sketch_data}" style="max-width: 100%; border: 1px solid #ccc; border-radius: 4px; margin-top: 10px;"></div>` : ''}
+                </div>
+            `;
+
+            const opt = {
+                margin: 15,
+                filename: `${(project.title || 'Project').replace(/\s+/g, '_')}_Script.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                // THE FIX: Explicitly set scrollY and windowY to 0 so the engine ignores where you are scrolled on the page.
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, windowY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(htmlString).save().then(() => {
+                btnElement.innerText = originalText;
+            }).catch(err => {
+                console.error("PDF engine crash: ", err);
+                btnElement.innerText = "Error";
+                setTimeout(() => btnElement.innerText = originalText, 2000);
+            });
+        }
+
+        function startEditSession(id) {
+            editingId = id;
+            const project = rawFetchedMovies.find(m => String(m.id) === String(id));
+            if (!project) return;
+
+            document.getElementById('title').value = project.title || '';
+            document.getElementById('director').value = project.director || '';
+
+            setTimeout(() => {
+                try {
+                    if (project.script && project.script !== '<p><br></p>') {
+                        quill.setText(''); 
+                        quill.clipboard.dangerouslyPasteHTML(0, project.script);
+                    } else {
+                        quill.setText('');
+                    }
+                } catch (err) {
+                    quill.root.innerHTML = project.script || '';
+                }
+            }, 100); 
+
+            const labelPdf = document.getElementById('label-pdf');
+            if (project.pdf_url) {
+                labelPdf.innerText = "✔️ Current PDF Linked (Upload new to replace)";
+                labelPdf.style.color = "#3498db";
+            } else {
+                labelPdf.innerText = "📄 Optional: Attach Script PDF File";
+                labelPdf.style.color = "var(--text-sub)";
             }
 
             if (project.sketch_data) {
-                if (document.getElementById('canvas-section').classList.contains('hidden')) {
-                    toggleDoodlePad();
-                }
+                if (document.getElementById('canvas-section').classList.contains('hidden')) { toggleDoodlePad(); }
                 setTimeout(() => {
                     clearCanvasSurface();
+                    if (!ctx) initCanvasEngine(); 
                     let img = new Image();
                     img.src = project.sketch_data;
                     img.onload = function() { ctx.drawImage(img, 0, 0); saveCanvasState(); };
-                }, 200);
+                }, 300); 
             } else {
-                if (!document.getElementById('canvas-section').classList.contains('hidden')) {
-                    clearCanvasSurface();
-                }
+                clearCanvasSurface();
             }
 
             const saveBtn = document.getElementById('save-btn');
             saveBtn.innerText = "Update Project Changes";
             saveBtn.style.background = "#3498db";
-            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function triggerDeleteRecord(id) {
             if (!confirm("Are you sure you want to permanently delete this project?")) return;
-
             const { error } = await supabaseClient.from('Movies').delete().eq('id', id);
             if (error) alert("Deletion error: " + error.message);
             else fetchEntries();
@@ -652,17 +648,18 @@
             const sketchContent = isCanvasBlank ? null : canvas.toDataURL();
 
             if (editingId) {
-                const updatePayload = { title, director, script: scriptContent, sketch_data: sketchContent };
+                const oldProject = rawFetchedMovies.find(m => String(m.id) === String(editingId));
+                const updatePayload = { title, director, script: scriptContent, sketch_data: sketchContent, is_pinned: oldProject.is_pinned };
                 if (pdfUrl) updatePayload.pdf_url = pdfUrl; 
 
                 const { error } = await supabaseClient.from('Movies').update(updatePayload).eq('id', editingId);
                 if (error) alert("Update failed: " + error.message);
                 
                 editingId = null;
-                saveBtn.style.background = "#f39c12";
+                saveBtn.style.background = "var(--accent)";
             } else {
                 const { error } = await supabaseClient.from('Movies').insert([
-                    { title, director, pdf_url: pdfUrl, script: scriptContent, sketch_data: sketchContent, notes: "Analytics and sketch integration live" }
+                    { title, director, pdf_url: pdfUrl, script: scriptContent, sketch_data: sketchContent, is_pinned: false, notes: "Final stable build" }
                 ]);
                 if (error) alert("Save failed: " + error.message);
             }
@@ -671,7 +668,7 @@
             document.getElementById('director').value = '';
             document.getElementById('file-pdf').value = '';
             document.getElementById('label-pdf').innerText = "📄 Optional: Attach Script PDF File";
-            document.getElementById('label-pdf').style.color = "#aaa";
+            document.getElementById('label-pdf').style.color = "var(--text-sub)";
             quill.root.innerHTML = ''; 
             if (!isCanvasBlank) clearCanvasSurface();
             
