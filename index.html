@@ -2,234 +2,580 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Director's Notebook</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Creator's Studio Elite</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; background: #121212; color: #fff; }
-        h1 { text-align: center; color: #f39c12; letter-spacing: 2px;}
-        .form-group { margin-bottom: 15px; }
-        input, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 6px; border: none; background: #2a2a2a; color: #fff; box-sizing: border-box; font-size: 16px;}
-        input:focus, textarea:focus { outline: 2px solid #f39c12; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 1100px; 
+            margin: 40px auto; 
+            padding: 20px; 
+            background: #0d0d0d; 
+            color: #fff; 
+        }
         
-        /* The Google Doc Editor Styles */
-        .editor-wrapper { background: #ffffff; border-radius: 6px; margin-top: 5px; color: #000; }
-        #editor-container { height: 250px; font-size: 16px; font-family: 'Georgia', serif;}
-        .ql-toolbar { background: #f4f4f4; border-top-left-radius: 6px; border-top-right-radius: 6px; }
+        h1 { 
+            text-align: center; 
+            color: #f39c12; 
+            letter-spacing: 3px; 
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(243, 156, 18, 0.6), 0 0 25px rgba(243, 156, 18, 0.2); 
+            margin-bottom: 40px;
+        }
+        
+        /* Auth Screen Styling */
+        #auth-container { 
+            max-width: 400px; 
+            margin: 80px auto; 
+            background: #161616; 
+            padding: 40px 30px; 
+            border-radius: 12px; 
+            border-top: 4px solid #f39c12; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7); 
+            text-align: center;
+        }
+        .auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid #2d2d2d;}
+        .auth-tab { flex: 1; padding: 12px; cursor: pointer; color: #666; font-weight: bold; transition: 0.3s;}
+        .auth-tab.active { color: #f39c12; border-bottom: 2px solid #f39c12; }
+        
+        /* Workspace Controls */
+        .hidden { display: none !important; }
+        .profile-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #161616; 
+            padding: 15px 25px; 
+            border-radius: 10px; 
+            margin-bottom: 40px; 
+            border: 1px solid #252525;
+        }
+        .logout-btn { background: #c0392b !important; width: auto !important; margin-top: 0 !important; padding: 8px 18px !important; border-radius: 6px;}
 
-        /* Search Bar Styles */
-        .search-container { margin-top: 40px; margin-bottom: 20px; position: relative;}
-        #search-bar { background: #1e1e1e; border: 1px solid #333; padding-left: 40px;}
-        .search-icon { position: absolute; left: 12px; top: 18px; font-size: 18px; }
+        .form-group { margin-bottom: 20px; }
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 6px; 
+            border-radius: 8px; 
+            border: 1px solid #2d2d2d; 
+            background: #161616; 
+            color: #fff; 
+            box-sizing: border-box; 
+            font-size: 16px;
+        }
+        input:focus { outline: none; border-color: #f39c12; box-shadow: 0 0 8px rgba(243, 156, 18, 0.4); }
+        
+        .file-upload-box { 
+            background: #161616; border: 1px dashed #333; padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; margin-top: 6px;
+        }
+        .file-upload-box input[type="file"] { display: none; }
+        .file-upload-box label { cursor: pointer; font-size: 14px; color: #aaa; display: block; width: 100%; }
 
-        /* Buttons */
-        .main-btn { background: #f39c12; color: #121212; padding: 12px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s;}
-        .main-btn:hover { background: #e67e22; }
+        /* Rich Text Editor Shell */
+        .editor-wrapper { border-radius: 8px 8px 0 0; margin-top: 6px; color: #000; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.5);}
+        #editor-container { height: 200px; font-size: 16px; font-family: 'Georgia', serif; background: #fff;}
+        .ql-toolbar { background: #f4f4f4; border: none !important; border-bottom: 1px solid #ddd !important; }
+        .ql-container { border: none !important; }
+
+        /* Word Counter Panel */
+        .counter-panel {
+            display: flex; justify-content: space-between; background: #161616; padding: 10px 16px; font-size: 12px; color: #888; border: 1px solid #222; border-top: none; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .counter-highlight { color: #f39c12; }
+
+        /* 🎨 THE DOODLE PAD INFRASTRUCTURE (Optimized for iPad Pro / Stylus Touch) */
+        .canvas-toggle-btn {
+            background: #222; color: #aaa; border: 1px solid #333; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; margin-top: 10px;
+        }
+        .canvas-toggle-btn:hover, .canvas-toggle-btn.active { border-color: #f39c12; color: #fff; background: #1a1a1a; }
         
-        .action-btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s; margin-left: 5px;}
-        .edit-btn { background: #3498db; color: white; }
-        .edit-btn:hover { background: #2980b9; }
-        .delete-btn { background: #e74c3c; color: white; }
-        .delete-btn:hover { background: #c0392b; }
+        .canvas-wrapper {
+            background: #111; border: 1px dashed #333; border-radius: 8px; margin-top: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px;
+        }
+        .canvas-toolbar { display: flex; justify-content: space-between; align-items: center; }
+        .canvas-tools-group { display: flex; gap: 8px; }
+        .canvas-control-btn { background: #222; border: 1px solid #333; color: #aaa; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .canvas-control-btn:hover { background: #333; color: #fff; }
         
-        .movie-card { background: #1e1e1e; padding: 20px; margin-bottom: 15px; border-radius: 6px; border-left: 4px solid #f39c12; }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .movie-title { font-size: 1.4em; margin: 0 0 10px 0; font-weight: bold; color: #f39c12;}
-        .movie-director { font-size: 0.7em; color: #aaa; font-weight: normal;}
-        .script-display { background: #121212; padding: 15px; border-radius: 4px; margin-top: 15px; border: 1px solid #333; color: #ddd; font-family: 'Georgia', serif; line-height: 1.6;}
+        /* Fixed responsive whiteboard layer */
+        #doodle-canvas {
+            background: #ffffff; border-radius: 6px; width: 100%; height: 250px; cursor: crosshair; touch-action: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        /* Search Layout */
+        .search-container { margin-top: 50px; margin-bottom: 35px; position: relative;}
+        #search-bar { background: #161616; padding-left: 45px; margin-top: 0; border-radius: 30px;} 
+        .search-icon { position: absolute; left: 16px; top: 15px; font-size: 18px; color: #666; }
+
+        button { 
+            background: #f39c12; color: #0d0d0d; padding: 14px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s;
+        }
+        button:hover { background: #e67e22; transform: translateY(-2px); }
+        
+        /* Grid Block Layout */
+        #entries-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px; margin-top: 20px;}
+        .movie-card { background: #161616; padding: 24px; border-radius: 12px; border-top: 4px solid #2d2d2d; box-shadow: 0 6px 18px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);}
+        .movie-card:hover { transform: translateY(-6px); border-top-color: #f39c12; box-shadow: 0 12px 25px rgba(0,0,0,0.6); }
+        
+        .movie-title { font-size: 1.35em; margin: 0 0 6px 0; font-weight: bold; color: #f39c12; padding-right: 60px;}
+        .movie-director { font-size: 0.75em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 16px;}
+        
+        .script-display { background: #0d0d0d; padding: 16px; border-radius: 8px; border: 1px solid #222; color: #ddd; font-family: 'Georgia', serif; line-height: 1.6; font-size: 14px; max-height: 180px; overflow-y: auto;}
+        .pdf-attachment { display: block; background: #222; color: #aaa; text-decoration: none; padding: 10px; font-size: 13px; border-radius: 6px; font-weight: bold; text-align: center; margin-top: 15px; border: 1px solid #333;}
+        .pdf-attachment:hover { background: #2a2a2a; color: #fff; border-color: #f39c12; }
+
+        /* Interactive saved whiteboard panel inside dashboard block */
+        .sketch-display-frame {
+            width: 100%; background: #ffffff; border-radius: 6px; margin-top: 15px; border: 1px solid #222; display: block; max-height: 180px; object-fit: contain;
+        }
+
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #222;}
+        .card-timestamp { font-size: 11px; color: #555; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .card-actions { display: flex; gap: 8px; }
+        .action-btn { background: none; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; margin-top: 0; width: auto;}
+        .btn-edit { color: #3498db; background: rgba(52, 152, 219, 0.1); }
+        .btn-edit:hover { background: #3498db; color: #fff; }
+        .btn-delete { color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+        .btn-delete:hover { background: #e74c3c; color: #fff; }
     </style>
 </head>
 <body>
 
-    <h1>🎬 THE DIRECTOR'S NOTEBOOK</h1>
+    <div id="auth-container">
+        <div class="auth-tabs">
+            <div id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
+            <div id="tab-signup" class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</div>
+        </div>
+        <h3 id="auth-title" style="color: #f39c12; margin-bottom: 20px; font-weight: bold;">Welcome Back</h3>
+        <input type="email" id="auth-email" placeholder="Email Address">
+        <input type="password" id="auth-password" placeholder="Password">
+        <button id="auth-submit-btn" onclick="handleAuth()">Sign In</button>
+    </div>
 
-    <div>
-        <div class="form-group">
-            <input type="text" id="title" placeholder="Movie Title or Project Name">
-        </div>
-        <div class="form-group">
-            <input type="text" id="director" placeholder="Director / Brand Collab">
-        </div>
+    <div id="app-container" class="hidden">
         
-        <div class="form-group">
-            <label style="color: #aaa; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Video Script & Formatted Notes:</label>
-            <div class="editor-wrapper">
-                <div id="editor-container"></div>
+        <div class="profile-bar">
+            <div>
+                <span style="color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: bold;">Console Producer</span>
+                <p id="user-display-email" style="margin: 4px 0 0 0; font-weight: bold; color: #f39c12; font-size: 15px;"></p>
             </div>
+            <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
         </div>
 
-        <button id="save-btn" class="main-btn" onclick="saveEntry()">Save Project to Database</button>
-        <button id="cancel-btn" class="main-btn" style="display: none; background: #555; margin-top: 5px;" onclick="cancelEdit()">Cancel Edit</button>
-    </div>
+        <h1>🎬 THE DIRECTOR'S NOTEBOOK</h1>
 
-    <div class="search-container">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-bar" placeholder="Search your scripts by title, director, or keyword..." onkeyup="filterEntries()">
-    </div>
+        <div style="max-width: 700px; margin: 0 auto;">
+            <div class="form-group">
+                <input type="text" id="title" placeholder="Movie Title or Project Name">
+            </div>
+            <div class="form-group">
+                <input type="text" id="director" placeholder="Director / Brand Collab">
+            </div>
+            
+            <div class="form-group">
+                <div class="file-upload-box">
+                    <input type="file" id="file-pdf" accept=".pdf" onchange="updateFileLabel()">
+                    <label id="label-pdf" for="file-pdf">📄 Optional: Attach Script PDF File</label>
+                </div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <div class="editor-wrapper">
+                    <div id="editor-container"></div>
+                </div>
+                <div class="counter-panel">
+                    <span>Metrics: <span id="word-count-val" class="counter-highlight">0</span> words</span>
+                    <span>Est. Run-Time: <span id="run-time-val" class="counter-highlight">0s</span></span>
+                </div>
+            </div>
 
-    <div id="entries-container"></div>
+            <div class="canvas-toggle-btn" id="canvas-toggle" onclick="toggleDoodlePad()">
+                🎨 <span>Open Visual Storyboard Doodle Pad</span>
+            </div>
+
+            <div class="canvas-wrapper hidden" id="canvas-section">
+                <div class="canvas-toolbar">
+                    <span style="font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Storyboard sketch canvas:</span>
+                    <div class="canvas-tools-group">
+                        <button class="canvas-control-btn" onclick="undoCanvasStroke()">Undo</button>
+                        <button class="canvas-control-btn" style="color: #e74c3c;" onclick="clearCanvasSurface()">Clear Pad</button>
+                    </div>
+                </div>
+                <canvas id="doodle-canvas"></canvas>
+            </div>
+
+            <button id="save-btn" style="margin-top: 25px;" onclick="addEntry()">Save Project to Database</button>
+        </div>
+
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-bar" placeholder="Filter blocks by metadata keywords..." onkeyup="filterEntries()">
+        </div>
+
+        <div id="entries-container"></div>
+    </div>
 
     <script>
-        // 1. INITIALIZE SUPABASE
         const supabaseUrl = 'https://ovdzrydvtqmzwsuestaf.supabase.co';
         const supabaseKey = 'sb_publishable_bgZqcUz1ZzF7yvMweC4Hpw_t_n308Ep';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Global variables to track state
-        let allMovies = []; 
-        let currentEditId = null;
+        let currentAuthMode = 'login';
+        let currentUser = null;
+        let editingId = null; 
 
-        // 2. INITIALIZE THE GOOGLE DOC EDITOR
+        // Sketch state configuration vectors
+        let canvas, ctx;
+        let isDrawing = false;
+        let canvasHistory = [];
+
         var quill = new Quill('#editor-container', {
             theme: 'snow',
-            placeholder: 'Start writing your script here... Use the toolbar for bolding, bullet points, and headers.',
-            modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, false] }],
-                    ['bold', 'italic', 'underline'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['clean']
-                ]
+            placeholder: 'Optional: Start writing notes or layout your live script structure here...',
+            modules: { toolbar: [[{ 'header': [1, 2, false] }], ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
+        });
+
+        quill.on('text-change', function() {
+            const rawText = quill.getText().trim();
+            if (rawText.length === 0) {
+                document.getElementById('word-count-val').innerText = "0";
+                document.getElementById('run-time-val').innerText = "0s";
+                return;
+            }
+            const wordArray = rawText.split(/\s+/);
+            const wordCount = wordArray.length;
+            const totalSeconds = Math.round((wordCount / 130) * 60);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            document.getElementById('word-count-val').innerText = wordCount;
+            document.getElementById('run-time-val').innerText = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+        });
+
+        // 🎨 VISUAL CANVAS CONTROLLER MODULE ENGINE
+        function initCanvasEngine() {
+            canvas = document.getElementById('doodle-canvas');
+            ctx = canvas.getContext('2d');
+            
+            // Sync canvas structural coordinate properties to match internal viewport scales
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            ctx.strokeStyle = '#000000'; // Dark high-contrast ink line color
+            ctx.lineWidth = 3;            // Balanced pressure sketch weight
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // STYLUS & MOUSE INTERCEPT EVENT EVENT LISTENERS
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', drawStroke);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // SPECIAL MOBILE AND IPAD TOUCH ENGINE CAPTURE MATRIX
+            canvas.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                isDrawing = true;
+                ctx.beginPath();
+                ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+                e.preventDefault();
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (!isDrawing) return;
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+                ctx.stroke();
+                e.preventDefault();
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', () => {
+                if (isDrawing) saveCanvasState();
+                isDrawing = false;
+            });
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function drawStroke(e) {
+            if (!isDrawing) return;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            if (isDrawing) saveCanvasState();
+            isDrawing = false;
+        }
+
+        function saveCanvasState() {
+            if (canvasHistory.length >= 15) canvasHistory.shift(); // Bound memory footprint
+            canvasHistory.push(canvas.toDataURL());
+        }
+
+        function undoCanvasStroke() {
+            if (canvasHistory.length === 0) return;
+            canvasHistory.pop(); // Drop modern state vector
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (canvasHistory.length === 0) return;
+
+            let prevImg = new Image();
+            prevImg.src = canvasHistory[canvasHistory.length - 1];
+            prevImg.onload = function() { ctx.drawImage(prevImg, 0, 0); };
+        }
+
+        function clearCanvasSurface() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvasHistory = [];
+        }
+
+        function toggleDoodlePad() {
+            const padSection = document.getElementById('canvas-section');
+            const toggleBtn = document.getElementById('canvas-toggle');
+            padSection.classList.toggle('hidden');
+            const isActive = !padSection.classList.contains('hidden');
+            toggleBtn.classList.toggle('active', isActive);
+            toggleBtn.querySelector('span').innerText = isActive ? "Close Visual Storyboard Doodle Pad" : "Open Visual Storyboard Doodle Pad";
+            
+            if (isActive && !canvas) {
+                setTimeout(initCanvasEngine, 100); // Thread delay buffer ensures alignment parameters pass smoothly
+            }
+        }
+
+        function updateFileLabel() {
+            const input = document.getElementById('file-pdf');
+            const label = document.getElementById('label-pdf');
+            if (input.files.length > 0) {
+                label.innerText = `✔️ Attached: ${input.files[0].name.substring(0, 25)}...`;
+                label.style.color = "#f39c12";
+            }
+        }
+
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('user-display-email').innerText = currentUser.email;
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                fetchEntries();
+            } else {
+                currentUser = null;
+                document.getElementById('auth-container').classList.remove('hidden');
+                document.getElementById('app-container').classList.add('hidden');
             }
         });
 
-        // 3. FETCH DATA
+        function switchAuthTab(mode) {
+            currentAuthMode = mode;
+            document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+            document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
+            document.getElementById('auth-title').innerText = mode === 'login' ? 'Welcome Back' : 'Create Account';
+            document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Sign In' : 'Register';
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            if (!email || !password) return alert("Fill in credentials.");
+
+            if (currentAuthMode === 'signup') {
+                const { error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) alert(error.message);
+                else alert("Profile setup mapped! Sign in now.");
+            } else {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) alert(error.message);
+            }
+        }
+
+        async function handleLogout() { await supabaseClient.auth.signOut(); }
+
+        async function uploadPDFToStorage() {
+            const fileInput = document.getElementById('file-pdf');
+            if (fileInput.files.length === 0) return null;
+            const file = fileInput.files[0];
+            const fileName = `${currentUser.id}-${Date.now()}.pdf`;
+            const filePath = `documents/${fileName}`;
+            const { data, error } = await supabaseClient.storage.from('project-files').upload(filePath, file);
+            if (error) return null;
+            const { data: urlData } = supabaseClient.storage.from('project-files').getPublicUrl(filePath);
+            return urlData.publicUrl;
+        }
+
+        function formatDisplayDate(isoString) {
+            return new Date(isoString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        let rawFetchedMovies = [];
+
+        // Check if drawing canvas contains drawn line vectors or is pristine white blank space
+        function isCanvasSurfaceBlank() {
+            if (!canvas) return true;
+            const blank = document.createElement('canvas');
+            blank.width = canvas.width;
+            blank.height = canvas.height;
+            return canvas.toDataURL() === blank.toDataURL();
+        }
+
         async function fetchEntries() {
             const container = document.getElementById('entries-container');
             const { data, error } = await supabaseClient.from('Movies').select('*').order('created_at', { ascending: false });
 
             if (error) {
-                container.innerHTML = '<p style="color: red;">Error loading data.</p>';
+                container.innerHTML = `<p style="color: red;">Dashboard loop connection error: ${error.message}</p>`;
                 return;
             }
 
-            allMovies = data; // Save the data globally so we can edit it later
+            rawFetchedMovies = data; 
             container.innerHTML = ''; 
-
+            
             data.forEach(movie => {
                 const card = document.createElement('div');
                 card.className = 'movie-card';
                 
-                let scriptHtml = movie.script ? `<div class="script-display">${movie.script}</div>` : '';
+                let scriptHtml = movie.script && movie.script !== '<p><br></p>' ? `<div class="script-display">${movie.script}</div>` : '';
+                let pdfHtml = movie.pdf_url ? `<a href="${movie.pdf_url}" target="_blank" class="pdf-attachment">📄 View Attached Script PDF</a>` : '';
+                let sketchHtml = movie.sketch_data ? `<img src="${movie.sketch_data}" class="sketch-display-frame" alt="Storyboard Sketch">` : '';
+                let formattedDate = formatDisplayDate(movie.created_at);
 
                 card.innerHTML = `
-                    <div class="card-header">
-                        <div>
-                            <p class="movie-title">${movie.title} <br><span class="movie-director">by ${movie.director}</span></p>
-                        </div>
-                        <div style="display: flex; gap: 5px;">
-                            <button class="action-btn edit-btn" onclick="editEntry(${movie.id})">Edit</button>
-                            <button class="action-btn delete-btn" onclick="deleteEntry(${movie.id})">Delete</button>
+                    <div>
+                        <p class="movie-title">${movie.title}</p>
+                        <span class="movie-director">Directed/Written by ${movie.director}</span>
+                        ${scriptHtml}
+                        ${pdfHtml}
+                        ${sketchHtml}
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-timestamp">Logged: ${formattedDate}</span>
+                        <div class="card-actions">
+                            <button class="action-btn btn-edit" onclick="startEditSession('${movie.id}')">Edit</button>
+                            <button class="action-btn btn-delete" onclick="triggerDeleteRecord('${movie.id}')">Delete</button>
                         </div>
                     </div>
-                    ${scriptHtml}
                 `;
                 container.appendChild(card);
             });
         }
 
-        // 4. SAVE DATA (Handles both NEW and UPDATING entries)
-        async function saveEntry() {
-            const title = document.getElementById('title').value;
-            const director = document.getElementById('director').value;
-            const scriptContent = quill.root.innerHTML;
+        function startEditSession(id) {
+            editingId = id;
+            const project = rawFetchedMovies.find(m => m.id === id);
+            if (!project) return;
 
-            if (!title || quill.getText().trim().length === 0) {
-                alert("Please add a title and write something in the script!");
-                return;
+            document.getElementById('title').value = project.title;
+            document.getElementById('director').value = project.director;
+            quill.root.innerHTML = project.script || '';
+
+            if(project.pdf_url) {
+                document.getElementById('label-pdf').innerText = "✔️ Current PDF Linked (Upload new to replace)";
+                document.getElementById('label-pdf').style.color = "#3498db";
             }
 
-            if (currentEditId) {
-                // UPDATE EXISTING MOVIE
-                const { error } = await supabaseClient.from('Movies').update({ 
-                    title: title, 
-                    director: director, 
-                    script: scriptContent 
-                }).eq('id', currentEditId);
-
-                if (error) alert("Error updating: " + error.message);
+            // If a saved sketch vector is detected, push it right into whiteboard memory matrices
+            if (project.sketch_data) {
+                if (document.getElementById('canvas-section').classList.contains('hidden')) {
+                    toggleDoodlePad();
+                }
+                setTimeout(() => {
+                    clearCanvasSurface();
+                    let img = new Image();
+                    img.src = project.sketch_data;
+                    img.onload = function() { ctx.drawImage(img, 0, 0); saveCanvasState(); };
+                }, 200);
             } else {
-                // CREATE NEW MOVIE
-                const { error } = await supabaseClient.from('Movies').insert([
-                    { title: title, director: director, notes: "Moved to script", script: scriptContent }
-                ]);
-
-                if (error) alert("Error saving: " + error.message);
+                if (!document.getElementById('canvas-section').classList.contains('hidden')) {
+                    clearCanvasSurface();
+                }
             }
 
-            // Clear the form and refresh
-            cancelEdit();
-            fetchEntries();
-        }
-
-        // 5. DELETE DATA
-        async function deleteEntry(id) {
-            // Ask for confirmation so you don't accidentally delete a masterpiece
-            if (!confirm("Are you sure you want to delete this project permanently?")) return;
-
-            const { error } = await supabaseClient.from('Movies').delete().eq('id', id);
-            
-            if (error) {
-                alert("Error deleting: " + error.message);
-            } else {
-                fetchEntries(); // Refresh the list
-            }
-        }
-
-        // 6. SETUP EDIT MODE
-        function editEntry(id) {
-            // Find the specific movie in our global array
-            const movie = allMovies.find(m => m.id === id);
-            if (!movie) return;
-
-            // Fill the form with the saved data
-            document.getElementById('title').value = movie.title;
-            document.getElementById('director').value = movie.director || '';
-            quill.root.innerHTML = movie.script || '';
-
-            // Update our state to "Edit Mode"
-            currentEditId = id;
-            document.getElementById('save-btn').innerText = "Update Existing Project";
-            document.getElementById('save-btn').style.background = "#3498db"; // Turn button blue
-            document.getElementById('cancel-btn').style.display = "block"; // Show cancel button
-
-            // Smooth scroll back to the top of the page so you can edit
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.innerText = "Update Project Changes";
+            saveBtn.style.background = "#3498db";
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 7. CANCEL EDIT MODE
-        function cancelEdit() {
-            currentEditId = null;
-            document.getElementById('title').value = '';
-            document.getElementById('director').value = '';
-            quill.root.innerHTML = ''; 
-
-            document.getElementById('save-btn').innerText = "Save Project to Database";
-            document.getElementById('save-btn').style.background = "#f39c12"; // Back to orange
-            document.getElementById('cancel-btn').style.display = "none";
+        async function triggerDeleteRecord(id) {
+            if (!confirm("Are you sure you want to permanently delete this project?")) return;
+            const { error } = await supabaseClient.from('Movies').delete().eq('id', id);
+            if (error) alert("Deletion error: " + error.message);
+            else fetchEntries();
         }
 
-        // 8. LIVE SEARCH FILTER
+        async function addEntry() {
+            const saveBtn = document.getElementById('save-btn');
+            const title = document.getElementById('title').value;
+            const director = document.getElementById('director').value;
+            const fileInput = document.getElementById('file-pdf');
+            
+            const isTextEditorEmpty = quill.getText().trim().length === 0;
+            const isFileEmpty = fileInput.files.length === 0;
+            const isCanvasBlank = isCanvasSurfaceBlank();
+
+            if (!title) return alert("Please input a Project Title!");
+
+            if (isTextEditorEmpty && isFileEmpty && isCanvasBlank && !editingId) {
+                return alert("Type text, attach a PDF, or draw a sketch to save!");
+            }
+
+            saveBtn.innerText = "Syncing with cloud matrix...";
+            saveBtn.disabled = true;
+
+            let pdfUrl = await uploadPDFToStorage();
+            const scriptContent = isTextEditorEmpty ? null : quill.root.innerHTML;
+            const sketchContent = isCanvasBlank ? null : canvas.toDataURL();
+
+            if (editingId) {
+                const updatePayload = { title, director, script: scriptContent };
+                if (pdfUrl) updatePayload.pdf_url = pdfUrl; 
+                updatePayload.sketch_data = sketchContent; // Will clear or overwrite base layer image matrices
+
+                const { error } = await supabaseClient.from('Movies').update(updatePayload).eq('id', editingId);
+                if (error) alert("Update failed: " + error.message);
+                
+                editingId = null;
+                saveBtn.style.background = "#f39c12";
+            } else {
+                const { error } = await supabaseClient.from('Movies').insert([
+                    { title, director, pdf_url: pdfUrl, script: scriptContent, sketch_data: sketchContent, notes: "iPad Doodle system active" }
+                ]);
+                if (error) alert("Save failed: " + error.message);
+            }
+
+            document.getElementById('title').value = '';
+            document.getElementById('director').value = '';
+            document.getElementById('file-pdf').value = '';
+            document.getElementById('label-pdf').innerText = "📄 Optional: Attach Script PDF File";
+            document.getElementById('label-pdf').style.color = "#aaa";
+            quill.root.innerHTML = ''; 
+            if (!isCanvasBlank) clearCanvasSurface();
+            
+            saveBtn.innerText = "Save Project to Dashboard";
+            saveBtn.disabled = false;
+            fetchEntries();
+        }
+
         function filterEntries() {
             const searchQuery = document.getElementById('search-bar').value.toLowerCase();
             const cards = document.getElementsByClassName('movie-card');
-
             for (let i = 0; i < cards.length; i++) {
                 const cardText = cards[i].innerText.toLowerCase();
-                if (cardText.includes(searchQuery)) {
-                    cards[i].style.display = "block";
-                } else {
-                    cards[i].style.display = "none";
-                }
+                cards[i].style.display = cardText.includes(searchQuery) ? "flex" : "none";
             }
         }
-
-        // Load the entries when the page starts
-        fetchEntries();
     </script>
 </body>
 </html>
