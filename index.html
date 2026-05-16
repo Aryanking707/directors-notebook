@@ -19,6 +19,7 @@
             color: #fff; 
         }
         
+        /* Cinematic Glowing Title */
         h1 { 
             text-align: center; 
             color: #f39c12; 
@@ -56,6 +57,7 @@
             border: 1px solid #252525;
         }
         .logout-btn { background: #c0392b !important; width: auto !important; margin-top: 0 !important; padding: 8px 18px !important; border-radius: 6px;}
+        .logout-btn:hover { background-color: #e74c3c !important;}
 
         .form-group { margin-bottom: 20px; }
         input { 
@@ -68,12 +70,26 @@
             color: #fff; 
             box-sizing: border-box; 
             font-size: 16px;
+            transition: all 0.3s ease;
         }
-        input:focus { outline: none; border-color: #f39c12; box-shadow: 0 0 8px rgba(243, 156, 18, 0.4); }
+        input:focus { 
+            outline: none;
+            border-color: #f39c12; 
+            box-shadow: 0 0 8px rgba(243, 156, 18, 0.4);
+        }
         
+        /* File Input Node Wrapper */
         .file-upload-box { 
-            background: #161616; border: 1px dashed #333; padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; margin-top: 6px;
+            background: #161616; 
+            border: 1px dashed #333; 
+            padding: 15px; 
+            border-radius: 8px; 
+            text-align: center; 
+            cursor: pointer;
+            margin-top: 6px;
+            transition: 0.2s;
         }
+        .file-upload-box:hover { border-color: #f39c12; }
         .file-upload-box input[type="file"] { display: none; }
         .file-upload-box label { cursor: pointer; font-size: 14px; color: #aaa; display: block; width: 100%; }
 
@@ -83,13 +99,24 @@
         .ql-toolbar { background: #f4f4f4; border: none !important; border-bottom: 1px solid #ddd !important; }
         .ql-container { border: none !important; }
 
-        /* Word Counter Panel */
+        /* Word Counter Live Node Dashboard Panel */
         .counter-panel {
-            display: flex; justify-content: space-between; background: #161616; padding: 10px 16px; font-size: 12px; color: #888; border: 1px solid #222; border-top: none; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            background: #161616;
+            padding: 10px 16px;
+            border-radius: 0 0 8px 8px;
+            font-size: 12px;
+            color: #888;
+            border: 1px solid #222;
+            border-top: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .counter-highlight { color: #f39c12; }
 
-        /* 🎨 THE DOODLE PAD INFRASTRUCTURE (Optimized for iPad Pro / Stylus Touch) */
+        /* THE DOODLE PAD INFRASTRUCTURE (Engineered for Stylus Touch Pacing) */
         .canvas-toggle-btn {
             background: #222; color: #aaa; border: 1px solid #333; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; margin-top: 10px;
         }
@@ -103,47 +130,113 @@
         .canvas-control-btn { background: #222; border: 1px solid #333; color: #aaa; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .canvas-control-btn:hover { background: #333; color: #fff; }
         
-        /* Fixed responsive whiteboard layer */
         #doodle-canvas {
             background: #ffffff; border-radius: 6px; width: 100%; height: 250px; cursor: crosshair; touch-action: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
         }
 
-        /* Search Layout */
+        /* Search Infrastructure Layout */
         .search-container { margin-top: 50px; margin-bottom: 35px; position: relative;}
         #search-bar { background: #161616; padding-left: 45px; margin-top: 0; border-radius: 30px;} 
         .search-icon { position: absolute; left: 16px; top: 15px; font-size: 18px; color: #666; }
 
         button { 
-            background: #f39c12; color: #0d0d0d; padding: 14px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s;
+            background: #f39c12; color: #0d0d0d; padding: 14px 20px; border: none; border-radius: 8px; 
+            cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 15px; 
+            transition: 0.3s;
         }
         button:hover { background: #e67e22; transform: translateY(-2px); }
         
-        /* Grid Block Layout */
-        #entries-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px; margin-top: 20px;}
-        .movie-card { background: #161616; padding: 24px; border-radius: 12px; border-top: 4px solid #2d2d2d; box-shadow: 0 6px 18px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);}
-        .movie-card:hover { transform: translateY(-6px); border-top-color: #f39c12; box-shadow: 0 12px 25px rgba(0,0,0,0.6); }
+        /* Grid Layout */
+        #entries-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
+            gap: 25px; 
+            margin-top: 20px;
+        }
+        
+        /* Premium Dashboard Block Configurations */
+        .movie-card { 
+            background: #161616; 
+            padding: 24px; 
+            border-radius: 12px; 
+            border-top: 4px solid #2d2d2d; 
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .movie-card:hover {
+            transform: translateY(-6px);
+            border-top-color: #f39c12; 
+            box-shadow: 0 12px 25px rgba(0,0,0,0.6);
+        }
         
         .movie-title { font-size: 1.35em; margin: 0 0 6px 0; font-weight: bold; color: #f39c12; padding-right: 60px;}
         .movie-director { font-size: 0.75em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 16px;}
         
-        .script-display { background: #0d0d0d; padding: 16px; border-radius: 8px; border: 1px solid #222; color: #ddd; font-family: 'Georgia', serif; line-height: 1.6; font-size: 14px; max-height: 180px; overflow-y: auto;}
-        .pdf-attachment { display: block; background: #222; color: #aaa; text-decoration: none; padding: 10px; font-size: 13px; border-radius: 6px; font-weight: bold; text-align: center; margin-top: 15px; border: 1px solid #333;}
+        /* Base Internal Script Wrapper */
+        .script-display { 
+            background: #0d0d0d; padding: 16px; border-radius: 8px; border: 1px solid #222; 
+            color: #ddd; font-family: 'Georgia', serif; line-height: 1.6; font-size: 14px; max-height: 180px; overflow-y: auto;
+        }
+        .script-display::-webkit-scrollbar { width: 4px; }
+        .script-display::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 8px; }
+
+        .pdf-attachment {
+            display: block; background: #222; color: #aaa; text-decoration: none; padding: 10px; 
+            font-size: 13px; border-radius: 6px; font-weight: bold; text-align: center; margin-top: 15px;
+            transition: 0.2s; border: 1px solid #333;
+        }
         .pdf-attachment:hover { background: #2a2a2a; color: #fff; border-color: #f39c12; }
 
-        /* Interactive saved whiteboard panel inside dashboard block */
+        /* Integrated saved drawing thumbnail render panel */
         .sketch-display-frame {
             width: 100%; background: #ffffff; border-radius: 6px; margin-top: 15px; border: 1px solid #222; display: block; max-height: 180px; object-fit: contain;
         }
 
-        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #222;}
+        /* Footer Utilities (Timestamps and Management Keys) */
+        .card-footer { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-top: 20px; 
+            padding-top: 15px; 
+            border-top: 1px solid #222;
+        }
         .card-timestamp { font-size: 11px; color: #555; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         
         .card-actions { display: flex; gap: 8px; }
-        .action-btn { background: none; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; margin-top: 0; width: auto;}
+        .action-btn { 
+            background: none; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; 
+            border-radius: 4px; cursor: pointer; transition: 0.2s; margin-top: 0; width: auto;
+        }
         .btn-edit { color: #3498db; background: rgba(52, 152, 219, 0.1); }
         .btn-edit:hover { background: #3498db; color: #fff; }
         .btn-delete { color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
         .btn-delete:hover { background: #e74c3c; color: #fff; }
+
+        /* 📱 MOBILE RESPONSIVE CALIBRATION MATRIX */
+        @media (max-width: 600px) {
+            body { padding: 10px; margin: 20px auto; }
+            h1 { font-size: 1.8em; letter-spacing: 1px; margin-bottom: 25px; }
+            
+            .profile-bar { flex-direction: column; gap: 15px; text-align: center; padding: 15px; }
+            .logout-btn { width: 100% !important; }
+            
+            #entries-container { 
+                grid-template-columns: 1fr; 
+                gap: 15px; 
+            }
+            
+            .movie-card { padding: 16px; }
+            .movie-title { font-size: 1.2em; }
+            
+            .card-footer { flex-direction: column; gap: 12px; align-items: flex-start; }
+            .card-actions { width: 100%; display: flex; gap: 8px; }
+            .action-btn { flex: 1; text-align: center; padding: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -211,7 +304,7 @@
                 <canvas id="doodle-canvas"></canvas>
             </div>
 
-            <button id="save-btn" style="margin-top: 25px;" onclick="addEntry()">Save Project to Database</button>
+            <button id="save-btn" style="margin-top: 25px;" onclick="addEntry()">Save Project to Dashboard</button>
         </div>
 
         <div class="search-container">
@@ -231,7 +324,6 @@
         let currentUser = null;
         let editingId = null; 
 
-        // Sketch state configuration vectors
         let canvas, ctx;
         let isDrawing = false;
         let canvasHistory = [];
@@ -242,37 +334,48 @@
             modules: { toolbar: [[{ 'header': [1, 2, false] }], ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
         });
 
+        // LIVE METRIC CALCULATOR ENGINE HOOK
         quill.on('text-change', function() {
             const rawText = quill.getText().trim();
+            
             if (rawText.length === 0) {
                 document.getElementById('word-count-val').innerText = "0";
                 document.getElementById('run-time-val').innerText = "0s";
                 return;
             }
+
             const wordArray = rawText.split(/\s+/);
             const wordCount = wordArray.length;
+            
             const totalSeconds = Math.round((wordCount / 130) * 60);
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
+            
+            let displayTime = "";
+            if (minutes > 0) {
+                displayTime = `${minutes}m ${seconds}s`;
+            } else {
+                displayTime = `${seconds}s`;
+            }
+
             document.getElementById('word-count-val').innerText = wordCount;
-            document.getElementById('run-time-val').innerText = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+            document.getElementById('run-time-val').innerText = displayTime;
         });
 
-        // 🎨 VISUAL CANVAS CONTROLLER MODULE ENGINE
+        // VISUAL CANVAS CONTROLLER MODULE ENGINE
         function initCanvasEngine() {
             canvas = document.getElementById('doodle-canvas');
             ctx = canvas.getContext('2d');
             
-            // Sync canvas structural coordinate properties to match internal viewport scales
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            // Recalculate layout metrics dynamically across responsive platforms
+            canvas.width = canvas.parentElement.clientWidth - 24; 
+            canvas.height = 250;
             
-            ctx.strokeStyle = '#000000'; // Dark high-contrast ink line color
-            ctx.lineWidth = 3;            // Balanced pressure sketch weight
+            ctx.strokeStyle = '#000000'; 
+            ctx.lineWidth = 3;            
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
-            // STYLUS & MOUSE INTERCEPT EVENT EVENT LISTENERS
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', drawStroke);
             canvas.addEventListener('mouseup', stopDrawing);
@@ -321,13 +424,13 @@
         }
 
         function saveCanvasState() {
-            if (canvasHistory.length >= 15) canvasHistory.shift(); // Bound memory footprint
+            if (canvasHistory.length >= 15) canvasHistory.shift(); 
             canvasHistory.push(canvas.toDataURL());
         }
 
         function undoCanvasStroke() {
             if (canvasHistory.length === 0) return;
-            canvasHistory.pop(); // Drop modern state vector
+            canvasHistory.pop(); 
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (canvasHistory.length === 0) return;
@@ -338,7 +441,7 @@
         }
 
         function clearCanvasSurface() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if(ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
             canvasHistory = [];
         }
 
@@ -351,7 +454,7 @@
             toggleBtn.querySelector('span').innerText = isActive ? "Close Visual Storyboard Doodle Pad" : "Open Visual Storyboard Doodle Pad";
             
             if (isActive && !canvas) {
-                setTimeout(initCanvasEngine, 100); // Thread delay buffer ensures alignment parameters pass smoothly
+                setTimeout(initCanvasEngine, 100); 
             }
         }
 
@@ -389,7 +492,7 @@
         async function handleAuth() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            if (!email || !password) return alert("Fill in credentials.");
+            if (!email || !password) return alert("Fill in authentication fields.");
 
             if (currentAuthMode === 'signup') {
                 const { error } = await supabaseClient.auth.signUp({ email, password });
@@ -406,22 +509,29 @@
         async function uploadPDFToStorage() {
             const fileInput = document.getElementById('file-pdf');
             if (fileInput.files.length === 0) return null;
+            
             const file = fileInput.files[0];
             const fileName = `${currentUser.id}-${Date.now()}.pdf`;
             const filePath = `documents/${fileName}`;
-            const { data, error } = await supabaseClient.storage.from('project-files').upload(filePath, file);
+
+            const { data, error } = await supabaseClient.storage
+                .from('project-files')
+                .upload(filePath, file);
+
             if (error) return null;
-            const { data: urlData } = supabaseClient.storage.from('project-files').getPublicUrl(filePath);
+            
+            const { data: urlData } = supabaseClient.storage
+                .from('project-files')
+                .getPublicUrl(filePath);
+
             return urlData.publicUrl;
         }
 
         function formatDisplayDate(isoString) {
-            return new Date(isoString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const date = new Date(isoString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        let rawFetchedMovies = [];
-
-        // Check if drawing canvas contains drawn line vectors or is pristine white blank space
         function isCanvasSurfaceBlank() {
             if (!canvas) return true;
             const blank = document.createElement('canvas');
@@ -429,6 +539,8 @@
             blank.height = canvas.height;
             return canvas.toDataURL() === blank.toDataURL();
         }
+
+        let rawFetchedMovies = [];
 
         async function fetchEntries() {
             const container = document.getElementById('entries-container');
@@ -485,7 +597,6 @@
                 document.getElementById('label-pdf').style.color = "#3498db";
             }
 
-            // If a saved sketch vector is detected, push it right into whiteboard memory matrices
             if (project.sketch_data) {
                 if (document.getElementById('canvas-section').classList.contains('hidden')) {
                     toggleDoodlePad();
@@ -505,11 +616,13 @@
             const saveBtn = document.getElementById('save-btn');
             saveBtn.innerText = "Update Project Changes";
             saveBtn.style.background = "#3498db";
+            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function triggerDeleteRecord(id) {
             if (!confirm("Are you sure you want to permanently delete this project?")) return;
+
             const { error } = await supabaseClient.from('Movies').delete().eq('id', id);
             if (error) alert("Deletion error: " + error.message);
             else fetchEntries();
@@ -539,9 +652,8 @@
             const sketchContent = isCanvasBlank ? null : canvas.toDataURL();
 
             if (editingId) {
-                const updatePayload = { title, director, script: scriptContent };
+                const updatePayload = { title, director, script: scriptContent, sketch_data: sketchContent };
                 if (pdfUrl) updatePayload.pdf_url = pdfUrl; 
-                updatePayload.sketch_data = sketchContent; // Will clear or overwrite base layer image matrices
 
                 const { error } = await supabaseClient.from('Movies').update(updatePayload).eq('id', editingId);
                 if (error) alert("Update failed: " + error.message);
@@ -550,7 +662,7 @@
                 saveBtn.style.background = "#f39c12";
             } else {
                 const { error } = await supabaseClient.from('Movies').insert([
-                    { title, director, pdf_url: pdfUrl, script: scriptContent, sketch_data: sketchContent, notes: "iPad Doodle system active" }
+                    { title, director, pdf_url: pdfUrl, script: scriptContent, sketch_data: sketchContent, notes: "Analytics and sketch integration live" }
                 ]);
                 if (error) alert("Save failed: " + error.message);
             }
