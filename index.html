@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Creator's Studio Elite</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <style>
         /* CORE BASE (DARK MODE DEFAULT) */
@@ -23,7 +26,6 @@
             --input-bg: #161616;
         }
 
-        /* LIGHT MODE OVERRIDES */
         body.light-mode {
             --bg-color: #f4f5f7;
             --card-bg: #ffffff;
@@ -34,47 +36,30 @@
             --input-bg: #ffffff;
         }
 
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            max-width: 1100px; 
-            margin: 40px auto; 
-            padding: 20px; 
-            background: var(--bg-color); 
-            color: var(--text-main); 
-            transition: background 0.3s ease, color 0.3s ease;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1100px; margin: 40px auto; padding: 20px; background: var(--bg-color); color: var(--text-main); transition: background 0.3s ease, color 0.3s ease; }
+        h1 { text-align: center; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 12px rgba(243, 156, 18, 0.4); margin-bottom: 30px; }
         
-        h1 { 
-            text-align: center; color: var(--accent); letter-spacing: 3px; text-transform: uppercase;
-            text-shadow: 0 0 12px rgba(243, 156, 18, 0.4); margin-bottom: 40px;
-        }
-        
-        #auth-container { 
-            max-width: 400px; margin: 80px auto; background: var(--card-bg); padding: 40px 30px; 
-            border-radius: 12px; border-top: 4px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.4); text-align: center;
-        }
+        #auth-container { max-width: 400px; margin: 80px auto; background: var(--card-bg); padding: 40px 30px; border-radius: 12px; border-top: 4px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.4); text-align: center; }
         .auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid var(--border-color);}
         .auth-tab { flex: 1; padding: 12px; cursor: pointer; color: var(--text-sub); font-weight: bold; transition: 0.3s;}
         .auth-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
         
         .hidden { display: none !important; }
-        .profile-bar { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: var(--card-bg); padding: 15px 25px; border-radius: 10px; margin-bottom: 40px; border: 1px solid var(--border-color);
-        }
+        .profile-bar { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px 25px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border-color); }
         .controls-group { display: flex; gap: 10px; align-items: center; }
         
         .theme-toggle { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 16px; margin: 0; width: auto; }
         .theme-toggle:hover { border-color: var(--accent); }
-        
         .logout-btn { background: #c0392b !important; width: auto !important; margin: 0 !important; padding: 8px 18px !important; border-radius: 6px; color: white !important;}
-        .logout-btn:hover { background-color: #e74c3c !important;}
+
+        /* 🎛️ STUDIO NAVIGATION TABS */
+        .studio-nav { display: flex; gap: 15px; margin-bottom: 40px; justify-content: center; flex-wrap: wrap; }
+        .nav-btn { background: var(--card-bg); color: var(--text-sub); border: 2px solid var(--border-color); border-radius: 8px; padding: 12px 24px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; width: auto; margin: 0; }
+        .nav-btn:hover { border-color: var(--accent); color: var(--text-main); }
+        .nav-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
         .form-group { margin-bottom: 20px; }
-        input { 
-            width: 100%; padding: 14px; margin-top: 6px; border-radius: 8px; border: 1px solid var(--border-color); 
-            background: var(--input-bg); color: var(--text-main); box-sizing: border-box; font-size: 16px; transition: all 0.3s ease;
-        }
+        input { width: 100%; padding: 14px; margin-top: 6px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); box-sizing: border-box; font-size: 16px; transition: all 0.3s ease; }
         input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 8px rgba(243, 156, 18, 0.2); }
         
         .file-upload-box { background: var(--card-bg); border: 1px dashed var(--border-color); padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; margin-top: 6px; transition: 0.2s; }
@@ -87,7 +72,7 @@
         .ql-toolbar { background: #f4f4f4; border: none !important; border-bottom: 1px solid #ddd !important; }
         .ql-container { border: none !important; }
 
-        .counter-panel { display: flex; justify-content: space-between; background: var(--card-bg); padding: 10px 16px; border-radius: 0 0 8px 8px; font-size: 12px; color: var(--text-sub); border: 1px solid var(--border-color); border-top: none; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .counter-panel { display: flex; justify-content: space-between; background: var(--card-bg); padding: 10px 16px; border-radius: 0 0 8px 8px; font-size: 12px; color: var(--text-sub); border: 1px solid var(--border-color); border-top: none; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 25px;}
         .counter-highlight { color: var(--accent); }
 
         .canvas-toggle-btn { background: var(--card-bg); color: var(--text-sub); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; margin-top: 10px; }
@@ -99,69 +84,81 @@
         .canvas-control-btn:hover { background: var(--border-color); color: var(--text-main); }
         #doodle-canvas { background: #ffffff; border-radius: 6px; width: 100%; height: 250px; cursor: crosshair; touch-action: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
 
+        .btn-primary { background: var(--accent); color: #000; padding: 14px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px;}
+        .autosave-text { font-size: 11px; color: #2ecc71; text-align: right; display: block; margin-top: 8px; font-weight: bold; opacity: 0; transition: opacity 0.5s; }
+
         .search-container { margin-top: 50px; margin-bottom: 35px; position: relative;}
-        #search-bar { padding-left: 45px; margin-top: 0; border-radius: 30px;} 
+        .search-bar { padding-left: 45px; margin-top: 0; border-radius: 30px; width: 100%; } 
         .search-icon { position: absolute; left: 16px; top: 15px; font-size: 18px; color: var(--text-sub); }
 
-        button { background: var(--accent); color: #000; padding: 14px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s; }
-        
-        #entries-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px; margin-top: 20px; }
-        
-        /* PREMIUM DASHBOARD CARDS */
-        .movie-card { 
-            background: var(--card-bg); padding: 24px; border-radius: 12px; border-top: 4px solid var(--border-color); 
-            box-shadow: 0 6px 18px rgba(0,0,0,0.15); display: flex; flex-direction: column; justify-content: space-between; 
-            position: relative; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px; margin-top: 20px; }
+        .movie-card { background: var(--card-bg); padding: 24px; border-radius: 12px; border-top: 4px solid var(--border-color); box-shadow: 0 6px 18px rgba(0,0,0,0.15); display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
         .movie-card:hover { transform: translateY(-6px); border-top-color: var(--accent); box-shadow: 0 12px 25px rgba(0,0,0,0.25); }
-        .movie-card.pinned { border-top-color: #f1c40f; }
         
-        .pin-badge { position: absolute; top: 15px; right: 20px; font-size: 20px; cursor: pointer; opacity: 0.3; transition: 0.2s;}
-        .pin-badge:hover { opacity: 0.8; transform: scale(1.1); }
-        .pinned .pin-badge { opacity: 1; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
-
         .movie-title { font-size: 1.35em; margin: 0 0 6px 0; font-weight: bold; color: var(--accent); padding-right: 30px;}
         .movie-director { font-size: 0.75em; color: var(--text-sub); font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 16px;}
-        
         .script-display { background: var(--bg-color); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-main); font-family: 'Georgia', serif; line-height: 1.6; font-size: 14px; max-height: 180px; overflow-y: auto; }
         .pdf-attachment { display: block; background: var(--card-bg); color: var(--text-sub); text-decoration: none; padding: 10px; font-size: 13px; border-radius: 6px; font-weight: bold; text-align: center; margin-top: 15px; transition: 0.2s; border: 1px solid var(--border-color); }
-        .pdf-attachment:hover { border-color: var(--accent); color: var(--text-main); }
         .sketch-display-frame { width: 100%; background: #ffffff; border-radius: 6px; margin-top: 15px; border: 1px solid var(--border-color); display: block; max-height: 180px; object-fit: contain; }
-
         .card-footer { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); }
         .card-timestamp { font-size: 11px; color: var(--text-sub); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         
         .card-actions { display: flex; gap: 8px; width: 100%; justify-content: space-between;}
         .action-btn { background: none; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; margin-top: 0; width: auto; flex: 1;}
-        
         .btn-view { color: #9b59b6; background: rgba(155, 89, 182, 0.1); }
         .btn-view:hover { background: #9b59b6; color: #fff; }
-
         .btn-edit { color: #3498db; background: rgba(52, 152, 219, 0.1); }
         .btn-edit:hover { background: #3498db; color: #fff; }
-        
         .btn-export { color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
         .btn-export:hover { background: #2ecc71; color: #fff; }
-        
         .btn-delete { color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
         .btn-delete:hover { background: #e74c3c; color: #fff; }
+
+        /* 📌 STICKY NOTE GENERAL STYLES */
+        .wall-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .wall-grid { display: flex; flex-wrap: wrap; gap: 25px; justify-content: flex-start; min-height: 200px; }
+        
+        .global-sticky, .project-sticky { width: 240px; height: 260px; border-radius: 4px; padding: 20px; padding-bottom: 50px; box-shadow: 4px 6px 15px rgba(0,0,0,0.3); position: relative; display: flex; flex-direction: column; transition: transform 0.2s; cursor: grab; }
+        .global-sticky:active, .project-sticky:active { cursor: grabbing; transform: scale(1.05); z-index: 100; box-shadow: 6px 10px 20px rgba(0,0,0,0.4); }
+        .sticky-ghost { opacity: 0.3; border: 2px dashed #000; } 
+        
+        .global-sticky textarea, .project-sticky textarea { flex: 1; background: transparent; border: none; color: #111; font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; font-size: 16px; resize: none; outline: none; line-height: 1.5; pointer-events: auto; }
+        
+        .sticky-colors { display: flex; gap: 6px; margin-bottom: 10px; justify-content: flex-start; pointer-events: auto; }
+        .color-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); }
+        .delete-sticky { position: absolute; top: -10px; right: -10px; background: #e74c3c; color: white; border-radius: 50%; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 14px; font-weight: bold; border: 2px solid var(--bg-color); z-index: 10; transition: 0.2s; pointer-events: auto;}
+        .delete-sticky:hover { transform: scale(1.1); }
+
+        .convert-project-btn { position: absolute; bottom: 12px; left: 15px; right: 15px; background: rgba(0,0,0,0.08); color: #000; border: 1px solid rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; pointer-events: auto; }
+        .convert-project-btn:hover { background: rgba(0,0,0,0.15); transform: translateY(-2px); }
+
+        /* 🚨 CUSTOM DELETE MODAL */
+        #custom-delete-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(8px); }
+        #custom-delete-modal.active { opacity: 1; pointer-events: all; }
+        .delete-modal-box { background: var(--card-bg); width: 90%; max-width: 400px; border-radius: 12px; padding: 35px; border: 1px solid #e74c3c; box-shadow: 0 15px 50px rgba(231, 76, 60, 0.2); text-align: center; }
 
         /* VIEW MODAL OVERLAY */
         #view-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(5px); }
         #view-modal.active { opacity: 1; pointer-events: all; }
         .modal-box { background: var(--card-bg); width: 90%; max-width: 800px; max-height: 85vh; border-radius: 12px; overflow-y: auto; padding: 40px; position: relative; border: 1px solid var(--border-color); box-shadow: 0 15px 50px rgba(0,0,0,0.7); }
         .close-modal-btn { position: absolute; top: 20px; right: 25px; font-size: 20px; cursor: pointer; color: var(--text-sub); background: none; border: none; transition: 0.2s; }
-        .close-modal-btn:hover { color: #e74c3c; transform: scale(1.1); }
+        
+        #convert-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 10001; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(5px); }
+        #convert-modal.active { opacity: 1; pointer-events: all; }
+        .custom-modal-box { background: var(--card-bg); width: 90%; max-width: 420px; border-radius: 12px; padding: 35px; position: relative; border: 1px solid var(--border-color); box-shadow: 0 15px 50px rgba(0,0,0,0.7); text-align: left; }
 
         @media (max-width: 600px) {
             body { padding: 10px; margin: 20px auto; }
             h1 { font-size: 1.8em; letter-spacing: 1px; margin-bottom: 25px; }
+            .studio-nav { flex-direction: column; gap: 10px; }
+            .nav-btn { width: 100%; text-align: center; }
             .profile-bar { flex-direction: column; gap: 15px; text-align: center; padding: 15px; }
             .controls-group { width: 100%; justify-content: space-between; }
-            #entries-container { grid-template-columns: 1fr; gap: 15px; }
+            .dashboard-grid { grid-template-columns: 1fr; gap: 15px; }
             .card-actions { flex-direction: row; flex-wrap: wrap; }
             .action-btn { flex: 1 1 45%; padding: 10px; }
-            .modal-box { padding: 25px 20px; }
+            .wall-header { flex-direction: column; gap: 15px; text-align: center; }
+            .global-sticky, .project-sticky { width: 100%; height: 240px; }
         }
     </style>
 </head>
@@ -175,7 +172,7 @@
         <h3 id="auth-title" style="color: var(--accent); margin-bottom: 20px; font-weight: bold;">Welcome Back</h3>
         <input type="email" id="auth-email" placeholder="Email Address">
         <input type="password" id="auth-password" placeholder="Password">
-        <button id="auth-submit-btn" onclick="handleAuth()">Sign In</button>
+        <button id="auth-submit-btn" class="btn-primary" onclick="handleAuth()">Sign In</button>
     </div>
 
     <div id="app-container" class="hidden">
@@ -193,55 +190,116 @@
 
         <h1>🎬 THE DIRECTOR'S NOTEBOOK</h1>
 
-        <div style="max-width: 700px; margin: 0 auto;">
-            <div class="form-group">
-                <input type="text" id="title" placeholder="Movie Title or Project Name">
-            </div>
-            <div class="form-group">
-                <input type="text" id="director" placeholder="Director / Brand Collab">
-            </div>
-            
-            <div class="form-group">
-                <div class="file-upload-box">
-                    <input type="file" id="file-pdf" accept=".pdf" onchange="updateFileLabel()">
-                    <label id="label-pdf" for="file-pdf">📄 Optional: Attach Script PDF File</label>
-                </div>
-            </div>
-            
-            <div class="form-group" style="margin-bottom: 0;">
-                <div class="editor-wrapper">
-                    <div id="editor-container"></div>
-                </div>
-                <div class="counter-panel">
-                    <span>Metrics: <span id="word-count-val" class="counter-highlight">0</span> words</span>
-                    <span>Est. Run-Time: <span id="run-time-val" class="counter-highlight">0s</span></span>
-                </div>
-            </div>
+        <div class="studio-nav">
+            <button id="nav-scripts" class="nav-btn active" onclick="switchTab('scripts')">🎬 Production Notebook</button>
+            <button id="nav-storyboards" class="nav-btn" onclick="switchTab('storyboards')">🗂️ Project Storyboards</button>
+            <button id="nav-wall" class="nav-btn" onclick="switchTab('wall')">📌 Global Brainstorm Wall</button>
+        </div>
 
-            <div class="canvas-toggle-btn" id="canvas-toggle" onclick="toggleDoodlePad()">
-                🎨 <span>Open Visual Storyboard Doodle Pad</span>
-            </div>
-
-            <div class="canvas-wrapper hidden" id="canvas-section">
-                <div class="canvas-toolbar">
-                    <span style="font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Storyboard sketch canvas:</span>
-                    <div class="canvas-tools-group">
-                        <button class="canvas-control-btn" onclick="undoCanvasStroke()">Undo</button>
-                        <button class="canvas-control-btn" style="color: #e74c3c;" onclick="clearCanvasSurface()">Clear Pad</button>
+        <div id="workspace-scripts">
+            <div style="max-width: 700px; margin: 0 auto;">
+                <div class="form-group">
+                    <input type="text" id="movie-title" placeholder="Script Title or Project Name">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="movie-director" placeholder="Director / Brand Collab">
+                </div>
+                
+                <div class="form-group">
+                    <div class="file-upload-box">
+                        <input type="file" id="file-pdf" accept=".pdf" onchange="updateFileLabel()">
+                        <label id="label-pdf" for="file-pdf">📄 Optional: Attach Script PDF File</label>
                     </div>
                 </div>
-                <canvas id="doodle-canvas"></canvas>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <div class="editor-wrapper">
+                        <div id="editor-container"></div>
+                    </div>
+                    <div class="counter-panel">
+                        <span>Metrics: <span id="word-count-val" class="counter-highlight">0</span> words</span>
+                        <span>Est. Run-Time: <span id="run-time-val" class="counter-highlight">0s</span></span>
+                    </div>
+                </div>
+
+                <div class="canvas-toggle-btn" id="canvas-toggle" onclick="toggleDoodlePad()">
+                    🎨 <span>Open Visual Storyboard Doodle Pad</span>
+                </div>
+
+                <div class="canvas-wrapper hidden" id="canvas-section">
+                    <div class="canvas-toolbar">
+                        <span style="font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Storyboard sketch canvas:</span>
+                        <div class="canvas-tools-group">
+                            <button class="canvas-control-btn" onclick="undoCanvasStroke()">Undo</button>
+                            <button class="canvas-control-btn" style="color: #e74c3c;" onclick="clearCanvasSurface()">Clear Pad</button>
+                        </div>
+                    </div>
+                    <canvas id="doodle-canvas"></canvas>
+                </div>
+
+                <button id="save-movie-btn" class="btn-primary" style="margin-top: 25px;" onclick="saveMovie()">💾 Save Script to Dashboard</button>
+                <span id="autosave-status" class="autosave-text"></span>
             </div>
 
-            <button id="save-btn" style="margin-top: 25px;" onclick="addEntry()">Save Project to Dashboard</button>
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-bar" id="search-movie-bar" placeholder="Filter script projects..." onkeyup="filterDashboards('movie')">
+            </div>
+
+            <div id="movies-dashboard" class="dashboard-grid"></div>
         </div>
 
-        <div class="search-container">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search-bar" placeholder="Filter blocks by metadata keywords..." onkeyup="filterEntries()">
+        <div id="workspace-storyboards" class="hidden">
+            <div style="max-width: 900px; margin: 0 auto;">
+                
+                <div class="wall-header" style="flex-direction: column; align-items: flex-start; background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+                    <h2 style="color: var(--accent); margin: 0 0 15px 0;">🗂️ Create Storyboard Project</h2>
+                    <input type="text" id="storyboard-title" placeholder="Storyboard Project Title..." style="font-size: 18px; font-weight: bold;">
+                    <input type="text" id="storyboard-director" placeholder="Director / Brand">
+                </div>
+
+                <div class="sticky-section-wrapper" style="border: 1px solid var(--border-color); background: transparent;">
+                    <div class="sticky-toolbar">
+                        <span style="font-size: 14px; color: var(--text-sub); text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">📌 Scene Cards</span>
+                        <button class="action-btn" style="background: #3498db; color: #fff; padding: 10px 18px; font-size: 14px;" onclick="addStoryboardSticky()">+ Add Scene Card</button>
+                    </div>
+                    <div id="project-sticky-board" class="wall-grid" style="padding-top: 10px;"></div>
+                </div>
+
+                <button id="save-storyboard-btn" class="btn-primary" style="margin-top: 25px;" onclick="saveStoryboardProject()">💾 Save Storyboard to Dashboard</button>
+
+            </div>
+
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-bar" id="search-storyboard-bar" placeholder="Filter storyboard projects..." onkeyup="filterDashboards('storyboard')">
+            </div>
+
+            <div id="storyboards-dashboard" class="dashboard-grid"></div>
         </div>
 
-        <div id="entries-container"></div>
+        <div id="workspace-wall" class="hidden">
+            <div class="wall-header">
+                <div>
+                    <h2 style="color: var(--accent); margin: 0 0 5px 0;">Studio Ideation Board</h2>
+                    <p style="color: var(--text-sub); margin: 0; font-size: 14px;">Throw up ideas before they become official scripts or storyboards.</p>
+                </div>
+                <button class="btn-primary" style="width: auto; margin: 0; padding: 10px 24px;" onclick="createGlobalSticky()">+ Add New Idea Note</button>
+            </div>
+            
+            <div id="global-sticky-board" class="wall-grid"></div>
+        </div>
+    </div>
+
+    <div id="custom-delete-modal">
+        <div class="delete-modal-box">
+            <h2 style="margin-top: 0; color: #e74c3c;">🗑️ Confirm Deletion</h2>
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 25px;">Are you absolutely sure you want to delete this permanently? This cannot be undone.</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="action-btn" style="background: var(--border-color); color: var(--text-main); flex: 1; padding: 14px; font-size: 15px;" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn-primary" style="background: #e74c3c; color: #fff; margin-top: 0; flex: 1; padding: 14px; font-size: 15px;" onclick="executeDelete()">Delete It</button>
+            </div>
+        </div>
     </div>
 
     <div id="view-modal">
@@ -249,9 +307,27 @@
             <button class="close-modal-btn" onclick="closeViewModal()">✖</button>
             <h1 id="view-title" style="margin-top: 10px; margin-bottom: 5px; font-size: 2em; text-align: left; letter-spacing: 1px;"></h1>
             <h3 id="view-director" style="color: var(--text-sub); margin-top: 0; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9em;"></h3>
+            
+            <div id="view-sticky-board" class="wall-grid" style="margin-top: 20px;"></div>
+
             <div id="view-script" style="margin-top: 30px; font-family: 'Georgia', serif; line-height: 1.8; font-size: 16px;"></div>
             <img id="view-sketch" class="sketch-display-frame hidden" style="margin-top: 30px; border-color: #333;" />
             <a id="view-pdf-link" class="pdf-attachment hidden" target="_blank" style="margin-top: 20px;">📄 View Attached Original PDF</a>
+        </div>
+    </div>
+
+    <div id="convert-modal">
+        <div class="custom-modal-box">
+            <h2 style="margin-top: 0; color: var(--accent);">🚀 Convert Note</h2>
+            <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 20px;">Promote this brainstorm into an official project.</p>
+            <input type="text" id="convert-project-title" placeholder="Enter Official Project Title..." />
+            
+            <p style="color: var(--text-sub); font-size: 12px; margin-top: 20px; margin-bottom: 5px;">Choose Destination:</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" style="background: #9b59b6; color: #fff; margin-top: 0; flex: 1; padding: 10px; font-size: 13px;" onclick="confirmConvertProject('movie')">🎬 Script Project</button>
+                <button class="btn-primary" style="background: #3498db; color: #fff; margin-top: 0; flex: 1; padding: 10px; font-size: 13px;" onclick="confirmConvertProject('storyboard')">🗂️ Storyboard</button>
+            </div>
+            <button class="action-btn" style="background: transparent; color: var(--text-sub); width: 100%; margin-top: 15px;" onclick="closeConvertModal()">Cancel</button>
         </div>
     </div>
 
@@ -262,31 +338,387 @@
 
         let currentAuthMode = 'login';
         let currentUser = null;
-        let editingId = null; 
+        
+        let editingMovieId = null; 
+        let editingStoryboardId = null;
 
-        // UI Theme Logic
-        function checkTheme() {
-            if (localStorage.getItem('theme') === 'light') {
-                document.body.classList.add('light-mode');
-                document.getElementById('theme-btn').innerText = '🌙 Dark';
+        let rawMovies = [];
+        let rawStoryboards = [];
+
+        const stickyColors = ['#FEF08A', '#FBCFE8', '#BBF7D0', '#BFDBFE', '#E9D5FF']; 
+
+        // 🚨 CUSTOM DELETE ENGINE
+        let pendingDeleteId = null;
+        let pendingDeleteTable = null;
+
+        function openDeleteModal(id, table) {
+            pendingDeleteId = id;
+            pendingDeleteTable = table;
+            document.getElementById('custom-delete-modal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            pendingDeleteId = null;
+            pendingDeleteTable = null;
+            document.getElementById('custom-delete-modal').classList.remove('active');
+        }
+
+        async function executeDelete() {
+            if(!pendingDeleteId || !pendingDeleteTable) return;
+            
+            const { error } = await supabaseClient.from(pendingDeleteTable).delete().eq('id', pendingDeleteId);
+            if (error) {
+                alert("Deletion error: " + error.message);
+            } else {
+                if(pendingDeleteTable === 'Movies') fetchMovies();
+                if(pendingDeleteTable === 'Storyboards') fetchStoryboards();
+                if(pendingDeleteTable === 'Studio_Wall') {
+                    globalNotes = globalNotes.filter(n => n.id !== pendingDeleteId);
+                    renderGlobalWall();
+                }
+            }
+            closeDeleteModal();
+        }
+
+        // 🎛️ TAB SWITCHING LOGIC
+        function switchTab(tab) {
+            document.getElementById('workspace-scripts').classList.add('hidden');
+            document.getElementById('workspace-storyboards').classList.add('hidden');
+            document.getElementById('workspace-wall').classList.add('hidden');
+
+            document.getElementById('nav-scripts').classList.remove('active');
+            document.getElementById('nav-storyboards').classList.remove('active');
+            document.getElementById('nav-wall').classList.remove('active');
+
+            document.getElementById('workspace-' + tab).classList.remove('hidden');
+            document.getElementById('nav-' + tab).classList.add('active');
+
+            if(tab === 'wall') loadGlobalStickies(); 
+            if(tab === 'scripts') fetchMovies();
+            if(tab === 'storyboards') {
+                fetchStoryboards();
+                if(projectStickies.length === 0 && !editingStoryboardId) addStoryboardSticky(); // Give them a blank note to start
             }
         }
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-            const isLight = document.body.classList.contains('light-mode');
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
-            document.getElementById('theme-btn').innerText = isLight ? '🌙 Dark' : '☀️ Light';
-        }
-        checkTheme();
 
-        // Canvas Logic
+        // ==========================================
+        // 📌 TAB 3: GLOBAL BRAINSTORM WALL
+        // ==========================================
+        let globalNotes = [];
+
+        async function loadGlobalStickies() {
+            const { data, error } = await supabaseClient.from('Studio_Wall').select('*').order('created_at', { ascending: false });
+            if (!error && data) {
+                globalNotes = data;
+                renderGlobalWall();
+            }
+        }
+
+        async function createGlobalSticky() {
+            if (!currentUser) return; 
+            const uniqueBypassId = Date.now() + Math.floor(Math.random() * 1000); 
+            const newNote = { id: uniqueBypassId, text: '', color: stickyColors[0], user_id: currentUser.id };
+            
+            const { data, error } = await supabaseClient.from('Studio_Wall').insert([newNote]).select();
+            if (!error && data) {
+                globalNotes.unshift(data[0]);
+                renderGlobalWall();
+            } else if (error) {
+                alert("Database Error: " + error.message);
+            }
+        }
+
+        let stickyTimeout;
+        function updateGlobalStickyText(id, text) {
+            const note = globalNotes.find(n => n.id === id);
+            if(note) note.text = text;
+            
+            clearTimeout(stickyTimeout);
+            stickyTimeout = setTimeout(async () => {
+                await supabaseClient.from('Studio_Wall').update({ text: text }).eq('id', id);
+            }, 1000);
+        }
+
+        async function changeGlobalStickyColor(id, color) {
+            const note = globalNotes.find(n => n.id === id);
+            if(note) {
+                note.color = color;
+                renderGlobalWall(); 
+                await supabaseClient.from('Studio_Wall').update({ color: color }).eq('id', id); 
+            }
+        }
+
+        // 🚀 BRIDGE: CONVERT IDEA
+        let pendingConvertNoteId = null;
+
+        function openConvertModal(noteId) {
+            pendingConvertNoteId = noteId;
+            document.getElementById('convert-project-title').value = ''; 
+            document.getElementById('convert-modal').classList.add('active');
+            document.getElementById('convert-project-title').focus();
+        }
+
+        function closeConvertModal() {
+            document.getElementById('convert-modal').classList.remove('active');
+            pendingConvertNoteId = null;
+        }
+
+        async function confirmConvertProject(destination) {
+            if (!pendingConvertNoteId) return;
+            
+            const projectTitle = document.getElementById('convert-project-title').value.trim();
+            if (!projectTitle) {
+                alert("You must enter a title to create a project.");
+                return;
+            }
+
+            const note = globalNotes.find(n => n.id === pendingConvertNoteId);
+            if (!note) return;
+
+            closeConvertModal();
+
+            const safeStringId = Math.random().toString(36).substring(2, 9);
+            const initialSticky = [{ id: safeStringId, text: note.text, color: note.color }];
+            
+            const newProject = {
+                title: projectTitle,
+                director: currentUser.email.split('@')[0], 
+                user_id: currentUser.id 
+            };
+
+            let targetTable = destination === 'movie' ? 'Movies' : 'Storyboards';
+
+            if(destination === 'storyboard') {
+                newProject.sticky_notes = initialSticky;
+            } else {
+                newProject.script = `<p><strong>${note.text}</strong></p>`; // Put text into script editor instead!
+            }
+
+            const { data, error } = await supabaseClient.from(targetTable).insert([newProject]).select();
+            if (error) {
+                alert("Error creating project: " + error.message);
+                return;
+            }
+
+            // Silent delete via direct API call, no popup
+            await supabaseClient.from('Studio_Wall').delete().eq('id', pendingConvertNoteId);
+
+            if(destination === 'movie') {
+                await fetchMovies();
+                switchTab('scripts');
+                startEditMovie(data[0].id);
+            } else {
+                await fetchStoryboards();
+                switchTab('storyboards');
+                startEditStoryboard(data[0].id);
+            }
+        }
+
+        function renderGlobalWall() {
+            const board = document.getElementById('global-sticky-board');
+            board.innerHTML = '';
+            
+            if(globalNotes.length === 0) {
+                board.innerHTML = `<p style="color:var(--text-sub); width:100%; text-align:center; padding: 40px; border: 2px dashed var(--border-color); border-radius: 8px;">No sticky notes yet. Click the button above to add one!</p>`;
+                return;
+            }
+
+            globalNotes.forEach(note => {
+                const el = document.createElement('div');
+                el.className = 'global-sticky';
+                el.style.background = note.color;
+                
+                let colorDotsHTML = stickyColors.map(c => 
+                    `<div class="color-dot" style="background:${c}; ${c === note.color ? 'border: 2px solid rgba(0,0,0,0.5);' : ''}" onclick="changeGlobalStickyColor(${note.id}, '${c}')"></div>`
+                ).join('');
+
+                el.innerHTML = `
+                    <div class="delete-sticky" onclick="openDeleteModal(${note.id}, 'Studio_Wall')">✖</div>
+                    <div class="sticky-colors">${colorDotsHTML}</div>
+                    <textarea placeholder="Jot down concept ideas, script notes, or upcoming brand campaigns..." onkeyup="updateGlobalStickyText(${note.id}, this.value)">${note.text || ''}</textarea>
+                    <button class="convert-project-btn" onclick="openConvertModal(${note.id})">🚀 Convert to Project</button>
+                `;
+                board.appendChild(el);
+            });
+        }
+
+
+        // ==========================================
+        // 🗂️ TAB 2: PURE STORYBOARDS ENGINE
+        // ==========================================
+        let projectStickies = [];
+        let sortableInstance;
+
+        function initSortableBoard() {
+            const container = document.getElementById('project-sticky-board');
+            if (sortableInstance) sortableInstance.destroy();
+            sortableInstance = new Sortable(container, {
+                animation: 150,
+                ghostClass: 'sticky-ghost',
+                onEnd: function (evt) {
+                    const movedItem = projectStickies.splice(evt.oldIndex, 1)[0];
+                    projectStickies.splice(evt.newIndex, 0, movedItem);
+                }
+            });
+        }
+
+        function addStoryboardSticky() {
+            const safeStringId = Math.random().toString(36).substring(2, 9);
+            projectStickies.push({ id: safeStringId, text: '', color: stickyColors[0] });
+            renderProjectStoryboard();
+        }
+
+        function updateProjectStickyText(id, text) {
+            const note = projectStickies.find(n => n.id === id);
+            if(note) note.text = text;
+        }
+
+        function changeProjectStickyColor(id, color) {
+            const note = projectStickies.find(n => n.id === id);
+            if(note) {
+                note.color = color;
+                renderProjectStoryboard();
+            }
+        }
+
+        function removeProjectSticky(id) {
+            projectStickies = projectStickies.filter(n => n.id !== id);
+            renderProjectStoryboard();
+        }
+
+        function renderProjectStoryboard() {
+            const board = document.getElementById('project-sticky-board');
+            board.innerHTML = '';
+            
+            if(projectStickies.length === 0) {
+                board.innerHTML = `<p style="color:var(--text-sub); width:100%; text-align:center; padding: 20px;">Add a note to block out your scenes.</p>`;
+                return;
+            }
+
+            projectStickies.forEach(note => {
+                const el = document.createElement('div');
+                el.className = 'project-sticky';
+                el.style.background = note.color;
+                
+                let colorDotsHTML = stickyColors.map(c => 
+                    `<div class="color-dot" style="background:${c}; ${c === note.color ? 'border: 2px solid rgba(0,0,0,0.5);' : ''}" onclick="changeProjectStickyColor('${note.id}', '${c}')"></div>`
+                ).join('');
+
+                el.innerHTML = `
+                    <div class="delete-sticky" onclick="removeProjectSticky('${note.id}')">✖</div>
+                    <div class="sticky-colors">${colorDotsHTML}</div>
+                    <textarea placeholder="Scene 1: Camera pans..." onkeyup="updateProjectStickyText('${note.id}', this.value)">${note.text}</textarea>
+                `;
+                board.appendChild(el);
+            });
+
+            initSortableBoard(); 
+        }
+
+        async function fetchStoryboards() {
+            const container = document.getElementById('storyboards-dashboard');
+            
+            const { data, error } = await supabaseClient.from('Storyboards').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+
+            if (error) {
+                container.innerHTML = `<p style="color: red;">Dashboard error: ${error.message}</p>`;
+                return;
+            }
+
+            rawStoryboards = data; 
+            container.innerHTML = ''; 
+            
+            data.forEach(sb => {
+                const card = document.createElement('div');
+                card.className = `movie-card`;
+                let stickyCount = sb.sticky_notes ? sb.sticky_notes.length : 0;
+
+                card.innerHTML = `
+                    <div>
+                        <p class="movie-title">${sb.title}</p>
+                        <span class="movie-director">Directed by ${sb.director}</span>
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; border: 1px dashed var(--border-color); color: var(--text-sub); font-size: 14px; text-align: center; font-weight: bold;">
+                            🗂️ ${stickyCount} Scene Cards
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-timestamp">Logged: ${formatDisplayDate(sb.created_at)}</span>
+                        <div class="card-actions">
+                            <button class="action-btn btn-view" onclick="viewProject('${sb.id}', 'storyboard')">View Board</button>
+                            <button class="action-btn btn-edit" onclick="startEditStoryboard('${sb.id}')">Edit</button>
+                            <button class="action-btn btn-delete" onclick="openDeleteModal('${sb.id}', 'Storyboards')">Delete</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function saveStoryboardProject() {
+            const saveBtn = document.getElementById('save-storyboard-btn');
+            const title = document.getElementById('storyboard-title').value;
+            const director = document.getElementById('storyboard-director').value;
+
+            if (!title) return alert("Please input a Storyboard Title!");
+
+            saveBtn.innerText = "Syncing with cloud matrix...";
+            saveBtn.disabled = true;
+
+            if (editingStoryboardId) {
+                const updatePayload = { title, director, sticky_notes: projectStickies, user_id: currentUser.id };
+                await supabaseClient.from('Storyboards').update(updatePayload).eq('id', editingStoryboardId);
+                editingStoryboardId = null;
+                saveBtn.style.background = "var(--accent)";
+            } else {
+                await supabaseClient.from('Storyboards').insert([
+                    { title, director, sticky_notes: projectStickies, user_id: currentUser.id }
+                ]);
+            }
+
+            document.getElementById('storyboard-title').value = '';
+            document.getElementById('storyboard-director').value = '';
+            projectStickies = [];
+            addStoryboardSticky(); // Reset with blank note
+            
+            saveBtn.innerHTML = "💾 Save Storyboard to Dashboard";
+            saveBtn.disabled = false;
+            fetchStoryboards();
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function startEditStoryboard(id) {
+            editingStoryboardId = id;
+            const sb = rawStoryboards.find(m => String(m.id) === String(id));
+            if (!sb) return;
+
+            document.getElementById('storyboard-title').value = sb.title || '';
+            document.getElementById('storyboard-director').value = sb.director || '';
+
+            projectStickies = sb.sticky_notes ? [...sb.sticky_notes] : [];
+            projectStickies = projectStickies.map(note => {
+                if(!note.id) note.id = Math.random().toString(36).substring(2, 9);
+                return note;
+            });
+            renderProjectStoryboard();
+
+            const saveBtn = document.getElementById('save-storyboard-btn');
+            saveBtn.innerHTML = "💾 Update Storyboard Changes";
+            saveBtn.style.background = "#3498db";
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        // ==========================================
+        // 🎬 TAB 1: PRODUCTION NOTEBOOK CORE
+        // ==========================================
         let canvas, ctx;
         let isDrawing = false;
         let canvasHistory = [];
 
         var quill = new Quill('#editor-container', {
             theme: 'snow',
-            placeholder: 'Optional: Start writing notes or layout your live script structure here...',
+            placeholder: 'Start writing your script here...',
             modules: { toolbar: [[{ 'header': [1, 2, false] }], ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
         });
 
@@ -320,7 +752,6 @@
             canvas.addEventListener('mousemove', drawStroke);
             canvas.addEventListener('mouseup', stopDrawing);
             canvas.addEventListener('mouseout', stopDrawing);
-
             canvas.addEventListener('touchstart', (e) => {
                 const touch = e.touches[0];
                 const rect = canvas.getBoundingClientRect();
@@ -374,71 +805,13 @@
             }
         }
 
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                currentUser = session.user;
-                document.getElementById('user-display-email').innerText = currentUser.email;
-                document.getElementById('auth-container').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
-                fetchEntries();
-            } else {
-                currentUser = null;
-                document.getElementById('auth-container').classList.remove('hidden');
-                document.getElementById('app-container').classList.add('hidden');
-            }
-        });
-
-        function switchAuthTab(mode) {
-            currentAuthMode = mode;
-            document.getElementById('tab-login').classList.toggle('active', mode === 'login');
-            document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
-            document.getElementById('auth-title').innerText = mode === 'login' ? 'Welcome Back' : 'Create Account';
-            document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Sign In' : 'Register';
-        }
-
-        async function handleAuth() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            if (!email || !password) return alert("Fill in authentication fields.");
-            if (currentAuthMode === 'signup') {
-                const { error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) alert(error.message);
-                else alert("Profile setup mapped! Sign in now.");
-            } else {
-                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) alert(error.message);
-            }
-        }
-
-        async function handleLogout() { await supabaseClient.auth.signOut(); }
-
-        async function uploadPDFToStorage() {
-            const fileInput = document.getElementById('file-pdf');
-            if (fileInput.files.length === 0) return null;
-            const file = fileInput.files[0];
-            const fileName = `${currentUser.id}-${Date.now()}.pdf`;
-            const filePath = `documents/${fileName}`;
-            const { data, error } = await supabaseClient.storage.from('project-files').upload(filePath, file);
-            if (error) return null;
-            const { data: urlData } = supabaseClient.storage.from('project-files').getPublicUrl(filePath);
-            return urlData.publicUrl;
-        }
-
-        function formatDisplayDate(isoString) {
-            return new Date(isoString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        }
-        function isCanvasSurfaceBlank() {
-            if (!canvas) return true;
-            const blank = document.createElement('canvas');
-            blank.width = canvas.width; blank.height = canvas.height;
-            return canvas.toDataURL() === blank.toDataURL();
-        }
-
-        let rawFetchedMovies = [];
-
-        async function fetchEntries() {
-            const container = document.getElementById('entries-container');
-            const { data, error } = await supabaseClient.from('Movies').select('*').order('created_at', { ascending: false });
+        async function fetchMovies() {
+            const container = document.getElementById('movies-dashboard');
+            
+            const { data, error } = await supabaseClient.from('Movies')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
 
             if (error) {
                 container.innerHTML = `<p style="color: red;">Dashboard error: ${error.message}</p>`;
@@ -450,7 +823,7 @@
                 return a.is_pinned ? -1 : 1;
             });
 
-            rawFetchedMovies = data; 
+            rawMovies = data; 
             container.innerHTML = ''; 
             
             data.forEach(movie => {
@@ -460,7 +833,6 @@
                 let scriptHtml = movie.script && movie.script !== '<p><br></p>' ? `<div class="script-display">${movie.script}</div>` : '';
                 let pdfHtml = movie.pdf_url ? `<a href="${movie.pdf_url}" target="_blank" class="pdf-attachment">📄 View Attached Script PDF</a>` : '';
                 let sketchHtml = movie.sketch_data ? `<img src="${movie.sketch_data}" class="sketch-display-frame" alt="Storyboard Sketch">` : '';
-                let formattedDate = formatDisplayDate(movie.created_at);
 
                 card.innerHTML = `
                     <div class="pin-badge" onclick="togglePin('${movie.id}', ${movie.is_pinned})" title="Pin to top">📌</div>
@@ -472,12 +844,12 @@
                         ${sketchHtml}
                     </div>
                     <div class="card-footer">
-                        <span class="card-timestamp">Logged: ${formattedDate}</span>
+                        <span class="card-timestamp">Logged: ${formatDisplayDate(movie.created_at)}</span>
                         <div class="card-actions">
-                            <button class="action-btn btn-view" onclick="viewProject('${movie.id}')">View</button>
+                            <button class="action-btn btn-view" onclick="viewProject('${movie.id}', 'movie')">View</button>
                             <button class="action-btn btn-export" onclick="exportProjectToPDF('${movie.id}', this)">PDF</button>
-                            <button class="action-btn btn-edit" onclick="startEditSession('${movie.id}')">Edit</button>
-                            <button class="action-btn btn-delete" onclick="triggerDeleteRecord('${movie.id}')">Del</button>
+                            <button class="action-btn btn-edit" onclick="startEditMovie('${movie.id}')">Edit</button>
+                            <button class="action-btn btn-delete" onclick="openDeleteModal('${movie.id}', 'Movies')">Del</button>
                         </div>
                     </div>
                 `;
@@ -488,93 +860,62 @@
         async function togglePin(id, currentState) {
             const newPinState = !currentState;
             const { error } = await supabaseClient.from('Movies').update({ is_pinned: newPinState }).eq('id', id);
-            if (!error) fetchEntries();
+            if (!error) fetchMovies();
         }
 
-        // 👀 VIEW PROJECT FULL SCREEN MODAL
-        function viewProject(id) {
-            const project = rawFetchedMovies.find(m => String(m.id) === String(id));
-            if (!project) return;
-
-            document.getElementById('view-title').innerText = project.title || 'Untitled Project';
-            document.getElementById('view-director').innerText = 'Directed/Written by: ' + (project.director || 'Unknown');
+        async function saveMovie() {
+            const saveBtn = document.getElementById('save-movie-btn');
+            const title = document.getElementById('movie-title').value;
+            const director = document.getElementById('movie-director').value;
+            const fileInput = document.getElementById('file-pdf');
             
-            if (project.script && project.script !== '<p><br></p>') {
-                document.getElementById('view-script').innerHTML = project.script;
+            const isTextEditorEmpty = quill.getText().trim().length === 0;
+            const isFileEmpty = fileInput.files.length === 0;
+            const isCanvasBlank = isCanvasSurfaceBlank();
+
+            if (!title) return alert("Please input a Project Title!");
+
+            saveBtn.innerText = "Syncing with cloud matrix...";
+            saveBtn.disabled = true;
+
+            let pdfUrl = await uploadPDFToStorage();
+            const scriptContent = isTextEditorEmpty ? null : quill.root.innerHTML;
+            const sketchContent = isCanvasBlank ? null : canvas.toDataURL();
+
+            if (editingMovieId) {
+                const oldProject = rawMovies.find(m => String(m.id) === String(editingMovieId));
+                const updatePayload = { title, director, script: scriptContent, sketch_data: sketchContent, is_pinned: oldProject.is_pinned, user_id: currentUser.id };
+                if (pdfUrl) updatePayload.pdf_url = pdfUrl; 
+
+                const { error } = await supabaseClient.from('Movies').update(updatePayload).eq('id', editingMovieId);
+                editingMovieId = null;
+                saveBtn.style.background = "var(--accent)";
             } else {
-                document.getElementById('view-script').innerHTML = '<p style="color:var(--text-sub); font-style:italic;">No script text provided.</p>';
+                const { error } = await supabaseClient.from('Movies').insert([
+                    { title, director, pdf_url: pdfUrl, script: scriptContent, sketch_data: sketchContent, is_pinned: false, user_id: currentUser.id }
+                ]);
             }
+
+            document.getElementById('movie-title').value = '';
+            document.getElementById('movie-director').value = '';
+            document.getElementById('file-pdf').value = '';
+            document.getElementById('label-pdf').innerText = "📄 Optional: Attach Script PDF File";
+            document.getElementById('label-pdf').style.color = "var(--text-sub)";
+            quill.root.innerHTML = ''; 
+            if (!isCanvasBlank) clearCanvasSurface();
             
-            const sketchEl = document.getElementById('view-sketch');
-            if (project.sketch_data) {
-                sketchEl.src = project.sketch_data;
-                sketchEl.classList.remove('hidden');
-            } else {
-                sketchEl.classList.add('hidden');
-                sketchEl.src = '';
-            }
-
-            const pdfEl = document.getElementById('view-pdf-link');
-            if (project.pdf_url) {
-                pdfEl.href = project.pdf_url;
-                pdfEl.classList.remove('hidden');
-            } else {
-                pdfEl.classList.add('hidden');
-                pdfEl.href = '#';
-            }
-
-            document.getElementById('view-modal').classList.add('active');
-            document.body.style.overflow = 'hidden'; 
+            saveBtn.innerHTML = "💾 Save Script to Dashboard";
+            saveBtn.disabled = false;
+            fetchMovies();
         }
 
-        function closeViewModal() {
-            document.getElementById('view-modal').classList.remove('active');
-            document.body.style.overflow = 'auto'; 
-        }
-
-        // 🖨️ STRING-BASED PDF EXPORT WITH SCROLL-LOCK BUG FIX
-        function exportProjectToPDF(id, btnElement) {
-            const project = rawFetchedMovies.find(m => String(m.id) === String(id));
+        function startEditMovie(id) {
+            editingMovieId = id;
+            const project = rawMovies.find(m => String(m.id) === String(id));
             if (!project) return;
 
-            const originalText = btnElement.innerText;
-            btnElement.innerText = "⏳ Loading...";
-
-            const htmlString = `
-                <div style="padding: 40px; font-family: 'Georgia', serif; color: #000; background: #fff; width: 800px; box-sizing: border-box;">
-                    <h1 style="color: #333; text-transform: uppercase; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-top: 0; margin-bottom: 5px;">${project.title || 'Untitled'}</h1>
-                    <h3 style="color: #666; font-style: italic; margin-top: 0;">Directed/Written by: ${project.director || 'Unknown'}</h3>
-                    <p style="font-size: 12px; color: #999;">Studio Elite Log Date: ${formatDisplayDate(project.created_at)}</p>
-                    <div style="margin-top: 40px; line-height: 1.8; font-size: 14px;">${project.script || '<p>No script text logged.</p>'}</div>
-                    ${project.sketch_data ? `<div style="margin-top: 50px; page-break-inside: avoid;"><p style="font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px;">Storyboard Sketch Reference</p><img src="${project.sketch_data}" style="max-width: 100%; border: 1px solid #ccc; border-radius: 4px; margin-top: 10px;"></div>` : ''}
-                </div>
-            `;
-
-            const opt = {
-                margin: 15,
-                filename: `${(project.title || 'Project').replace(/\s+/g, '_')}_Script.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                // THE FIX: Explicitly set scrollY and windowY to 0 so the engine ignores where you are scrolled on the page.
-                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, windowY: 0 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(htmlString).save().then(() => {
-                btnElement.innerText = originalText;
-            }).catch(err => {
-                console.error("PDF engine crash: ", err);
-                btnElement.innerText = "Error";
-                setTimeout(() => btnElement.innerText = originalText, 2000);
-            });
-        }
-
-        function startEditSession(id) {
-            editingId = id;
-            const project = rawFetchedMovies.find(m => String(m.id) === String(id));
-            if (!project) return;
-
-            document.getElementById('title').value = project.title || '';
-            document.getElementById('director').value = project.director || '';
+            document.getElementById('movie-title').value = project.title || '';
+            document.getElementById('movie-director').value = project.director || '';
 
             setTimeout(() => {
                 try {
@@ -611,79 +952,176 @@
                 clearCanvasSurface();
             }
 
-            const saveBtn = document.getElementById('save-btn');
-            saveBtn.innerText = "Update Project Changes";
+            const saveBtn = document.getElementById('save-movie-btn');
+            saveBtn.innerHTML = "💾 Update Script Changes";
             saveBtn.style.background = "#3498db";
+            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        async function triggerDeleteRecord(id) {
-            if (!confirm("Are you sure you want to permanently delete this project?")) return;
-            const { error } = await supabaseClient.from('Movies').delete().eq('id', id);
-            if (error) alert("Deletion error: " + error.message);
-            else fetchEntries();
-        }
 
-        async function addEntry() {
-            const saveBtn = document.getElementById('save-btn');
-            const title = document.getElementById('title').value;
-            const director = document.getElementById('director').value;
-            const fileInput = document.getElementById('file-pdf');
+        // ==========================================
+        // 🚀 SHARED UTILITIES
+        // ==========================================
+
+        function viewProject(id, type) {
+            let project;
+            if(type === 'movie') project = rawMovies.find(m => String(m.id) === String(id));
+            if(type === 'storyboard') project = rawStoryboards.find(m => String(m.id) === String(id));
+            if (!project) return;
+
+            document.getElementById('view-title').innerText = project.title || 'Untitled Project';
+            document.getElementById('view-director').innerText = 'Directed/Written by: ' + (project.director || 'Unknown');
             
-            const isTextEditorEmpty = quill.getText().trim().length === 0;
-            const isFileEmpty = fileInput.files.length === 0;
-            const isCanvasBlank = isCanvasSurfaceBlank();
-
-            if (!title) return alert("Please input a Project Title!");
-
-            if (isTextEditorEmpty && isFileEmpty && isCanvasBlank && !editingId) {
-                return alert("Type text, attach a PDF, or draw a sketch to save!");
+            const viewBoard = document.getElementById('view-sticky-board');
+            viewBoard.innerHTML = '';
+            
+            if (type === 'storyboard' && project.sticky_notes && project.sticky_notes.length > 0) {
+                project.sticky_notes.forEach(note => {
+                    const el = document.createElement('div');
+                    el.className = 'global-sticky'; 
+                    el.style.background = note.color;
+                    el.style.cursor = 'default';
+                    el.innerHTML = `<div class="sticky-note-read">${note.text}</div>`;
+                    viewBoard.appendChild(el);
+                });
             }
 
-            saveBtn.innerText = "Syncing with cloud matrix...";
-            saveBtn.disabled = true;
-
-            let pdfUrl = await uploadPDFToStorage();
-            const scriptContent = isTextEditorEmpty ? null : quill.root.innerHTML;
-            const sketchContent = isCanvasBlank ? null : canvas.toDataURL();
-
-            if (editingId) {
-                const oldProject = rawFetchedMovies.find(m => String(m.id) === String(editingId));
-                const updatePayload = { title, director, script: scriptContent, sketch_data: sketchContent, is_pinned: oldProject.is_pinned };
-                if (pdfUrl) updatePayload.pdf_url = pdfUrl; 
-
-                const { error } = await supabaseClient.from('Movies').update(updatePayload).eq('id', editingId);
-                if (error) alert("Update failed: " + error.message);
-                
-                editingId = null;
-                saveBtn.style.background = "var(--accent)";
+            const scriptEl = document.getElementById('view-script');
+            if (type === 'movie' && project.script && project.script !== '<p><br></p>') {
+                scriptEl.innerHTML = project.script;
+                scriptEl.classList.remove('hidden');
             } else {
-                const { error } = await supabaseClient.from('Movies').insert([
-                    { title, director, pdf_url: pdfUrl, script: scriptContent, sketch_data: sketchContent, is_pinned: false, notes: "Final stable build" }
-                ]);
-                if (error) alert("Save failed: " + error.message);
+                scriptEl.innerHTML = '';
+                scriptEl.classList.add('hidden');
+            }
+            
+            const sketchEl = document.getElementById('view-sketch');
+            if (type === 'movie' && project.sketch_data) {
+                sketchEl.src = project.sketch_data;
+                sketchEl.classList.remove('hidden');
+            } else {
+                sketchEl.classList.add('hidden');
+                sketchEl.src = '';
             }
 
-            document.getElementById('title').value = '';
-            document.getElementById('director').value = '';
-            document.getElementById('file-pdf').value = '';
-            document.getElementById('label-pdf').innerText = "📄 Optional: Attach Script PDF File";
-            document.getElementById('label-pdf').style.color = "var(--text-sub)";
-            quill.root.innerHTML = ''; 
-            if (!isCanvasBlank) clearCanvasSurface();
-            
-            saveBtn.innerText = "Save Project to Dashboard";
-            saveBtn.disabled = false;
-            fetchEntries();
+            const pdfEl = document.getElementById('view-pdf-link');
+            if (type === 'movie' && project.pdf_url) {
+                pdfEl.href = project.pdf_url;
+                pdfEl.classList.remove('hidden');
+            } else {
+                pdfEl.classList.add('hidden');
+                pdfEl.href = '#';
+            }
+
+            document.getElementById('view-modal').classList.add('active');
+            document.body.style.overflow = 'hidden'; 
         }
 
-        function filterEntries() {
-            const searchQuery = document.getElementById('search-bar').value.toLowerCase();
-            const cards = document.getElementsByClassName('movie-card');
+        function closeViewModal() {
+            document.getElementById('view-modal').classList.remove('active');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        function exportProjectToPDF(id, btnElement) {
+            const project = rawMovies.find(m => String(m.id) === String(id));
+            if (!project) return;
+
+            const originalText = btnElement.innerText;
+            btnElement.innerText = "⏳ Loading...";
+
+            const htmlString = `
+                <div style="padding: 40px; font-family: 'Georgia', serif; color: #000; background: #fff; width: 800px; box-sizing: border-box;">
+                    <h1 style="color: #333; text-transform: uppercase; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-top: 0; margin-bottom: 5px;">${project.title || 'Untitled'}</h1>
+                    <h3 style="color: #666; font-style: italic; margin-top: 0;">Directed/Written by: ${project.director || 'Unknown'}</h3>
+                    <p style="font-size: 12px; color: #999;">Studio Elite Log Date: ${formatDisplayDate(project.created_at)}</p>
+                    <div style="margin-top: 40px; line-height: 1.8; font-size: 14px;">${project.script || '<p>No script text logged.</p>'}</div>
+                    ${project.sketch_data ? `<div style="margin-top: 50px; page-break-inside: avoid;"><p style="font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px;">Storyboard Sketch Reference</p><img src="${project.sketch_data}" style="max-width: 100%; border: 1px solid #ccc; border-radius: 4px; margin-top: 10px;"></div>` : ''}
+                </div>
+            `;
+
+            const opt = {
+                margin: 15,
+                filename: `${(project.title || 'Project').replace(/\s+/g, '_')}_Script.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, windowY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(htmlString).save().then(() => {
+                btnElement.innerText = originalText;
+            }).catch(err => {
+                console.error("PDF engine crash: ", err);
+                btnElement.innerText = "Error";
+                setTimeout(() => btnElement.innerText = originalText, 2000);
+            });
+        }
+
+        function filterDashboards(type) {
+            const searchQuery = document.getElementById(type === 'movie' ? 'search-movie-bar' : 'search-storyboard-bar').value.toLowerCase();
+            const container = document.getElementById(type === 'movie' ? 'movies-dashboard' : 'storyboards-dashboard');
+            const cards = container.getElementsByClassName('movie-card');
             for (let i = 0; i < cards.length; i++) {
                 const cardText = cards[i].innerText.toLowerCase();
                 cards[i].style.display = cardText.includes(searchQuery) ? "flex" : "none";
             }
+        }
+
+        function checkTheme() {
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-btn').innerText = '🌙 Dark';
+            }
+        }
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            document.getElementById('theme-btn').innerText = isLight ? '🌙 Dark' : '☀️ Light';
+        }
+        checkTheme();
+
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('user-display-email').innerText = currentUser.email;
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                fetchMovies(); // Tab 1
+                fetchStoryboards(); // Tab 2
+            } else {
+                currentUser = null;
+                document.getElementById('auth-container').classList.remove('hidden');
+                document.getElementById('app-container').classList.add('hidden');
+            }
+        });
+
+        function switchAuthTab(mode) {
+            currentAuthMode = mode;
+            document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+            document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
+            document.getElementById('auth-title').innerText = mode === 'login' ? 'Welcome Back' : 'Create Account';
+            document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Sign In' : 'Register';
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            if (!email || !password) return alert("Fill in authentication fields.");
+            if (currentAuthMode === 'signup') {
+                const { error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) alert(error.message);
+                else alert("Profile setup mapped! Sign in now.");
+            } else {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) alert(error.message);
+            }
+        }
+
+        async function handleLogout() { await supabaseClient.auth.signOut(); }
+
+        function formatDisplayDate(isoString) {
+            return new Date(isoString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
     </script>
 </body>
