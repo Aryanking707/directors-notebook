@@ -15,11 +15,10 @@
 
     <style>
         /* ==========================================
-           🌌 DYNAMIC THEME SYSTEM (LUTs)
+           🌌 GLOBAL THEME ENGINE (LUTs)
            ========================================== */
         :root {
             --bg-base: #020203; 
-            --bg-glow: #0a1128;
             --card-bg: rgba(12, 12, 16, 0.65);
             --glass-border: rgba(255, 255, 255, 0.03);
             --glass-highlight: rgba(255, 255, 255, 0.08);
@@ -28,30 +27,53 @@
             --input-bg: rgba(0, 0, 0, 0.5);
             --danger: #EF4444;
 
-            /* Default Theme Fallback (Neon Blue) */
+            /* Default Fallback */
             --accent-start: #00F2FE; 
             --accent-end: #4FACFE;
-            --accent-glow: rgba(0, 242, 254, 0.2);
+            --accent-glow: rgba(0, 242, 254, 0.15);
         }
 
-        .theme-neon-blue { --accent-start: #00F2FE; --accent-end: #4FACFE; --accent-glow: rgba(0, 242, 254, 0.3); }
-        .theme-crimson-red { --accent-start: #FF4B2B; --accent-end: #FF416C; --accent-glow: rgba(255, 75, 43, 0.3); }
-        .theme-fincher-yellow { --accent-start: #FBBF24; --accent-end: #D97706; --accent-glow: rgba(251, 191, 36, 0.3); }
-        .theme-matrix-green { --accent-start: #4ADE80; --accent-end: #16A34A; --accent-glow: rgba(74, 222, 128, 0.3); }
-        .theme-amethyst { --accent-start: #C084FC; --accent-end: #7E22CE; --accent-glow: rgba(192, 132, 252, 0.3); }
-        .theme-nolan-steel { --accent-start: #8CA6DB; --accent-end: #283E51; --accent-glow: rgba(140, 166, 219, 0.3); }
+        body.theme-neon-blue { 
+            --accent-start: #00F2FE; 
+            --accent-end: #4FACFE; 
+            --accent-glow: rgba(0, 242, 254, 0.2); 
+        }
+        body.theme-crimson-red { 
+            --accent-start: #FF4B2B; 
+            --accent-end: #FF416C; 
+            --accent-glow: rgba(255, 75, 43, 0.15); 
+        }
+        body.theme-fincher-yellow { 
+            --accent-start: #FBBF24; 
+            --accent-end: #D97706; 
+            --accent-glow: rgba(251, 191, 36, 0.15); 
+        }
+        body.theme-matrix-green { 
+            --accent-start: #4ADE80; 
+            --accent-end: #16A34A; 
+            --accent-glow: rgba(74, 222, 128, 0.15); 
+        }
+        body.theme-amethyst { 
+            --accent-start: #C084FC; 
+            --accent-end: #7E22CE; 
+            --accent-glow: rgba(192, 132, 252, 0.15); 
+        }
+        body.theme-nolan-steel { 
+            --accent-start: #8CA6DB; 
+            --accent-end: #283E51; 
+            --accent-glow: rgba(140, 166, 219, 0.15); 
+        }
 
         /* ==========================================
            🌍 CORE ARCHITECTURE
            ========================================== */
         body { 
             font-family: 'Inter', sans-serif; 
-            max-width: 1200px; 
-            margin: 0 auto; 
+            margin: 0; 
             padding: 40px 20px; 
             background-color: var(--bg-base);
             background-image: 
-                radial-gradient(circle at 50% 0%, var(--bg-glow) 0%, transparent 70%),
+                radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, transparent 70%),
                 linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
             background-size: 100% 100%, 30px 30px, 30px 30px;
@@ -60,21 +82,31 @@
             letter-spacing: 0.2px; 
             min-height: 100vh;
             overflow-x: hidden;
+            transition: background-image 0.8s ease;
         }
 
-        /* 🎥 FOCUS PULL ENGINE */
         #app-container {
+            max-width: 1200px;
+            margin: 0 auto;
             transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
+
         #app-container.focus-pull {
             filter: blur(10px) brightness(0.6);
             transform: scale(0.96);
             pointer-events: none;
         }
 
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar { 
+            width: 4px; 
+        }
+        ::-webkit-scrollbar-track { 
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 10px; 
+        }
 
         h1 { 
             text-align: center; 
@@ -97,9 +129,12 @@
             border-radius: 20px; 
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.02);
             transition: all 0.4s ease;
+            box-sizing: border-box;
         }
 
-        .hidden { display: none !important; }
+        .hidden { 
+            display: none !important; 
+        }
 
         /* ==========================================
            ⏱️ TELEMETRY & PROFILE BAR
@@ -110,6 +145,8 @@
             align-items: center; 
             padding: 16px 24px; 
             margin-bottom: 40px; 
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .telemetry-data {
@@ -124,35 +161,42 @@
             gap: 10px;
         }
 
-        .rec-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--danger);
-            border-radius: 50%;
-            animation: pulse-rec 1.5s infinite;
+        .rec-dot { 
+            width: 8px; 
+            height: 8px; 
+            background-color: var(--danger); 
+            border-radius: 50%; 
+            animation: pulse-rec 1.5s infinite; 
         }
 
-        @keyframes pulse-rec {
-            0% { opacity: 1; box-shadow: 0 0 10px var(--danger); }
-            50% { opacity: 0.3; box-shadow: 0 0 2px var(--danger); }
-            100% { opacity: 1; box-shadow: 0 0 10px var(--danger); }
+        @keyframes pulse-rec { 
+            0% { opacity: 1; box-shadow: 0 0 10px var(--danger); } 
+            50% { opacity: 0.3; box-shadow: 0 0 2px var(--danger); } 
+            100% { opacity: 1; box-shadow: 0 0 10px var(--danger); } 
         }
 
-        .controls-group { display: flex; gap: 12px; align-items: center; }
+        .controls-group { 
+            display: flex; 
+            gap: 12px; 
+            align-items: center; 
+            flex-wrap: wrap;
+        }
+
         .logout-btn { 
-            background: rgba(239, 68, 68, 0.05) !important; 
-            border: 1px solid rgba(239, 68, 68, 0.2) !important; 
-            color: var(--danger) !important; 
-            padding: 8px 16px !important; 
+            background: rgba(239, 68, 68, 0.05); 
+            border: 1px solid rgba(239, 68, 68, 0.2); 
+            color: var(--danger); 
+            padding: 8px 16px; 
             border-radius: 8px; 
             font-weight: 700; 
-            transition: all 0.3s ease; 
+            transition: 0.3s; 
             text-transform: uppercase; 
-            font-size: 10px;
+            font-size: 10px; 
+            cursor: pointer;
         }
         .logout-btn:hover { 
-            background: var(--danger) !important; 
-            color: #fff !important; 
+            background: var(--danger); 
+            color: #fff; 
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); 
         }
 
@@ -160,16 +204,16 @@
            🎛️ STUDIO NAVIGATION
            ========================================== */
         .studio-nav { 
-            display: inline-flex; 
-            margin-bottom: 50px; 
+            display: flex; 
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 0 auto 50px auto; 
             background: rgba(0,0,0,0.5); 
             padding: 6px; 
             border-radius: 100px; 
             border: 1px solid rgba(255,255,255,0.04); 
             box-shadow: inset 0 4px 20px rgba(0,0,0,0.6); 
-            position: relative; 
-            left: 50%; 
-            transform: translateX(-50%); 
+            max-width: max-content;
         }
         .nav-btn { 
             background: transparent; 
@@ -185,9 +229,9 @@
             letter-spacing: 1.5px; 
         }
         .nav-btn.active { 
-            background: linear-gradient(135deg, #00F2FE, #4FACFE); 
+            background: linear-gradient(135deg, var(--accent-start), var(--accent-end)); 
             color: #fff; 
-            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.2), inset 0 1px 1px rgba(255,255,255,0.4); 
+            box-shadow: 0 8px 20px var(--accent-glow), inset 0 1px 1px rgba(255,255,255,0.4); 
             text-shadow: 0 1px 3px rgba(0,0,0,0.3); 
         }
 
@@ -200,6 +244,8 @@
             background: rgba(0,0,0,0.3); 
             border-radius: 12px; 
             border: 1px solid var(--glass-border); 
+            width: 100%;
+            box-sizing: border-box;
         }
         .lut-label { 
             font-size: 10px; 
@@ -210,7 +256,11 @@
             margin-bottom: 12px; 
             display: block; 
         }
-        .lut-grid { display: flex; gap: 12px; flex-wrap: wrap;}
+        .lut-grid { 
+            display: flex; 
+            gap: 12px; 
+            flex-wrap: wrap;
+        }
         .lut-swatch { 
             width: 28px; 
             height: 28px; 
@@ -229,7 +279,11 @@
         /* ==========================================
            📝 INPUTS & EDITOR
            ========================================== */
-        .form-group { margin-bottom: 20px; }
+        .form-group { 
+            margin-bottom: 20px; 
+            width: 100%; 
+            box-sizing: border-box; 
+        }
         input { 
             width: 100%; 
             padding: 15px 20px; 
@@ -250,7 +304,10 @@
             background: rgba(255,255,255,0.02); 
             box-shadow: 0 0 0 3px var(--accent-glow), inset 0 2px 5px rgba(0,0,0,0.5); 
         }
-        input::placeholder { color: #475569; font-weight: 500; }
+        input::placeholder { 
+            color: #475569; 
+            font-weight: 500; 
+        }
         
         .file-upload-box { 
             background: var(--input-bg); 
@@ -262,9 +319,23 @@
             transition: 0.3s; 
             box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
         }
-        .file-upload-box:hover { border-color: var(--accent-start); background: rgba(255,255,255,0.02); }
-        .file-upload-box input[type="file"] { display: none; }
-        .file-upload-box label { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--text-sub); display: block; width: 100%; letter-spacing: 1px; text-transform: uppercase;}
+        .file-upload-box:hover { 
+            border-color: var(--accent-start); 
+            background: rgba(255,255,255,0.02); 
+        }
+        .file-upload-box input[type="file"] { 
+            display: none; 
+        }
+        .file-upload-box label { 
+            cursor: pointer; 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: var(--text-sub); 
+            display: block; 
+            width: 100%; 
+            letter-spacing: 1px; 
+            text-transform: uppercase;
+        }
 
         .editor-wrapper { 
             margin-top: 4px; 
@@ -274,7 +345,10 @@
             transition: 0.4s; 
             box-shadow: 0 8px 25px rgba(0,0,0,0.4);
         }
-        .editor-wrapper:focus-within { border-color: var(--accent-start); box-shadow: 0 0 25px var(--accent-glow); }
+        .editor-wrapper:focus-within { 
+            border-color: var(--accent-start); 
+            box-shadow: 0 0 25px var(--accent-glow); 
+        }
         #editor-container { 
             height: 280px; 
             font-size: 16px; 
@@ -285,7 +359,12 @@
             line-height: 1.6; 
         }
         
-        .ql-toolbar { background: rgba(255,255,255,0.01) !important; border: none !important; border-bottom: 1px solid var(--glass-border) !important; padding: 12px !important; }
+        .ql-toolbar { 
+            background: rgba(255,255,255,0.01) !important; 
+            border: none !important; 
+            border-bottom: 1px solid var(--glass-border) !important; 
+            padding: 12px !important; 
+        }
         .ql-snow .ql-stroke { stroke: var(--text-sub); transition: 0.2s; }
         .ql-snow .ql-fill { fill: var(--text-sub); transition: 0.2s; }
         button.ql-active .ql-stroke { stroke: var(--accent-start) !important; }
@@ -304,7 +383,11 @@
             border-top: 1px solid rgba(255,255,255,0.02); 
             margin-bottom: 30px;
         }
-        .counter-highlight { color: var(--accent-start); text-shadow: 0 0 8px var(--accent-glow); transition: color 0.4s ease, text-shadow 0.4s ease; }
+        .counter-highlight { 
+            color: var(--accent-start); 
+            text-shadow: 0 0 8px var(--accent-glow); 
+            transition: color 0.4s ease, text-shadow 0.4s ease; 
+        }
 
         .canvas-toggle-btn { 
             background: rgba(255,255,255,0.02); 
@@ -323,12 +406,48 @@
             transition: 0.3s; 
             margin-top: 5px; 
         }
-        .canvas-toggle-btn:hover { border-color: var(--accent-start); background: rgba(255,255,255,0.05); color: #fff; box-shadow: 0 5px 15px var(--accent-glow);}
+        .canvas-toggle-btn:hover { 
+            border-color: var(--accent-start); 
+            background: rgba(255,255,255,0.05); 
+            color: #fff; 
+            box-shadow: 0 5px 15px var(--accent-glow);
+        }
         
-        .canvas-wrapper { background: #FFFFFF; border: 1px solid var(--glass-border); border-radius: 12px; margin-top: 15px; display: flex; flex-direction: column; overflow: hidden; }
-        .canvas-toolbar { display: flex; justify-content: space-between; align-items: center; background: #08080A; padding: 12px 18px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .canvas-control-btn { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #94A3B8; padding: 6px 12px; border-radius: 6px; font-size: 10px; text-transform: uppercase; cursor: pointer; transition: 0.2s;}
-        #doodle-canvas { background: #FFFFFF; width: 100%; height: 280px; cursor: crosshair; touch-action: none; }
+        .canvas-wrapper { 
+            background: #FFFFFF; 
+            border: 1px solid var(--glass-border); 
+            border-radius: 12px; 
+            margin-top: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+        }
+        .canvas-toolbar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #08080A; 
+            padding: 12px 18px; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+        }
+        .canvas-control-btn { 
+            background: transparent; 
+            border: 1px solid rgba(255,255,255,0.15); 
+            color: #94A3B8; 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        #doodle-canvas { 
+            background: #FFFFFF; 
+            width: 100%; 
+            height: 280px; 
+            cursor: crosshair; 
+            touch-action: none; 
+        }
 
         /* ==========================================
            🚀 BUTTONS & GLITCH PHYSICS
@@ -348,37 +467,81 @@
             margin-top: 25px; 
             transition: all 0.4s; 
             box-shadow: 0 8px 25px var(--accent-glow), inset 0 1px 1px rgba(255,255,255,0.4); 
+            box-sizing: border-box;
         }
-        .btn-primary:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 12px 30px var(--accent-glow); filter: brightness(1.1); }
+        .btn-primary:hover { 
+            transform: translateY(-2px) scale(1.01); 
+            box-shadow: 0 12px 30px var(--accent-glow); 
+            filter: brightness(1.1); 
+        }
         
-        /* CRT Analog Glitch Hover */
         @keyframes crtGlitch {
-            0% { transform: translate(0) }
+            0% { transform: translate(0) } 
             20% { transform: translate(-2px, 1px) }
-            40% { transform: translate(-1px, -1px) }
+            40% { transform: translate(-1px, -1px) } 
             60% { transform: translate(2px, 1px) }
-            80% { transform: translate(1px, -1px) }
+            80% { transform: translate(1px, -1px) } 
             100% { transform: translate(0) }
         }
-        .crt-hover:hover {
-            animation: crtGlitch 0.2s infinite;
-            text-shadow: 2px 0 var(--danger), -2px 0 #0ff;
-            background: #222 !important;
-            color: #fff !important;
-            border-color: var(--danger) !important;
+        .crt-hover:hover { 
+            animation: crtGlitch 0.2s infinite; 
+            text-shadow: 2px 0 var(--danger), -2px 0 #0ff; 
+            background: #222 !important; 
+            color: #fff !important; 
+            border-color: var(--danger) !important; 
         }
 
-        .autosave-text { font-size: 10px; color: var(--accent-start); text-align: right; display: block; margin-top: 12px; font-weight: 800; opacity: 0; transition: opacity 0.5s; text-transform: uppercase;}
+        .autosave-text { 
+            font-size: 10px; 
+            color: var(--accent-start); 
+            text-align: right; 
+            display: block; 
+            margin-top: 12px; 
+            font-weight: 800; 
+            opacity: 0; 
+            transition: opacity 0.5s; 
+            text-transform: uppercase;
+        }
 
         /* ==========================================
-           🔍 SEARCH & GRID
+           🔍 DASHBOARD GRID (Globally Themed)
            ========================================== */
-        .search-container { margin-top: 50px; margin-bottom: 35px; position: relative;}
-        .search-bar { padding-left: 50px; margin-top: 0; border-radius: 100px; width: 100%; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.05); font-size: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); padding-top: 15px; padding-bottom: 15px;} 
-        .search-bar:focus { background: rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.1);}
-        .search-icon { position: absolute; left: 22px; top: 16px; font-size: 16px; color: var(--text-sub); }
+        .search-container { 
+            margin-top: 50px; 
+            margin-bottom: 35px; 
+            position: relative;
+        }
+        .search-bar { 
+            padding-left: 50px; 
+            margin-top: 0; 
+            border-radius: 100px; 
+            width: 100%; 
+            background: rgba(255,255,255,0.015); 
+            border: 1px solid rgba(255,255,255,0.05); 
+            font-size: 14px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3); 
+            padding-top: 15px; 
+            padding-bottom: 15px; 
+            box-sizing: border-box;
+        } 
+        .search-bar:focus { 
+            background: rgba(0,0,0,0.6); 
+            border-color: rgba(255,255,255,0.1);
+        }
+        .search-icon { 
+            position: absolute; 
+            left: 22px; 
+            top: 16px; 
+            font-size: 16px; 
+            color: var(--text-sub); 
+        }
 
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 30px; margin-top: 15px; }
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 30px; 
+            margin-top: 15px; 
+        }
         .movie-card { 
             background: rgba(18,18,22,0.6); 
             backdrop-filter: blur(15px); 
@@ -393,42 +556,183 @@
             overflow: hidden; 
             padding: 30px;
         }
-        .movie-card::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
-            background: linear-gradient(90deg, var(--accent-start), var(--accent-end)); opacity: 0.5; transition: 0.4s;
+        .movie-card::before { 
+            content: ""; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 3px; 
+            background: linear-gradient(90deg, var(--accent-start), var(--accent-end)); 
+            opacity: 0.5; 
+            transition: 0.4s; 
         }
-        .movie-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.5); border-color: var(--accent-glow); background: rgba(22,22,28,0.7); }
-        .movie-card:hover::before { opacity: 1; box-shadow: 0 0 20px var(--accent-start); }
+        .movie-card:hover { 
+            transform: translateY(-6px); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); 
+            border-color: var(--accent-glow); 
+            background: rgba(22,22,28,0.7); 
+        }
+        .movie-card:hover::before { 
+            opacity: 1; 
+            box-shadow: 0 0 20px var(--accent-start); 
+        }
         
-        .movie-card.pinned { border: 1px solid rgba(250, 204, 21, 0.3); box-shadow: 0 12px 30px rgba(250, 204, 21, 0.08); }
-        .pin-badge { position: absolute; top: 22px; right: 25px; font-size: 20px; cursor: pointer; opacity: 0.1; transition: 0.3s; filter: grayscale(100%); }
-        .pin-badge:hover, .pinned .pin-badge { opacity: 1; filter: grayscale(0%); text-shadow: 0 0 15px rgba(250, 204, 21, 0.6);}
+        .movie-card.pinned { 
+            border: 1px solid rgba(250, 204, 21, 0.3); 
+            box-shadow: 0 12px 30px rgba(250, 204, 21, 0.08); 
+        }
+        .pin-badge { 
+            position: absolute; 
+            top: 22px; 
+            right: 25px; 
+            font-size: 20px; 
+            cursor: pointer; 
+            opacity: 0.1; 
+            transition: 0.3s; 
+            filter: grayscale(100%); 
+        }
+        .pin-badge:hover, .pinned .pin-badge { 
+            opacity: 1; 
+            filter: grayscale(0%); 
+            text-shadow: 0 0 15px rgba(250, 204, 21, 0.6);
+        }
         
-        .movie-title { font-size: 1.4rem; margin: 0 0 8px 0; font-weight: 900; color: #FFF; line-height: 1.2;}
-        .movie-director { font-size: 0.7rem; color: var(--accent-start); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 20px; transition: color 0.4s ease;}
+        .movie-title { 
+            font-size: 1.4rem; 
+            margin: 0 0 8px 0; 
+            font-weight: 900; 
+            color: #FFF; 
+            line-height: 1.2;
+        }
+        .movie-director { 
+            font-size: 0.7rem; 
+            color: var(--accent-start); 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            display: block; 
+            margin-bottom: 20px; 
+            transition: color 0.4s ease;
+        }
         
-        .script-display { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); color: #CBD5E1; font-family: 'Courier Prime', monospace; line-height: 1.6; font-size: 13px; max-height: 140px; overflow-y: auto;}
-        .pdf-attachment { display: block; background: rgba(255,255,255,0.02); color: var(--text-main); text-decoration: none; padding: 12px; font-size: 10px; border-radius: 8px; font-weight: 800; text-align: center; margin-top: 15px; transition: 0.3s; border: 1px dashed rgba(255,255,255,0.15); text-transform: uppercase;}
-        .pdf-attachment:hover { border-color: var(--accent-start); color: var(--accent-start); background: var(--accent-glow); }
-        .sketch-display-frame { width: 100%; background: #ffffff; border-radius: 10px; margin-top: 15px; display: block; max-height: 150px; object-fit: contain; opacity: 0.8; filter: grayscale(10%);}
-        .movie-card:hover .sketch-display-frame { opacity: 1; filter: grayscale(0%);}
+        .script-display { 
+            background: rgba(0,0,0,0.5); 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid rgba(255,255,255,0.03); 
+            color: #CBD5E1; 
+            font-family: 'Courier Prime', monospace; 
+            line-height: 1.6; 
+            font-size: 13px; 
+            max-height: 140px; 
+            overflow-y: auto;
+        }
+        .pdf-attachment { 
+            display: block; 
+            background: rgba(255,255,255,0.02); 
+            color: var(--text-main); 
+            text-decoration: none; 
+            padding: 12px; 
+            font-size: 10px; 
+            border-radius: 8px; 
+            font-weight: 800; 
+            text-align: center; 
+            margin-top: 15px; 
+            transition: 0.3s; 
+            border: 1px dashed rgba(255,255,255,0.15); 
+            text-transform: uppercase;
+        }
+        .pdf-attachment:hover { 
+            border-color: var(--accent-start); 
+            color: var(--accent-start); 
+            background: var(--accent-glow); 
+        }
+        .sketch-display-frame { 
+            width: 100%; 
+            background: #ffffff; 
+            border-radius: 10px; 
+            margin-top: 15px; 
+            display: block; 
+            max-height: 150px; 
+            object-fit: contain; 
+            opacity: 0.8; 
+            filter: grayscale(10%);
+        }
+        .movie-card:hover .sketch-display-frame { 
+            opacity: 1; 
+            filter: grayscale(0%);
+        }
 
-        .card-footer { display: flex; flex-direction: column; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.04); }
-        .card-timestamp { font-size: 9px; color: #475569; font-weight: 800; text-transform: uppercase; }
+        .card-footer { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            margin-top: 25px; 
+            padding-top: 20px; 
+            border-top: 1px solid rgba(255,255,255,0.04); 
+        }
+        .card-timestamp { 
+            font-size: 9px; 
+            color: #475569; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+        }
         
-        .card-actions { display: flex; gap: 10px; width: 100%; }
-        .action-btn { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); color: var(--text-main); padding: 10px 0; font-size: 10px; font-weight: 800; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; flex: 1;}
-        .action-btn:hover { transform: translateY(-2px); }
-        .btn-view:hover { background: var(--accent-start); border-color: var(--accent-start); color: #000; box-shadow: 0 6px 15px var(--accent-glow);}
-        .btn-edit:hover { background: #FFFFFF; color: #000; }
-        
+        .card-actions { 
+            display: flex; 
+            gap: 10px; 
+            width: 100%; 
+        }
+        .action-btn { 
+            background: rgba(255,255,255,0.02); 
+            border: 1px solid rgba(255,255,255,0.06); 
+            color: var(--text-main); 
+            padding: 10px 0; 
+            font-size: 10px; 
+            font-weight: 800; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            text-transform: uppercase; 
+            flex: 1;
+        }
+        .action-btn:hover { 
+            transform: translateY(-2px); 
+        }
+        .btn-view:hover { 
+            background: var(--accent-start); 
+            border-color: var(--accent-start); 
+            color: #000; 
+            box-shadow: 0 6px 15px var(--accent-glow);
+        }
+        .btn-edit:hover { 
+            background: #FFFFFF; 
+            color: #000; 
+        }
+
         /* ==========================================
            📌 STICKY NOTES & ORGANIC PHYSICS
            ========================================== */
-        .wall-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; padding-bottom: 25px; border-bottom: 1px solid var(--glass-border); }
-        .wall-grid { display: flex; flex-wrap: wrap; gap: 25px; justify-content: flex-start; min-height: 200px; padding: 5px; }
+        .wall-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 35px; 
+            padding-bottom: 25px; 
+            border-bottom: 1px solid var(--glass-border); 
+            flex-wrap: wrap; 
+            gap: 20px;
+        }
+        .wall-grid { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 25px; 
+            justify-content: center; 
+            min-height: 200px; 
+            padding: 5px; 
+        }
         
-        /* Note: JS applies randomized rotation inline for true organic feel */
         .global-sticky, .project-sticky { 
             width: 240px; 
             height: 260px; 
@@ -446,46 +750,220 @@
             z-index: 100 !important; 
             box-shadow: 15px 20px 35px rgba(0,0,0,0.5); 
         }
-        .sticky-ghost { opacity: 0.15; border: 2px dashed #fff; } 
+        .sticky-ghost { 
+            opacity: 0.15; 
+            border: 2px dashed #fff; 
+        } 
         
         .global-sticky textarea, .project-sticky textarea, .sticky-note-read { 
-            flex: 1; background: transparent; border: none; color: #111; 
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            color: #111; 
             font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; 
-            font-size: 15px; resize: none; outline: none; line-height: 1.5; font-weight: 600;
+            font-size: 15px; 
+            resize: none; 
+            outline: none; 
+            line-height: 1.5; 
+            font-weight: 600;
         }
-        .sticky-colors { display: flex; gap: 8px; margin-bottom: 15px; }
-        .color-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.6); }
-        .delete-sticky { position: absolute; top: -10px; right: -10px; background: var(--danger); color: white; border-radius: 50%; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; font-weight: bold; border: 3px solid var(--bg-base); z-index: 10;}
-        .convert-project-btn { position: absolute; bottom: 15px; left: 20px; right: 20px; background: rgba(0,0,0,0.05); color: #000; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; cursor: pointer; text-align: center;}
+        .sticky-colors { 
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 15px; 
+        }
+        .color-dot { 
+            width: 14px; 
+            height: 14px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            border: 1px solid rgba(0,0,0,0.1); 
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.6); 
+        }
+        .delete-sticky { 
+            position: absolute; 
+            top: -10px; 
+            right: -10px; 
+            background: var(--danger); 
+            color: white; 
+            border-radius: 50%; 
+            width: 26px; 
+            height: 26px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            cursor: pointer; 
+            font-size: 12px; 
+            font-weight: bold; 
+            border: 3px solid var(--bg-base); 
+            z-index: 10;
+        }
+        .convert-project-btn { 
+            position: absolute; 
+            bottom: 15px; 
+            left: 20px; 
+            right: 20px; 
+            background: rgba(0,0,0,0.05); 
+            color: #000; 
+            border: 1px solid rgba(0,0,0,0.1); 
+            padding: 10px; 
+            border-radius: 8px; 
+            font-size: 10px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            cursor: pointer; 
+            text-align: center;
+        }
 
         /* ==========================================
            🚨 MODALS
            ========================================== */
         .modal-overlay { 
             position: fixed; 
-            top: 0; left: 0; width: 100vw; height: 100vh; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
             background: rgba(0,0,0,0.6); 
-            z-index: 99999; display: flex; justify-content: center; align-items: center; 
-            opacity: 0; pointer-events: none; transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            z-index: 99999; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            opacity: 0; 
+            pointer-events: none; 
+            transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); 
             backdrop-filter: blur(5px); 
         }
-        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-overlay.active { 
+            opacity: 1; 
+            pointer-events: all; 
+        }
         .custom-modal-box { 
             background: rgba(12,12,16,0.95); 
-            width: 90%; max-width: 440px; border-radius: 24px; padding: 45px; position: relative; 
-            border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 35px 70px rgba(0,0,0,0.7); 
-            text-align: left; transform: translateY(30px) scale(0.97); transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            width: 90%; 
+            max-width: 440px; 
+            border-radius: 24px; 
+            padding: 45px; 
+            position: relative; 
+            border: 1px solid rgba(255,255,255,0.06); 
+            box-shadow: 0 35px 70px rgba(0,0,0,0.7); 
+            text-align: left; 
+            transform: translateY(30px) scale(0.97); 
+            transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            box-sizing: border-box;
         }
-        .modal-overlay.active .custom-modal-box { transform: translateY(0) scale(1); }
+        .modal-overlay.active .custom-modal-box { 
+            transform: translateY(0) scale(1); 
+        }
         
-        .delete-modal-box { border-top: 3px solid var(--danger); text-align: center;}
+        .delete-modal-box { 
+            border-top: 3px solid var(--danger); 
+            text-align: center;
+        }
         
-        .view-modal-box { max-width: 900px; max-height: 85vh; overflow-y: auto; padding: 50px; border-top: 4px solid var(--accent-start); }
-        .close-modal-btn { position: absolute; top: 25px; right: 30px; font-size: 24px; cursor: pointer; color: var(--text-sub); background: none; border: none; }
-        #view-title { font-size: 2.6em; color: #fff; background: none; -webkit-text-fill-color: initial; margin-bottom: 8px; text-transform: none; font-weight: 900;}
-        #view-director { color: var(--accent-start); margin-top: 0; text-transform: uppercase; letter-spacing: 3px; font-size: 1em; font-weight: 800;}
-        #view-script { margin-top: 40px; font-family: 'Courier Prime', monospace; line-height: 1.8; font-size: 16px; color: #E2E8F0; background: #060608; padding: 35px; border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: inset 0 8px 25px rgba(0,0,0,0.6);}
+        .view-modal-box { 
+            max-width: 900px; 
+            max-height: 85vh; 
+            overflow-y: auto; 
+            padding: 50px; 
+            border-top: 4px solid var(--accent-start); 
+        }
+        .close-modal-btn { 
+            position: absolute; 
+            top: 25px; 
+            right: 30px; 
+            font-size: 24px; 
+            cursor: pointer; 
+            color: var(--text-sub); 
+            background: none; 
+            border: none; 
+        }
+        #view-title { 
+            font-size: 2.6em; 
+            color: #fff; 
+            background: none; 
+            -webkit-text-fill-color: initial; 
+            margin-bottom: 8px; 
+            text-transform: none; 
+            font-weight: 900; 
+            line-height: 1.1;
+        }
+        #view-director { 
+            color: var(--accent-start); 
+            margin-top: 0; 
+            text-transform: uppercase; 
+            letter-spacing: 3px; 
+            font-size: 1em; 
+            font-weight: 800;
+        }
+        #view-script { 
+            margin-top: 40px; 
+            font-family: 'Courier Prime', monospace; 
+            line-height: 1.8; 
+            font-size: 16px; 
+            color: #E2E8F0; 
+            background: #060608; 
+            padding: 35px; 
+            border-radius: 12px; 
+            border: 1px solid var(--glass-border); 
+            box-shadow: inset 0 8px 25px rgba(0,0,0,0.6);
+        }
 
+        /* ==========================================
+           📱 MOBILE ALIGNMENT (THE FIX)
+           ========================================== */
+        @media (max-width: 768px) {
+            body { 
+                padding: 15px 10px; 
+            }
+            h1 { 
+                font-size: 1.8rem; 
+                letter-spacing: 3px; 
+                margin-bottom: 30px;
+            }
+            
+            .studio-nav { 
+                flex-direction: row; 
+                flex-wrap: wrap; 
+                border-radius: 16px; 
+                width: 100%; 
+                left: 0; 
+                transform: none; 
+                padding: 4px;
+                box-sizing: border-box;
+            }
+            .nav-btn { 
+                flex: 1 1 auto; 
+                padding: 12px 10px; 
+                font-size: 10px; 
+                text-align: center; 
+                border-radius: 12px;
+            }
+            
+            .glass-panel { 
+                padding: 25px 15px; 
+                border-radius: 16px; 
+            }
+            #workspace-scripts .glass-panel, 
+            #workspace-storyboards .dynamic-theme-container > .glass-panel { 
+                padding: 20px; 
+            }
+            
+            .lut-grid { justify-content: center; }
+            .dashboard-grid { grid-template-columns: 1fr; gap: 20px; }
+            .wall-grid { justify-content: center; }
+            .global-sticky, .project-sticky { width: 100%; max-width: 300px; height: auto; min-height: 240px; }
+            
+            .profile-bar { flex-direction: column; text-align: center; }
+            .controls-group { width: 100%; justify-content: space-between; }
+            
+            .card-actions { flex-wrap: wrap; }
+            .action-btn { flex: 1 1 45%; }
+            
+            .custom-modal-box { padding: 30px 20px; }
+            #view-title { font-size: 1.8rem; }
+            .close-modal-btn { right: 20px; top: 15px; }
+        }
     </style>
 </head>
 <body class="theme-neon-blue">
@@ -522,26 +1000,30 @@
         <div class="studio-nav">
             <button id="nav-scripts" class="nav-btn active" onclick="switchTab('scripts')">🎬 Notebook</button>
             <button id="nav-storyboards" class="nav-btn" onclick="switchTab('storyboards')">🗂️ Storyboards</button>
-            <button id="nav-wall" class="nav-btn" onclick="switchTab('wall')">📌 Brainstorm Wall</button>
+            <button id="nav-wall" class="nav-btn" onclick="switchTab('wall')">📌 Wall</button>
         </div>
 
         <div id="workspace-scripts">
-            <div class="glass-panel dynamic-theme-container" id="movie-form-panel" style="max-width: 800px; margin: 0 auto; padding: 40px;">
+            <div class="glass-panel" id="movie-form-panel" style="max-width: 800px; margin: 0 auto;">
                 
                 <div class="lut-container">
-                    <span class="lut-label">Select Project Color Grade (LUT)</span>
+                    <span class="lut-label">Global Color Grade (LUT)</span>
                     <div class="lut-grid" id="movie-lut-grid">
-                        <div class="lut-swatch active" style="background: linear-gradient(135deg, #00F2FE, #4FACFE);" onclick="selectTheme('movie', 'theme-neon-blue')" title="Neon Sci-Fi"></div>
-                        <div class="lut-swatch" style="background: linear-gradient(135deg, #FF4B2B, #FF416C);" onclick="selectTheme('movie', 'theme-crimson-red')" title="Mars Crimson"></div>
-                        <div class="lut-swatch" style="background: linear-gradient(135deg, #FBBF24, #D97706);" onclick="selectTheme('movie', 'theme-fincher-yellow')" title="Fincher Gritty"></div>
-                        <div class="lut-swatch" style="background: linear-gradient(135deg, #4ADE80, #16A34A);" onclick="selectTheme('movie', 'theme-matrix-green')" title="Matrix Overdrive"></div>
-                        <div class="lut-swatch" style="background: linear-gradient(135deg, #C084FC, #7E22CE);" onclick="selectTheme('movie', 'theme-amethyst')" title="Neon Amethyst"></div>
-                        <div class="lut-swatch" style="background: linear-gradient(135deg, #8CA6DB, #283E51);" onclick="selectTheme('movie', 'theme-nolan-steel')" title="Nolan Inception Frost"></div>
+                        <div class="lut-swatch active" style="background: linear-gradient(135deg, #00F2FE, #4FACFE);" onclick="selectTheme('theme-neon-blue', this)" title="Neon Sci-Fi"></div>
+                        <div class="lut-swatch" style="background: linear-gradient(135deg, #FF4B2B, #FF416C);" onclick="selectTheme('theme-crimson-red', this)" title="Mars Crimson"></div>
+                        <div class="lut-swatch" style="background: linear-gradient(135deg, #FBBF24, #D97706);" onclick="selectTheme('theme-fincher-yellow', this)" title="Fincher Gritty"></div>
+                        <div class="lut-swatch" style="background: linear-gradient(135deg, #4ADE80, #16A34A);" onclick="selectTheme('theme-matrix-green', this)" title="Matrix Overdrive"></div>
+                        <div class="lut-swatch" style="background: linear-gradient(135deg, #C084FC, #7E22CE);" onclick="selectTheme('theme-amethyst', this)" title="Neon Amethyst"></div>
+                        <div class="lut-swatch" style="background: linear-gradient(135deg, #8CA6DB, #283E51);" onclick="selectTheme('theme-nolan-steel', this)" title="Nolan Inception Frost"></div>
                     </div>
                 </div>
 
-                <div class="form-group"><input type="text" id="movie-title" placeholder="Script Title / Designation" style="font-size: 18px; font-weight: 900;"></div>
-                <div class="form-group"><input type="text" id="movie-director" placeholder="Director / Brand Association"></div>
+                <div class="form-group">
+                    <input type="text" id="movie-title" placeholder="Script Title / Designation" style="font-size: 18px; font-weight: 900;">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="movie-director" placeholder="Director / Brand Association">
+                </div>
                 <div class="form-group">
                     <div class="file-upload-box">
                         <input type="file" id="file-pdf" accept=".pdf" onchange="updateFileLabel()">
@@ -550,14 +1032,18 @@
                 </div>
                 
                 <div class="form-group" style="margin-bottom: 0;">
-                    <div class="editor-wrapper"><div id="editor-container"></div></div>
+                    <div class="editor-wrapper">
+                        <div id="editor-container"></div>
+                    </div>
                     <div class="counter-panel">
                         <span>Metrics: <span id="word-count-val" class="counter-highlight">0</span> words</span>
                         <span>Est Run-Time: <span id="run-time-val" class="counter-highlight">0s</span></span>
                     </div>
                 </div>
 
-                <div class="canvas-toggle-btn" id="canvas-toggle" onclick="toggleDoodlePad()">🎨 <span>Toggle Visual Storyboard Pad</span></div>
+                <div class="canvas-toggle-btn" id="canvas-toggle" onclick="toggleDoodlePad()">
+                    🎨 <span>Toggle Visual Storyboard Pad</span>
+                </div>
                 <div class="canvas-wrapper hidden" id="canvas-section">
                     <div class="canvas-toolbar">
                         <span style="font-size: 10px; color: #fff; text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px;">Storyboard Sketch Engine</span>
@@ -581,18 +1067,18 @@
         </div>
 
         <div id="workspace-storyboards" class="hidden">
-            <div class="dynamic-theme-container" id="storyboard-form-panel" style="max-width: 1000px; margin: 0 auto;">
-                <div class="wall-header glass-panel" style="flex-direction: column; align-items: flex-start; padding: 40px; margin-bottom: 25px; border: none;">
+            <div id="storyboard-form-panel" style="max-width: 1000px; margin: 0 auto;">
+                <div class="wall-header glass-panel" style="flex-direction: column; align-items: flex-start; padding: 40px; margin-bottom: 25px; border: none; width: 100%;">
                     
                     <div class="lut-container" style="width: 100%; box-sizing: border-box; margin-bottom: 30px;">
-                        <span class="lut-label">Select Project Color Grade (LUT)</span>
+                        <span class="lut-label">Global Color Grade (LUT)</span>
                         <div class="lut-grid" id="storyboard-lut-grid">
-                            <div class="lut-swatch active" style="background: linear-gradient(135deg, #00F2FE, #4FACFE);" onclick="selectTheme('storyboard', 'theme-neon-blue')"></div>
-                            <div class="lut-swatch" style="background: linear-gradient(135deg, #FF4B2B, #FF416C);" onclick="selectTheme('storyboard', 'theme-crimson-red')"></div>
-                            <div class="lut-swatch" style="background: linear-gradient(135deg, #FBBF24, #D97706);" onclick="selectTheme('storyboard', 'theme-fincher-yellow')"></div>
-                            <div class="lut-swatch" style="background: linear-gradient(135deg, #4ADE80, #16A34A);" onclick="selectTheme('storyboard', 'theme-matrix-green')"></div>
-                            <div class="lut-swatch" style="background: linear-gradient(135deg, #C084FC, #7E22CE);" onclick="selectTheme('storyboard', 'theme-amethyst')"></div>
-                            <div class="lut-swatch" style="background: linear-gradient(135deg, #8CA6DB, #283E51);" onclick="selectTheme('storyboard', 'theme-nolan-steel')"></div>
+                            <div class="lut-swatch active" style="background: linear-gradient(135deg, #00F2FE, #4FACFE);" onclick="selectTheme('theme-neon-blue', this)"></div>
+                            <div class="lut-swatch" style="background: linear-gradient(135deg, #FF4B2B, #FF416C);" onclick="selectTheme('theme-crimson-red', this)"></div>
+                            <div class="lut-swatch" style="background: linear-gradient(135deg, #FBBF24, #D97706);" onclick="selectTheme('theme-fincher-yellow', this)"></div>
+                            <div class="lut-swatch" style="background: linear-gradient(135deg, #4ADE80, #16A34A);" onclick="selectTheme('theme-matrix-green', this)"></div>
+                            <div class="lut-swatch" style="background: linear-gradient(135deg, #C084FC, #7E22CE);" onclick="selectTheme('theme-amethyst', this)"></div>
+                            <div class="lut-swatch" style="background: linear-gradient(135deg, #8CA6DB, #283E51);" onclick="selectTheme('theme-nolan-steel', this)"></div>
                         </div>
                     </div>
 
@@ -619,7 +1105,7 @@
         </div>
 
         <div id="workspace-wall" class="hidden">
-            <div class="wall-header glass-panel" style="padding: 35px; margin-bottom: 45px; border: none;">
+            <div class="wall-header glass-panel" style="padding: 35px; margin-bottom: 45px; border: none; width: 100%; box-sizing: border-box;">
                 <div>
                     <h2 style="color: #fff; margin: 0 0 8px 0; font-weight: 900; font-size: 1.8rem; letter-spacing: 1px;">Studio Ideation Board</h2>
                     <p style="color: var(--text-sub); margin: 0; font-size: 14px;">Unstructured thought zone. Capture ideas before they become official.</p>
@@ -642,7 +1128,7 @@
     </div>
 
     <div id="view-modal" class="modal-overlay">
-        <div class="custom-modal-box view-modal-box glass-panel" id="dynamic-view-modal">
+        <div class="custom-modal-box view-modal-box glass-panel">
             <button class="close-modal-btn" onclick="closeViewModal()">✖</button>
             <h1 id="view-title"></h1>
             <h3 id="view-director"></h3>
@@ -657,9 +1143,9 @@
         <div class="custom-modal-box glass-panel" style="border-top: 3px solid #fff;">
             <h2 style="margin-top: 0; color: #fff; font-weight: 900;">Route Concept</h2>
             <input type="text" id="convert-project-title" placeholder="Enter Project Designation..." style="margin-bottom: 20px; margin-top: 15px;" />
-            <div style="display: flex; gap: 12px;">
-                <button class="btn-primary" style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); flex: 1; padding: 14px;" onclick="confirmConvertProject('movie')">🎬 Notebook</button>
-                <button class="btn-primary" style="background: linear-gradient(135deg, #0EA5E9, #1D4ED8); flex: 1; padding: 14px;" onclick="confirmConvertProject('storyboard')">🗂️ Storyboard</button>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                <button class="btn-primary" style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); flex: 1 1 45%; padding: 14px;" onclick="confirmConvertProject('movie')">🎬 Notebook</button>
+                <button class="btn-primary" style="background: linear-gradient(135deg, #0EA5E9, #1D4ED8); flex: 1 1 45%; padding: 14px;" onclick="confirmConvertProject('storyboard')">🗂️ Storyboard</button>
             </div>
             <button class="action-btn" style="background: transparent; border: none; width: 100%; margin-top: 15px;" onclick="closeConvertModal()">Cancel</button>
         </div>
@@ -673,103 +1159,127 @@
         const supabaseKey = 'sb_publishable_bgZqcUz1ZzF7yvMweC4Hpw_t_n308Ep';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let currentAuthMode = 'login';
+        let currentAuthMode = 'login'; 
         let currentUser = null;
         let editingMovieId = null; 
         let editingStoryboardId = null;
-        let rawMovies = [];
+        let rawMovies = []; 
         let rawStoryboards = [];
 
         const stickyColors = ['#FDE68A', '#FBCFE8', '#A7F3D0', '#BFDBFE', '#E9D5FF']; 
 
         // ==========================================
-        // ⏱️ LIVE SMPTE TIMECODE ENGINE
+        // ⏱️ SMPTE TIMECODE
         // ==========================================
         setInterval(() => {
             const d = new Date();
             const h = String(d.getHours()).padStart(2, '0');
             const m = String(d.getMinutes()).padStart(2, '0');
             const s = String(d.getSeconds()).padStart(2, '0');
-            const f = String(Math.floor(d.getMilliseconds() / 41.66)).padStart(2, '0'); // Approx 24fps format
+            const f = String(Math.floor(d.getMilliseconds() / 41.66)).padStart(2, '0');
             const el = document.getElementById('smpte-timecode');
-            if(el) el.innerText = `TCR ${h}:${m}:${s}:${f}`;
+            if(el) {
+                el.innerText = `TCR ${h}:${m}:${s}:${f}`;
+            }
         }, 41);
 
         // ==========================================
-        // 🎥 FOCUS PULL MODAL CONTROLS
+        // 🎥 FOCUS PULL ENGINE
         // ==========================================
         function triggerFocusPull(active) {
             const app = document.getElementById('app-container');
-            if(active) app.classList.add('focus-pull');
-            else app.classList.remove('focus-pull');
+            if(active) {
+                app.classList.add('focus-pull');
+            } else {
+                app.classList.remove('focus-pull');
+            }
         }
 
         // ==========================================
-        // 🎨 LUT ENGINE
+        // 🎨 GLOBAL LUT ENGINE 
         // ==========================================
-        let activeThemeMovie = 'theme-neon-blue';
-        let activeThemeStoryboard = 'theme-neon-blue';
+        let globalActiveTheme = 'theme-neon-blue';
 
-        function selectTheme(type, themeClass) {
-            const containerId = type === 'movie' ? 'movie-form-panel' : 'storyboard-form-panel';
-            const gridId = type === 'movie' ? 'movie-lut-grid' : 'storyboard-lut-grid';
+        function selectTheme(themeClass, element) {
+            document.body.className = themeClass;
+            globalActiveTheme = themeClass;
+
+            const allSwatches = document.querySelectorAll('.lut-swatch');
+            allSwatches.forEach(swatch => swatch.classList.remove('active'));
             
-            if (type === 'movie') activeThemeMovie = themeClass;
-            else activeThemeStoryboard = themeClass;
-
-            const container = document.getElementById(containerId);
-            container.className = `glass-panel dynamic-theme-container ${themeClass}`;
-
-            const swatches = document.getElementById(gridId).getElementsByClassName('lut-swatch');
-            for(let i=0; i<swatches.length; i++) {
-                swatches[i].classList.remove('active');
+            const index = Array.from(element.parentNode.children).indexOf(element);
+            const mGrid = document.getElementById('movie-lut-grid');
+            const sGrid = document.getElementById('storyboard-lut-grid');
+            
+            if(mGrid && mGrid.children[index]) {
+                mGrid.children[index].classList.add('active');
             }
-            event.target.classList.add('active');
+            if(sGrid && sGrid.children[index]) {
+                sGrid.children[index].classList.add('active');
+            }
         }
 
         // ==========================================
         // 🛠️ HELPER FUNCTIONS
         // ==========================================
         function isCanvasSurfaceBlank() {
-            if (!canvas) return true;
-            const blank = document.createElement('canvas');
-            blank.width = canvas.width; blank.height = canvas.height;
+            if (!canvas) return true; 
+            const blank = document.createElement('canvas'); 
+            blank.width = canvas.width; 
+            blank.height = canvas.height; 
             return canvas.toDataURL() === blank.toDataURL();
         }
 
+        // --- THE PDF UPLOAD FIX WITH MASSIVE ERROR CATCHING ---
         async function uploadPDFToStorage() {
-            const fileInput = document.getElementById('file-pdf');
+            const fileInput = document.getElementById('file-pdf'); 
             if (!fileInput || fileInput.files.length === 0) return null;
-            const file = fileInput.files[0];
-            const fileName = `${currentUser.id}-${Date.now()}.pdf`;
-            const filePath = `documents/${fileName}`;
-            const { error } = await supabaseClient.storage.from('project-files').upload(filePath, file);
-            if (error) return null;
-            const { data: urlData } = supabaseClient.storage.from('project-files').getPublicUrl(filePath);
-            return urlData.publicUrl;
+            
+            const file = fileInput.files[0]; 
+            const filePath = `documents/${currentUser.id}-${Date.now()}.pdf`;
+            
+            try {
+                const { error } = await supabaseClient.storage.from('project-files').upload(filePath, file);
+                
+                if (error) {
+                    alert(`🚨 PDF UPLOAD FAILED!\n\nError: ${error.message}\n\nDeveloper Note: Please ensure your Supabase Storage Bucket is named exactly 'project-files' and is set to 'Public'.`);
+                    return null;
+                }
+                
+                const { data: urlData } = supabaseClient.storage.from('project-files').getPublicUrl(filePath); 
+                return urlData.publicUrl;
+                
+            } catch (err) {
+                alert(`🚨 CRITICAL UPLOAD ERROR: ${err.message}`);
+                return null;
+            }
         }
 
         function updateFileLabel() { 
             const fileInput = document.getElementById('file-pdf');
             if (fileInput.files.length > 0) {
-                document.getElementById('label-pdf').innerText = `✔️ Payload Attached: ${fileInput.files[0].name}`; 
+                document.getElementById('label-pdf').innerText = `✔️ Payload Attached: ${fileInput.files[0].name.substring(0, 15)}...`; 
             }
         }
 
         // ==========================================
-        // 🚨 CUSTOM DELETE ENGINE
+        // 🚨 DELETE ENGINE
         // ==========================================
-        let pendingDeleteId = null; let pendingDeleteTable = null;
+        let pendingDeleteId = null; 
+        let pendingDeleteTable = null;
         
         function openDeleteModal(id, table) { 
-            pendingDeleteId = id; pendingDeleteTable = table; 
+            pendingDeleteId = id; 
+            pendingDeleteTable = table; 
             document.getElementById('custom-delete-modal').classList.add('active'); 
-            triggerFocusPull(true);
+            triggerFocusPull(true); 
         }
+        
         function closeDeleteModal() { 
-            pendingDeleteId = null; pendingDeleteTable = null; 
+            pendingDeleteId = null; 
+            pendingDeleteTable = null; 
             document.getElementById('custom-delete-modal').classList.remove('active'); 
-            triggerFocusPull(false);
+            triggerFocusPull(false); 
         }
         
         async function executeDelete() {
@@ -777,149 +1287,250 @@
             try {
                 const { error } = await supabaseClient.from(pendingDeleteTable).delete().eq('id', pendingDeleteId);
                 if (error) throw error;
-                if(pendingDeleteTable === 'Movies') fetchMovies();
-                if(pendingDeleteTable === 'Storyboards') fetchStoryboards();
-                if(pendingDeleteTable === 'Studio_Wall') { globalNotes = globalNotes.filter(n => n.id !== pendingDeleteId); renderGlobalWall(); }
-            } catch (err) { alert("Deletion error: " + err.message); }
+                
+                if(pendingDeleteTable === 'Movies') {
+                    fetchMovies();
+                }
+                if(pendingDeleteTable === 'Storyboards') {
+                    fetchStoryboards();
+                }
+                if(pendingDeleteTable === 'Studio_Wall') { 
+                    globalNotes = globalNotes.filter(n => n.id !== pendingDeleteId); 
+                    renderGlobalWall(); 
+                }
+            } catch (err) { 
+                alert("Deletion error: " + err.message); 
+            }
             closeDeleteModal();
         }
 
         // ==========================================
-        // 🎛️ TAB SWITCHING LOGIC
+        // 🎛️ TAB ROUTING
         // ==========================================
         function switchTab(tab) {
-            document.getElementById('workspace-scripts').classList.add('hidden');
-            document.getElementById('workspace-storyboards').classList.add('hidden');
+            document.getElementById('workspace-scripts').classList.add('hidden'); 
+            document.getElementById('workspace-storyboards').classList.add('hidden'); 
             document.getElementById('workspace-wall').classList.add('hidden');
-            document.getElementById('nav-scripts').classList.remove('active');
-            document.getElementById('nav-storyboards').classList.remove('active');
+            
+            document.getElementById('nav-scripts').classList.remove('active'); 
+            document.getElementById('nav-storyboards').classList.remove('active'); 
             document.getElementById('nav-wall').classList.remove('active');
-            document.getElementById('workspace-' + tab).classList.remove('hidden');
+            
+            document.getElementById('workspace-' + tab).classList.remove('hidden'); 
             document.getElementById('nav-' + tab).classList.add('active');
             
-            if(tab === 'wall') loadGlobalStickies(); 
-            if(tab === 'scripts') fetchMovies();
-            if(tab === 'storyboards') { fetchStoryboards(); if(projectStickies.length === 0 && !editingStoryboardId) addStoryboardSticky(); }
+            if(tab === 'wall') {
+                loadGlobalStickies(); 
+            }
+            if(tab === 'scripts') {
+                fetchMovies();
+            }
+            if(tab === 'storyboards') { 
+                fetchStoryboards(); 
+                if(projectStickies.length === 0 && !editingStoryboardId) {
+                    addStoryboardSticky(); 
+                }
+            }
         }
 
         // ==========================================
-        // 📌 TAB 3: GLOBAL BRAINSTORM WALL
+        // 📌 TAB 3: BRAINSTORM WALL
         // ==========================================
-        let globalNotes = [];
-
-        async function loadGlobalStickies() {
-            const { data, error } = await supabaseClient.from('Studio_Wall').select('*').order('created_at', { ascending: false });
-            if (!error) { globalNotes = data; renderGlobalWall(); }
+        async function loadGlobalStickies() { 
+            const { data, error } = await supabaseClient.from('Studio_Wall').select('*').order('created_at', { ascending: false }); 
+            if (!error) { 
+                globalNotes = data; 
+                renderGlobalWall(); 
+            } 
         }
         
         async function createGlobalSticky() {
             if (!currentUser) return; 
-            const newNote = { id: Date.now() + Math.floor(Math.random()*1000), text: '', color: stickyColors[0], user_id: currentUser.id };
-            const { data, error } = await supabaseClient.from('Studio_Wall').insert([newNote]).select();
-            if (!error) { globalNotes.unshift(data[0]); renderGlobalWall(); }
+            const newNote = { 
+                id: Date.now() + Math.floor(Math.random()*1000), 
+                text: '', 
+                color: stickyColors[0], 
+                user_id: currentUser.id 
+            };
+            const { data, error } = await supabaseClient.from('Studio_Wall').insert([newNote]).select(); 
+            if (!error) { 
+                globalNotes.unshift(data[0]); 
+                renderGlobalWall(); 
+            }
         }
         
         let stickyTimeout;
         function updateGlobalStickyText(id, text) {
-            const note = globalNotes.find(n => n.id === id); if(note) note.text = text;
+            const note = globalNotes.find(n => n.id === id); 
+            if(note) {
+                note.text = text; 
+            }
             clearTimeout(stickyTimeout);
-            stickyTimeout = setTimeout(async () => { await supabaseClient.from('Studio_Wall').update({ text: text }).eq('id', id); }, 1000);
+            stickyTimeout = setTimeout(async () => { 
+                await supabaseClient.from('Studio_Wall').update({ text: text }).eq('id', id); 
+            }, 1000);
         }
         
-        async function changeGlobalStickyColor(id, color) {
-            const note = globalNotes.find(n => n.id === id);
-            if(note) { note.color = color; renderGlobalWall(); await supabaseClient.from('Studio_Wall').update({ color: color }).eq('id', id); }
+        async function changeGlobalStickyColor(id, color) { 
+            const note = globalNotes.find(n => n.id === id); 
+            if(note) { 
+                note.color = color; 
+                renderGlobalWall(); 
+                await supabaseClient.from('Studio_Wall').update({ color: color }).eq('id', id); 
+            } 
         }
 
-        // Convert Routing
+        // --- CONVERSION ENGINE ---
         let pendingConvertNoteId = null;
+        
         function openConvertModal(noteId) { 
             pendingConvertNoteId = noteId; 
             document.getElementById('convert-project-title').value = ''; 
             document.getElementById('convert-modal').classList.add('active'); 
-            triggerFocusPull(true);
+            triggerFocusPull(true); 
         }
+        
         function closeConvertModal() { 
             document.getElementById('convert-modal').classList.remove('active'); 
             pendingConvertNoteId = null; 
-            triggerFocusPull(false);
+            triggerFocusPull(false); 
         }
-
+        
         async function confirmConvertProject(destination) {
             if (!pendingConvertNoteId) return;
             try {
-                const projectTitle = document.getElementById('convert-project-title').value.trim();
-                if (!projectTitle) return alert("You must enter a title.");
-                const note = globalNotes.find(n => n.id === pendingConvertNoteId);
+                const projectTitle = document.getElementById('convert-project-title').value.trim(); 
+                if (!projectTitle) {
+                    return alert("You must enter a title.");
+                }
+                const note = globalNotes.find(n => n.id === pendingConvertNoteId); 
                 closeConvertModal();
                 
-                const newProject = { title: projectTitle, director: currentUser.email.split('@')[0], user_id: currentUser.id };
+                const newProject = { 
+                    title: projectTitle, 
+                    director: currentUser.email.split('@')[0], 
+                    user_id: currentUser.id, 
+                    theme: globalActiveTheme 
+                };
+                
                 let targetTable = destination === 'movie' ? 'Movies' : 'Storyboards';
                 
-                if(destination === 'storyboard') { 
+                if(destination === 'storyboard') {
                     newProject.sticky_notes = [{ id: Math.random().toString(36).substring(2, 9), text: note.text, color: note.color }]; 
-                    newProject.theme = 'theme-neon-blue'; 
-                } else { 
+                } else {
                     newProject.script = `<p><strong>${note.text}</strong></p>`; 
-                    newProject.theme = 'theme-neon-blue'; 
                 }
                 
-                const { data, error } = await supabaseClient.from(targetTable).insert([newProject]).select();
+                const { data, error } = await supabaseClient.from(targetTable).insert([newProject]).select(); 
                 if (error) throw error;
                 
                 await supabaseClient.from('Studio_Wall').delete().eq('id', pendingConvertNoteId);
-                if(destination === 'movie') { await fetchMovies(); switchTab('scripts'); startEditMovie(data[0].id); } 
-                else { await fetchStoryboards(); switchTab('storyboards'); startEditStoryboard(data[0].id); }
-            } catch(err) { alert(err.message); }
+                
+                if(destination === 'movie') { 
+                    await fetchMovies(); 
+                    switchTab('scripts'); 
+                    startEditMovie(data[0].id); 
+                } else { 
+                    await fetchStoryboards(); 
+                    switchTab('storyboards'); 
+                    startEditStoryboard(data[0].id); 
+                }
+            } catch(err) { 
+                alert(err.message); 
+            }
         }
 
         function renderGlobalWall() {
-            const board = document.getElementById('global-sticky-board'); board.innerHTML = '';
+            const board = document.getElementById('global-sticky-board'); 
+            board.innerHTML = '';
             
             globalNotes.forEach(note => {
-                const el = document.createElement('div'); el.className = 'global-sticky'; el.style.background = note.color;
+                const el = document.createElement('div'); 
+                el.className = 'global-sticky'; 
+                el.style.background = note.color;
                 
-                // 🌪️ Organic Physics (Random Rotation)
-                let rot = Math.random() * 4 - 2; 
+                // 🌪️ Organic Physics Generator
+                let rot = (Math.random() * 4) - 2; 
                 el.style.transform = `rotate(${rot}deg)`;
                 
                 let dots = stickyColors.map(c => `<div class="color-dot" style="background:${c}; ${c === note.color ? 'border: 2px solid rgba(0,0,0,0.8);' : ''}" onclick="changeGlobalStickyColor(${note.id}, '${c}')"></div>`).join('');
-                el.innerHTML = `<div class="delete-sticky crt-hover" onclick="openDeleteModal(${note.id}, 'Studio_Wall')">✖</div><div class="sticky-colors">${dots}</div><textarea placeholder="Jot down concept ideas..." onkeyup="updateGlobalStickyText(${note.id}, this.value)">${note.text || ''}</textarea><button class="convert-project-btn" onclick="openConvertModal(${note.id})">Routing ➦</button>`;
+                
+                el.innerHTML = `
+                    <div class="delete-sticky crt-hover" onclick="openDeleteModal(${note.id}, 'Studio_Wall')">✖</div>
+                    <div class="sticky-colors">${dots}</div>
+                    <textarea placeholder="Jot down concept ideas..." onkeyup="updateGlobalStickyText(${note.id}, this.value)">${note.text || ''}</textarea>
+                    <button class="convert-project-btn" onclick="openConvertModal(${note.id})">Routing ➦</button>
+                `;
                 board.appendChild(el);
             });
         }
 
         // ==========================================
-        // 🗂️ TAB 2: PURE STORYBOARDS ENGINE
+        // 🗂️ TAB 2: STORYBOARD ENGINE
         // ==========================================
-        let projectStickies = []; let sortableInstance;
-        
-        function initSortableBoard() {
-            if (sortableInstance) sortableInstance.destroy();
+        function initSortableBoard() { 
+            if (sortableInstance) {
+                sortableInstance.destroy();
+            }
             sortableInstance = new Sortable(document.getElementById('project-sticky-board'), { 
-                animation: 250, ghostClass: 'sticky-ghost', 
+                animation: 250, 
+                ghostClass: 'sticky-ghost', 
                 onEnd: function (evt) { 
                     const m = projectStickies.splice(evt.oldIndex, 1)[0]; 
                     projectStickies.splice(evt.newIndex, 0, m); 
                 } 
-            });
+            }); 
         }
 
-        function addStoryboardSticky() { projectStickies.push({ id: Math.random().toString(36).substring(2, 9), text: '', color: stickyColors[0] }); renderProjectStoryboard(); }
-        function updateProjectStickyText(id, text) { const note = projectStickies.find(n => n.id === id); if(note) note.text = text; }
-        function changeProjectStickyColor(id, color) { const note = projectStickies.find(n => n.id === id); if(note) { note.color = color; renderProjectStoryboard(); } }
-        function removeProjectSticky(id) { projectStickies = projectStickies.filter(n => n.id !== id); renderProjectStoryboard(); }
+        function addStoryboardSticky() { 
+            projectStickies.push({ 
+                id: Math.random().toString(36).substring(2, 9), 
+                text: '', 
+                color: stickyColors[0] 
+            }); 
+            renderProjectStoryboard(); 
+        }
+        
+        function updateProjectStickyText(id, text) { 
+            const note = projectStickies.find(n => n.id === id); 
+            if(note) {
+                note.text = text; 
+            }
+        }
+        
+        function changeProjectStickyColor(id, color) { 
+            const note = projectStickies.find(n => n.id === id); 
+            if(note) { 
+                note.color = color; 
+                renderProjectStoryboard(); 
+            } 
+        }
+        
+        function removeProjectSticky(id) { 
+            projectStickies = projectStickies.filter(n => n.id !== id); 
+            renderProjectStoryboard(); 
+        }
         
         function renderProjectStoryboard() {
-            const board = document.getElementById('project-sticky-board'); board.innerHTML = '';
+            const board = document.getElementById('project-sticky-board'); 
+            board.innerHTML = '';
+            
             projectStickies.forEach(note => {
-                const el = document.createElement('div'); el.className = 'project-sticky'; el.style.background = note.color;
+                const el = document.createElement('div'); 
+                el.className = 'project-sticky'; 
+                el.style.background = note.color;
                 
                 // 🌪️ Organic Physics
-                let rot = Math.random() * 4 - 2; el.style.transform = `rotate(${rot}deg)`;
+                let rot = (Math.random() * 4) - 2; 
+                el.style.transform = `rotate(${rot}deg)`;
                 
                 let dots = stickyColors.map(c => `<div class="color-dot" style="background:${c};" onclick="changeProjectStickyColor('${note.id}', '${c}')"></div>`).join('');
-                el.innerHTML = `<div class="delete-sticky crt-hover" onclick="removeProjectSticky('${note.id}')">✖</div><div class="sticky-colors">${dots}</div><textarea placeholder="Scene Details..." onkeyup="updateProjectStickyText('${note.id}', this.value)">${note.text}</textarea>`;
+                
+                el.innerHTML = `
+                    <div class="delete-sticky crt-hover" onclick="removeProjectSticky('${note.id}')">✖</div>
+                    <div class="sticky-colors">${dots}</div>
+                    <textarea placeholder="Scene Details..." onkeyup="updateProjectStickyText('${note.id}', this.value)">${note.text}</textarea>
+                `; 
                 board.appendChild(el);
             });
             initSortableBoard(); 
@@ -929,19 +1540,21 @@
             const container = document.getElementById('storyboards-dashboard');
             try {
                 const { data, error } = await supabaseClient.from('Storyboards').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-                if (error) throw error;
-                rawStoryboards = data; container.innerHTML = ''; 
+                if (error) throw error; 
+                
+                rawStoryboards = data; 
+                container.innerHTML = ''; 
                 
                 data.forEach(sb => {
-                    const card = document.createElement('div');
-                    const sbTheme = sb.theme || 'theme-neon-blue';
-                    card.className = `movie-card ${sbTheme}`;
+                    const card = document.createElement('div'); 
+                    card.className = `movie-card`; 
                     let stickyCount = sb.sticky_notes ? sb.sticky_notes.length : 0;
+                    
                     card.innerHTML = `
                         <div>
                             <p class="movie-title">${sb.title}</p>
                             <span class="movie-director">Dir: ${sb.director || 'N/A'}</span>
-                            <div style="background: var(--accent-glow); padding: 15px; border-radius: 10px; border: 1px dashed var(--accent-start); color: #fff; font-size: 11px; text-align: center; font-weight: 800; letter-spacing: 1px;">
+                            <div style="background: var(--accent-glow); padding: 15px; border-radius: 10px; border: 1px dashed var(--accent-start); color: #fff; font-size: 11px; text-align: center; font-weight: 800;">
                                 🗂️ ${stickyCount} SCENE CARDS
                             </div>
                         </div>
@@ -953,84 +1566,182 @@
                                 <button class="action-btn btn-delete crt-hover" onclick="openDeleteModal('${sb.id}', 'Storyboards')">Purge</button>
                             </div>
                         </div>
-                    `;
+                    `; 
                     container.appendChild(card);
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         async function saveStoryboardProject() {
             const saveBtn = document.getElementById('save-storyboard-btn');
             try {
-                const title = document.getElementById('storyboard-title').value.trim();
+                const title = document.getElementById('storyboard-title').value.trim(); 
                 const director = document.getElementById('storyboard-director').value.trim();
-                if (!title) return alert("Title required!");
-                saveBtn.innerText = "Commiting Data..."; saveBtn.disabled = true;
-
-                if (editingStoryboardId) {
-                    await supabaseClient.from('Storyboards').update({ title, director, sticky_notes: projectStickies, user_id: currentUser.id, theme: activeThemeStoryboard }).eq('id', editingStoryboardId);
-                    editingStoryboardId = null;
-                } else {
-                    await supabaseClient.from('Storyboards').insert([{ title, director, sticky_notes: projectStickies, user_id: currentUser.id, theme: activeThemeStoryboard }]);
+                
+                if (!title) {
+                    return alert("Title required!"); 
                 }
-                document.getElementById('storyboard-title').value = ''; document.getElementById('storyboard-director').value = ''; projectStickies = []; addStoryboardSticky(); 
-                saveBtn.innerHTML = "Commit Storyboard Data"; saveBtn.disabled = false; fetchStoryboards();
-            } catch(err) { alert(err.message); saveBtn.innerHTML = "Commit Storyboard Data"; saveBtn.disabled = false; }
+                
+                saveBtn.innerText = "Commiting Data..."; 
+                saveBtn.disabled = true;
+
+                if (editingStoryboardId) { 
+                    await supabaseClient.from('Storyboards').update({ 
+                        title, 
+                        director, 
+                        sticky_notes: projectStickies, 
+                        user_id: currentUser.id, 
+                        theme: globalActiveTheme 
+                    }).eq('id', editingStoryboardId); 
+                    
+                    editingStoryboardId = null; 
+                } else { 
+                    await supabaseClient.from('Storyboards').insert([{ 
+                        title, 
+                        director, 
+                        sticky_notes: projectStickies, 
+                        user_id: currentUser.id, 
+                        theme: globalActiveTheme 
+                    }]); 
+                }
+                
+                document.getElementById('storyboard-title').value = ''; 
+                document.getElementById('storyboard-director').value = ''; 
+                projectStickies = []; 
+                addStoryboardSticky(); 
+                
+                saveBtn.innerHTML = "Commit Storyboard Data"; 
+                saveBtn.disabled = false; 
+                fetchStoryboards();
+                
+            } catch(err) { 
+                alert(err.message); 
+                saveBtn.innerHTML = "Commit Storyboard Data"; 
+                saveBtn.disabled = false; 
+            }
         }
 
         function startEditStoryboard(id) {
-            editingStoryboardId = id; const sb = rawStoryboards.find(m => String(m.id) === String(id)); if (!sb) return;
-            document.getElementById('storyboard-title').value = sb.title || ''; document.getElementById('storyboard-director').value = sb.director || '';
-            projectStickies = sb.sticky_notes || []; renderProjectStoryboard();
+            editingStoryboardId = id; 
+            const sb = rawStoryboards.find(m => String(m.id) === String(id)); 
+            if (!sb) return;
             
-            const sbTheme = sb.theme || 'theme-neon-blue';
-            document.getElementById('storyboard-form-panel').className = `dynamic-theme-container ${sbTheme}`;
-            activeThemeStoryboard = sbTheme;
+            document.getElementById('storyboard-title').value = sb.title || ''; 
+            document.getElementById('storyboard-director').value = sb.director || ''; 
+            projectStickies = sb.sticky_notes || []; 
+            renderProjectStoryboard();
+            
+            const themeNode = document.querySelector(`#storyboard-lut-grid .lut-swatch[onclick*="${sb.theme || 'theme-neon-blue'}"]`);
+            if (themeNode) {
+                themeNode.click();
+            }
 
-            document.getElementById('save-storyboard-btn').innerHTML = "Update Storyboard Record";
+            document.getElementById('save-storyboard-btn').innerHTML = "Update Storyboard Record"; 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // ==========================================
-        // 🎬 TAB 1: PRODUCTION NOTEBOOK
+        // 🎬 TAB 1: SCRIPT NOTEBOOK
         // ==========================================
-        var quill = new Quill('#editor-container', { theme: 'snow', placeholder: 'Initiate script sequence...', modules: { toolbar: [[{ 'header': [1, 2, false] }], ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }});
-        quill.on('text-change', function() {
-            const w = quill.getText().trim().split(/\s+/).length;
-            document.getElementById('word-count-val').innerText = w > 0 && quill.getText().trim().length > 0 ? w : 0;
+        var quill = new Quill('#editor-container', { 
+            theme: 'snow', 
+            placeholder: 'Initiate script sequence...', 
+            modules: { 
+                toolbar: [
+                    [{ 'header': [1, 2, false] }], 
+                    ['bold', 'italic', 'underline'], 
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }]
+                ] 
+            }
+        });
+        
+        quill.on('text-change', function() { 
+            const w = quill.getText().trim().split(/\s+/).length; 
+            document.getElementById('word-count-val').innerText = w > 0 && quill.getText().trim().length > 0 ? w : 0; 
         });
 
         let canvas, ctx, isDrawing = false, canvasHistory = [];
+        
         function initCanvasEngine() {
-            canvas = document.getElementById('doodle-canvas'); ctx = canvas.getContext('2d');
-            canvas.width = canvas.parentElement.clientWidth; canvas.height = 280;
-            ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-            canvas.addEventListener('mousedown', e => { isDrawing=true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
-            canvas.addEventListener('mousemove', e => { if(isDrawing){ ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); }});
-            canvas.addEventListener('mouseup', () => { if(isDrawing) saveCanvasState(); isDrawing=false; });
+            canvas = document.getElementById('doodle-canvas'); 
+            ctx = canvas.getContext('2d'); 
+            canvas.width = canvas.parentElement.clientWidth; 
+            canvas.height = 280;
+            ctx.strokeStyle = '#000'; 
+            ctx.lineWidth = 4; 
+            ctx.lineCap = 'round'; 
+            ctx.lineJoin = 'round';
+            
+            canvas.addEventListener('mousedown', e => { 
+                isDrawing=true; 
+                ctx.beginPath(); 
+                ctx.moveTo(e.offsetX, e.offsetY); 
+            }); 
+            canvas.addEventListener('mousemove', e => { 
+                if(isDrawing){ 
+                    ctx.lineTo(e.offsetX, e.offsetY); 
+                    ctx.stroke(); 
+                }
+            }); 
+            canvas.addEventListener('mouseup', () => { 
+                if(isDrawing) saveCanvasState(); 
+                isDrawing=false; 
+            });
         }
-        function saveCanvasState() { if (canvasHistory.length >= 15) canvasHistory.shift(); canvasHistory.push(canvas.toDataURL()); }
-        function undoCanvasStroke() { if(canvasHistory.length===0) return; canvasHistory.pop(); ctx.clearRect(0,0,canvas.width,canvas.height); if(canvasHistory.length>0){ let i=new Image(); i.src=canvasHistory[canvasHistory.length-1]; i.onload=()=>ctx.drawImage(i,0,0); } }
-        function clearCanvasSurface() { if(ctx) ctx.clearRect(0,0,canvas.width,canvas.height); canvasHistory=[]; }
-        function toggleDoodlePad() { document.getElementById('canvas-section').classList.toggle('hidden'); if(!canvas) initCanvasEngine(); }
+        
+        function saveCanvasState() { 
+            if (canvasHistory.length >= 15) {
+                canvasHistory.shift(); 
+            }
+            canvasHistory.push(canvas.toDataURL()); 
+        }
+        
+        function undoCanvasStroke() { 
+            if(canvasHistory.length===0) return; 
+            canvasHistory.pop(); 
+            ctx.clearRect(0,0,canvas.width,canvas.height); 
+            
+            if(canvasHistory.length>0){ 
+                let i=new Image(); 
+                i.src=canvasHistory[canvasHistory.length-1]; 
+                i.onload=()=>ctx.drawImage(i,0,0); 
+            } 
+        }
+        
+        function clearCanvasSurface() { 
+            if(ctx) {
+                ctx.clearRect(0,0,canvas.width,canvas.height); 
+            }
+            canvasHistory=[]; 
+        }
+        
+        function toggleDoodlePad() { 
+            document.getElementById('canvas-section').classList.toggle('hidden'); 
+            if(!canvas) {
+                initCanvasEngine(); 
+            }
+        }
 
         async function fetchMovies() {
             const container = document.getElementById('movies-dashboard');
             try {
                 const { data, error } = await supabaseClient.from('Movies').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-                if (error) throw error;
-                data.sort((a, b) => a.is_pinned === b.is_pinned ? 0 : (a.is_pinned ? -1 : 1));
-                rawMovies = data; container.innerHTML = ''; 
+                if (error) throw error; 
+                
+                data.sort((a, b) => a.is_pinned === b.is_pinned ? 0 : (a.is_pinned ? -1 : 1)); 
+                rawMovies = data; 
+                container.innerHTML = ''; 
                 
                 data.forEach(movie => {
-                    const card = document.createElement('div');
-                    const mvTheme = movie.theme || 'theme-neon-blue';
-                    card.className = `movie-card ${movie.is_pinned ? 'pinned' : ''} ${mvTheme}`;
+                    const card = document.createElement('div'); 
+                    card.className = `movie-card ${movie.is_pinned ? 'pinned' : ''}`;
                     
-                    let sHtml = movie.script && movie.script !== '<p><br></p>' ? `<div class="script-display">${movie.script}</div>` : '';
-                    let pHtml = movie.pdf_url ? `<a href="${movie.pdf_url}" target="_blank" class="pdf-attachment">📄 Access Linked Document</a>` : '';
+                    let sHtml = movie.script && movie.script !== '<p><br></p>' ? `<div class="script-display">${movie.script}</div>` : ''; 
+                    let pHtml = movie.pdf_url ? `<a href="${movie.pdf_url}" target="_blank" class="pdf-attachment">📄 Access Linked Document</a>` : ''; 
                     let skHtml = movie.sketch_data ? `<img src="${movie.sketch_data}" class="sketch-display-frame">` : '';
-
+                    
                     card.innerHTML = `
                         <div class="pin-badge" onclick="togglePin('${movie.id}', ${movie.is_pinned})">📌</div>
                         <div>
@@ -1047,107 +1758,194 @@
                                 <button class="action-btn btn-delete crt-hover" onclick="openDeleteModal('${movie.id}', 'Movies')">Purge</button>
                             </div>
                         </div>
-                    `;
+                    `; 
                     container.appendChild(card);
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) {
+                console.error(err);
+            }
         }
 
-        async function togglePin(id, cur) { await supabaseClient.from('Movies').update({ is_pinned: !cur }).eq('id', id); fetchMovies(); }
+        async function togglePin(id, cur) { 
+            await supabaseClient.from('Movies').update({ is_pinned: !cur }).eq('id', id); 
+            fetchMovies(); 
+        }
 
         async function saveMovie() {
             const saveBtn = document.getElementById('save-movie-btn');
             try {
-                const title = document.getElementById('movie-title').value.trim();
+                const title = document.getElementById('movie-title').value.trim(); 
                 const director = document.getElementById('movie-director').value.trim();
-                if (!title) return alert("Title Required!");
-                saveBtn.innerText = "Commiting Data..."; saveBtn.disabled = true;
+                
+                if (!title) {
+                    return alert("Title Required!"); 
+                }
+                
+                saveBtn.innerText = "Commiting Data..."; 
+                saveBtn.disabled = true;
 
                 let pdfUrl = await uploadPDFToStorage(); 
-                const scriptContent = quill.getText().trim().length === 0 ? null : quill.root.innerHTML;
+                const scriptContent = quill.getText().trim().length === 0 ? null : quill.root.innerHTML; 
                 const sketchContent = isCanvasBlank() ? null : canvas.toDataURL();
 
                 if (editingMovieId) {
                     const oldP = rawMovies.find(m => String(m.id) === String(editingMovieId));
-                    let payload = { title, director, script: scriptContent, sketch_data: sketchContent, is_pinned: oldP.is_pinned, user_id: currentUser.id, theme: activeThemeMovie };
-                    if (pdfUrl) payload.pdf_url = pdfUrl; 
+                    let payload = { 
+                        title, 
+                        director, 
+                        script: scriptContent, 
+                        sketch_data: sketchContent, 
+                        is_pinned: oldP.is_pinned, 
+                        user_id: currentUser.id, 
+                        theme: globalActiveTheme 
+                    };
+                    
+                    if (pdfUrl) {
+                        payload.pdf_url = pdfUrl; 
+                    }
+                    
                     await supabaseClient.from('Movies').update(payload).eq('id', editingMovieId);
                     editingMovieId = null;
-                } else {
-                    await supabaseClient.from('Movies').insert([{ title, director, pdf_url: pdfUrl, script: scriptContent, sketch_data: sketchContent, is_pinned: false, user_id: currentUser.id, theme: activeThemeMovie }]);
+                } else { 
+                    await supabaseClient.from('Movies').insert([{ 
+                        title, 
+                        director, 
+                        pdf_url: pdfUrl, 
+                        script: scriptContent, 
+                        sketch_data: sketchContent, 
+                        is_pinned: false, 
+                        user_id: currentUser.id, 
+                        theme: globalActiveTheme 
+                    }]); 
                 }
 
-                document.getElementById('movie-title').value = ''; document.getElementById('movie-director').value = ''; quill.root.innerHTML = ''; if(!isCanvasBlank()) clearCanvasSurface();
-                saveBtn.innerHTML = "Commit to Database"; saveBtn.disabled = false; fetchMovies();
-            } catch (err) { alert(err.message); saveBtn.innerHTML = "Commit to Database"; saveBtn.disabled = false; }
+                document.getElementById('movie-title').value = ''; 
+                document.getElementById('movie-director').value = ''; 
+                quill.root.innerHTML = ''; 
+                
+                if(!isCanvasBlank()) {
+                    clearCanvasSurface(); 
+                }
+                
+                document.getElementById('label-pdf').innerText = "📄 Attach Official Script PDF Document";
+                saveBtn.innerHTML = "Commit to Database"; 
+                saveBtn.disabled = false; 
+                fetchMovies();
+                
+            } catch (err) { 
+                alert(err.message); 
+                saveBtn.innerHTML = "Commit to Database"; 
+                saveBtn.disabled = false; 
+            }
         }
 
         function startEditMovie(id) {
-            editingMovieId = id; const p = rawMovies.find(m => String(m.id) === String(id)); if (!p) return;
-            document.getElementById('movie-title').value = p.title || ''; document.getElementById('movie-director').value = p.director || '';
-            setTimeout(() => { quill.root.innerHTML = p.script || ''; }, 100); 
-            if (p.sketch_data) {
-                if (document.getElementById('canvas-section').classList.contains('hidden')) toggleDoodlePad();
-                setTimeout(() => { clearCanvasSurface(); let img=new Image(); img.src=p.sketch_data; img.onload=()=>ctx.drawImage(img,0,0); }, 300); 
-            } else clearCanvasSurface();
+            editingMovieId = id; 
+            const p = rawMovies.find(m => String(m.id) === String(id)); 
+            if (!p) return;
+            
+            document.getElementById('movie-title').value = p.title || ''; 
+            document.getElementById('movie-director').value = p.director || '';
+            
+            setTimeout(() => { 
+                quill.root.innerHTML = p.script || ''; 
+            }, 100); 
+            
+            if (p.sketch_data) { 
+                if (document.getElementById('canvas-section').classList.contains('hidden')) {
+                    toggleDoodlePad(); 
+                }
+                setTimeout(() => { 
+                    clearCanvasSurface(); 
+                    let img=new Image(); 
+                    img.src=p.sketch_data; 
+                    img.onload=()=>ctx.drawImage(img,0,0); 
+                }, 300); 
+            } else {
+                clearCanvasSurface();
+            }
 
-            const mvTheme = p.theme || 'theme-neon-blue';
-            document.getElementById('movie-form-panel').className = `glass-panel dynamic-theme-container ${mvTheme}`;
-            activeThemeMovie = mvTheme;
+            const themeNode = document.querySelector(`#movie-lut-grid .lut-swatch[onclick*="${p.theme || 'theme-neon-blue'}"]`);
+            if (themeNode) {
+                themeNode.click();
+            }
 
-            document.getElementById('save-movie-btn').innerHTML = "Update Record";
+            document.getElementById('save-movie-btn').innerHTML = "Update Record"; 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // ==========================================
-        // 🚀 SHARED VIEW & EXPORT UTILITIES
+        // 🚀 SHARED UTILITIES
         // ==========================================
         function viewProject(id, type) {
-            let project = type === 'movie' ? rawMovies.find(m => String(m.id) === String(id)) : rawStoryboards.find(m => String(m.id) === String(id));
+            let project = type === 'movie' ? rawMovies.find(m => String(m.id) === String(id)) : rawStoryboards.find(m => String(m.id) === String(id)); 
             if (!project) return;
             
-            // Apply theme to modal
             const prTheme = project.theme || 'theme-neon-blue';
-            document.getElementById('dynamic-view-modal').className = `custom-modal-box view-modal-box glass-panel ${prTheme}`;
+            document.body.className = prTheme;
 
-            document.getElementById('view-title').innerText = project.title || 'Untitled';
+            document.getElementById('view-title').innerText = project.title || 'Untitled'; 
             document.getElementById('view-director').innerText = 'Dir: ' + (project.director || 'Unknown');
             
-            const viewBoard = document.getElementById('view-sticky-board'); viewBoard.innerHTML = '';
+            const viewBoard = document.getElementById('view-sticky-board'); 
+            viewBoard.innerHTML = '';
+            
             if (type === 'storyboard' && project.sticky_notes) {
                 project.sticky_notes.forEach(note => {
-                    const el = document.createElement('div'); el.className = 'global-sticky'; el.style.background = note.color; el.style.cursor = 'default'; el.style.boxShadow = 'none'; el.style.border = '1px solid rgba(255,255,255,0.05)';
+                    const el = document.createElement('div'); 
+                    el.className = 'global-sticky'; 
+                    el.style.background = note.color; 
+                    el.style.cursor = 'default'; 
+                    el.style.boxShadow = 'none'; 
+                    el.style.border = '1px solid rgba(255,255,255,0.05)';
                     
-                    // Maintain organic physics even in view mode
-                    let rot = Math.random() * 4 - 2; el.style.transform = `rotate(${rot}deg)`;
+                    let rot = (Math.random() * 4) - 2; 
+                    el.style.transform = `rotate(${rot}deg)`;
                     
-                    el.innerHTML = `<div class="sticky-note-read">${note.text}</div>`; viewBoard.appendChild(el);
+                    el.innerHTML = `<div class="sticky-note-read">${note.text}</div>`; 
+                    viewBoard.appendChild(el);
                 });
             }
-
-            const scriptEl = document.getElementById('view-script');
-            if (type === 'movie' && project.script) { scriptEl.innerHTML = project.script; scriptEl.classList.remove('hidden'); } else scriptEl.classList.add('hidden');
-            const sketchEl = document.getElementById('view-sketch');
-            if (type === 'movie' && project.sketch_data) { sketchEl.src = project.sketch_data; sketchEl.classList.remove('hidden'); } else sketchEl.classList.add('hidden');
             
-            document.getElementById('view-modal').classList.add('active');
+            const scriptEl = document.getElementById('view-script'); 
+            if (type === 'movie' && project.script) { 
+                scriptEl.innerHTML = project.script; 
+                scriptEl.classList.remove('hidden'); 
+            } else {
+                scriptEl.classList.add('hidden');
+            }
+            
+            const sketchEl = document.getElementById('view-sketch'); 
+            if (type === 'movie' && project.sketch_data) { 
+                sketchEl.src = project.sketch_data; 
+                sketchEl.classList.remove('hidden'); 
+            } else {
+                sketchEl.classList.add('hidden');
+            }
+            
+            document.getElementById('view-modal').classList.add('active'); 
             triggerFocusPull(true);
         }
         
         function closeViewModal() { 
             document.getElementById('view-modal').classList.remove('active'); 
-            triggerFocusPull(false);
+            triggerFocusPull(false); 
+            document.body.className = globalActiveTheme;
         }
 
-        function filterDashboards(type) {
-            const query = document.getElementById(type === 'movie' ? 'search-movie-bar' : 'search-storyboard-bar').value.toLowerCase();
-            const cards = document.getElementById(type === 'movie' ? 'movies-dashboard' : 'storyboards-dashboard').getElementsByClassName('movie-card');
-            for (let i = 0; i < cards.length; i++) cards[i].style.display = cards[i].innerText.toLowerCase().includes(query) ? "flex" : "none";
+        function filterDashboards(type) { 
+            const query = document.getElementById(type === 'movie' ? 'search-movie-bar' : 'search-storyboard-bar').value.toLowerCase(); 
+            const cards = document.getElementById(type === 'movie' ? 'movies-dashboard' : 'storyboards-dashboard').getElementsByClassName('movie-card'); 
+            for (let i = 0; i < cards.length; i++) {
+                cards[i].style.display = cards[i].innerText.toLowerCase().includes(query) ? "flex" : "none"; 
+            }
         }
 
+        // --- FULL HTML2PDF ENGINE (UNCOMPRESSED) ---
         function exportProjectToPDF(id, btnElement) {
             const project = rawMovies.find(m => String(m.id) === String(id));
             if (!project) return;
+
             const originalText = btnElement.innerText;
             btnElement.innerText = "⏳ Rendering...";
 
@@ -1169,16 +1967,24 @@
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(htmlString).save().then(() => {
-                btnElement.innerText = originalText;
-            }).catch(err => {
-                btnElement.innerText = "Error";
-                setTimeout(() => btnElement.innerText = originalText, 2000);
-            });
+            // Wrap in Try/Catch to protect the button
+            try {
+                html2pdf().set(opt).from(htmlString).save().then(() => {
+                    btnElement.innerText = originalText;
+                }).catch(err => {
+                    console.error("PDF engine crash: ", err);
+                    btnElement.innerText = "Export Error";
+                    setTimeout(() => btnElement.innerText = originalText, 2500);
+                });
+            } catch (err) {
+                console.error("Critical PDF Error:", err);
+                btnElement.innerText = "Failed";
+                setTimeout(() => btnElement.innerText = originalText, 2500);
+            }
         }
 
         // ==========================================
-        // 🔐 AUTHENTICATION ENGINE
+        // 🔐 AUTHENTICATION
         // ==========================================
         supabaseClient.auth.onAuthStateChange((event, session) => {
             if (session) { 
@@ -1203,14 +2009,30 @@
         }
         
         async function handleAuth() {
-            const email = document.getElementById('auth-email').value; const password = document.getElementById('auth-password').value;
-            if (!email || !password) return alert("Fill in fields.");
-            if (currentAuthMode === 'signup') { const { error } = await supabaseClient.auth.signUp({ email, password }); if (error) alert(error.message); else alert("Mapped! Sign in."); } 
-            else { const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) alert(error.message); }
+            const email = document.getElementById('auth-email').value; 
+            const password = document.getElementById('auth-password').value; 
+            
+            if (!email || !password) {
+                return alert("Fill in fields.");
+            }
+            
+            if (currentAuthMode === 'signup') { 
+                const { error } = await supabaseClient.auth.signUp({ email, password }); 
+                if (error) alert(error.message); 
+                else alert("Mapped! Sign in."); 
+            } else { 
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); 
+                if (error) alert(error.message); 
+            }
         }
         
-        async function handleLogout() { await supabaseClient.auth.signOut(); }
-        function formatDisplayDate(iso) { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+        async function handleLogout() { 
+            await supabaseClient.auth.signOut(); 
+        }
+        
+        function formatDisplayDate(iso) { 
+            return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); 
+        }
     </script>
 </body>
 </html>
