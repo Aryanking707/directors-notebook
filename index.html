@@ -109,8 +109,6 @@
         .btn-view:hover { background: #9b59b6; color: #fff; }
         .btn-edit { color: #3498db; background: rgba(52, 152, 219, 0.1); }
         .btn-edit:hover { background: #3498db; color: #fff; }
-        .btn-export { color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
-        .btn-export:hover { background: #2ecc71; color: #fff; }
         .btn-delete { color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
         .btn-delete:hover { background: #e74c3c; color: #fff; }
 
@@ -143,6 +141,7 @@
         .modal-box { background: var(--card-bg); width: 90%; max-width: 800px; max-height: 85vh; border-radius: 12px; overflow-y: auto; padding: 40px; position: relative; border: 1px solid var(--border-color); box-shadow: 0 15px 50px rgba(0,0,0,0.7); }
         .close-modal-btn { position: absolute; top: 20px; right: 25px; font-size: 20px; cursor: pointer; color: var(--text-sub); background: none; border: none; transition: 0.2s; }
         
+        /* 🚀 CONVERT CUSTOM MODAL */
         #convert-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 10001; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(5px); }
         #convert-modal.active { opacity: 1; pointer-events: all; }
         .custom-modal-box { background: var(--card-bg); width: 90%; max-width: 420px; border-radius: 12px; padding: 35px; position: relative; border: 1px solid var(--border-color); box-shadow: 0 15px 50px rgba(0,0,0,0.7); text-align: left; }
@@ -347,6 +346,33 @@
 
         const stickyColors = ['#FEF08A', '#FBCFE8', '#BBF7D0', '#BFDBFE', '#E9D5FF']; 
 
+        // ==========================================
+        // 🚨 MISSING HELPERS RESTORED HERE
+        // ==========================================
+        
+        function isCanvasSurfaceBlank() {
+            if (!canvas) return true;
+            const blank = document.createElement('canvas');
+            blank.width = canvas.width; 
+            blank.height = canvas.height;
+            return canvas.toDataURL() === blank.toDataURL();
+        }
+
+        async function uploadPDFToStorage() {
+            const fileInput = document.getElementById('file-pdf');
+            if (!fileInput || fileInput.files.length === 0) return null;
+            
+            const file = fileInput.files[0];
+            const fileName = `${currentUser.id}-${Date.now()}.pdf`;
+            const filePath = `documents/${fileName}`;
+            
+            const { data, error } = await supabaseClient.storage.from('project-files').upload(filePath, file);
+            if (error) return null;
+            
+            const { data: urlData } = supabaseClient.storage.from('project-files').getPublicUrl(filePath);
+            return urlData.publicUrl;
+        }
+
         // 🚨 CUSTOM DELETE ENGINE
         let pendingDeleteId = null;
         let pendingDeleteTable = null;
@@ -365,17 +391,18 @@
 
         async function executeDelete() {
             if(!pendingDeleteId || !pendingDeleteTable) return;
-            
-            const { error } = await supabaseClient.from(pendingDeleteTable).delete().eq('id', pendingDeleteId);
-            if (error) {
-                alert("Deletion error: " + error.message);
-            } else {
+            try {
+                const { error } = await supabaseClient.from(pendingDeleteTable).delete().eq('id', pendingDeleteId);
+                if (error) throw error;
+
                 if(pendingDeleteTable === 'Movies') fetchMovies();
                 if(pendingDeleteTable === 'Storyboards') fetchStoryboards();
                 if(pendingDeleteTable === 'Studio_Wall') {
                     globalNotes = globalNotes.filter(n => n.id !== pendingDeleteId);
                     renderGlobalWall();
                 }
+            } catch (err) {
+                alert("Deletion error: " + err.message);
             }
             closeDeleteModal();
         }
@@ -397,7 +424,7 @@
             if(tab === 'scripts') fetchMovies();
             if(tab === 'storyboards') {
                 fetchStoryboards();
-                if(projectStickies.length === 0 && !editingStoryboardId) addStoryboardSticky(); // Give them a blank note to start
+                if(projectStickies.length === 0 && !editingStoryboardId) addStoryboardSticky(); 
             }
         }
 
@@ -407,24 +434,29 @@
         let globalNotes = [];
 
         async function loadGlobalStickies() {
-            const { data, error } = await supabaseClient.from('Studio_Wall').select('*').order('created_at', { ascending: false });
-            if (!error && data) {
+            try {
+                const { data, error } = await supabaseClient.from('Studio_Wall').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
                 globalNotes = data;
                 renderGlobalWall();
+            } catch (err) {
+                console.error("Load stickies error:", err.message);
             }
         }
 
         async function createGlobalSticky() {
             if (!currentUser) return; 
-            const uniqueBypassId = Date.now() + Math.floor(Math.random() * 1000); 
-            const newNote = { id: uniqueBypassId, text: '', color: stickyColors[0], user_id: currentUser.id };
-            
-            const { data, error } = await supabaseClient.from('Studio_Wall').insert([newNote]).select();
-            if (!error && data) {
+            try {
+                const uniqueBypassId = Date.now() + Math.floor(Math.random() * 1000); 
+                const newNote = { id: uniqueBypassId, text: '', color: stickyColors[0], user_id: currentUser.id };
+                
+                const { data, error } = await supabaseClient.from('Studio_Wall').insert([newNote]).select();
+                if (error) throw error;
+                
                 globalNotes.unshift(data[0]);
                 renderGlobalWall();
-            } else if (error) {
-                alert("Database Error: " + error.message);
+            } catch (err) {
+                alert("Database Error: " + err.message);
             }
         }
 
@@ -466,51 +498,48 @@
         async function confirmConvertProject(destination) {
             if (!pendingConvertNoteId) return;
             
-            const projectTitle = document.getElementById('convert-project-title').value.trim();
-            if (!projectTitle) {
-                alert("You must enter a title to create a project.");
-                return;
-            }
+            try {
+                const projectTitle = document.getElementById('convert-project-title').value.trim();
+                if (!projectTitle) return alert("You must enter a title to create a project.");
 
-            const note = globalNotes.find(n => n.id === pendingConvertNoteId);
-            if (!note) return;
+                const note = globalNotes.find(n => n.id === pendingConvertNoteId);
+                if (!note) return;
 
-            closeConvertModal();
+                closeConvertModal();
 
-            const safeStringId = Math.random().toString(36).substring(2, 9);
-            const initialSticky = [{ id: safeStringId, text: note.text, color: note.color }];
-            
-            const newProject = {
-                title: projectTitle,
-                director: currentUser.email.split('@')[0], 
-                user_id: currentUser.id 
-            };
+                const safeStringId = Math.random().toString(36).substring(2, 9);
+                const initialSticky = [{ id: safeStringId, text: note.text, color: note.color }];
+                
+                const newProject = {
+                    title: projectTitle,
+                    director: currentUser.email.split('@')[0], 
+                    user_id: currentUser.id 
+                };
 
-            let targetTable = destination === 'movie' ? 'Movies' : 'Storyboards';
+                let targetTable = destination === 'movie' ? 'Movies' : 'Storyboards';
 
-            if(destination === 'storyboard') {
-                newProject.sticky_notes = initialSticky;
-            } else {
-                newProject.script = `<p><strong>${note.text}</strong></p>`; // Put text into script editor instead!
-            }
+                if(destination === 'storyboard') {
+                    newProject.sticky_notes = initialSticky;
+                } else {
+                    newProject.script = `<p><strong>${note.text}</strong></p>`; 
+                }
 
-            const { data, error } = await supabaseClient.from(targetTable).insert([newProject]).select();
-            if (error) {
-                alert("Error creating project: " + error.message);
-                return;
-            }
+                const { data, error } = await supabaseClient.from(targetTable).insert([newProject]).select();
+                if (error) throw error;
 
-            // Silent delete via direct API call, no popup
-            await supabaseClient.from('Studio_Wall').delete().eq('id', pendingConvertNoteId);
+                await supabaseClient.from('Studio_Wall').delete().eq('id', pendingConvertNoteId);
 
-            if(destination === 'movie') {
-                await fetchMovies();
-                switchTab('scripts');
-                startEditMovie(data[0].id);
-            } else {
-                await fetchStoryboards();
-                switchTab('storyboards');
-                startEditStoryboard(data[0].id);
+                if(destination === 'movie') {
+                    await fetchMovies();
+                    switchTab('scripts');
+                    startEditMovie(data[0].id);
+                } else {
+                    await fetchStoryboards();
+                    switchTab('storyboards');
+                    startEditStoryboard(data[0].id);
+                }
+            } catch(err) {
+                alert("Conversion Error: " + err.message);
             }
         }
 
@@ -617,73 +646,81 @@
 
         async function fetchStoryboards() {
             const container = document.getElementById('storyboards-dashboard');
-            
-            const { data, error } = await supabaseClient.from('Storyboards').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+            try {
+                const { data, error } = await supabaseClient.from('Storyboards').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+                if (error) throw error;
+                
+                rawStoryboards = data; 
+                container.innerHTML = ''; 
+                
+                data.forEach(sb => {
+                    const card = document.createElement('div');
+                    card.className = `movie-card`;
+                    let stickyCount = sb.sticky_notes ? sb.sticky_notes.length : 0;
 
-            if (error) {
-                container.innerHTML = `<p style="color: red;">Dashboard error: ${error.message}</p>`;
-                return;
+                    card.innerHTML = `
+                        <div>
+                            <p class="movie-title">${sb.title}</p>
+                            <span class="movie-director">Directed by ${sb.director}</span>
+                            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; border: 1px dashed var(--border-color); color: var(--text-sub); font-size: 14px; text-align: center; font-weight: bold;">
+                                🗂️ ${stickyCount} Scene Cards
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="card-timestamp">Logged: ${formatDisplayDate(sb.created_at)}</span>
+                            <div class="card-actions">
+                                <button class="action-btn btn-view" onclick="viewProject('${sb.id}', 'storyboard')">View Board</button>
+                                <button class="action-btn btn-edit" onclick="startEditStoryboard('${sb.id}')">Edit</button>
+                                <button class="action-btn btn-delete" onclick="openDeleteModal('${sb.id}', 'Storyboards')">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                container.innerHTML = `<p style="color: red;">Dashboard error: ${err.message}</p>`;
             }
-
-            rawStoryboards = data; 
-            container.innerHTML = ''; 
-            
-            data.forEach(sb => {
-                const card = document.createElement('div');
-                card.className = `movie-card`;
-                let stickyCount = sb.sticky_notes ? sb.sticky_notes.length : 0;
-
-                card.innerHTML = `
-                    <div>
-                        <p class="movie-title">${sb.title}</p>
-                        <span class="movie-director">Directed by ${sb.director}</span>
-                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; border: 1px dashed var(--border-color); color: var(--text-sub); font-size: 14px; text-align: center; font-weight: bold;">
-                            🗂️ ${stickyCount} Scene Cards
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <span class="card-timestamp">Logged: ${formatDisplayDate(sb.created_at)}</span>
-                        <div class="card-actions">
-                            <button class="action-btn btn-view" onclick="viewProject('${sb.id}', 'storyboard')">View Board</button>
-                            <button class="action-btn btn-edit" onclick="startEditStoryboard('${sb.id}')">Edit</button>
-                            <button class="action-btn btn-delete" onclick="openDeleteModal('${sb.id}', 'Storyboards')">Delete</button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
         }
 
         async function saveStoryboardProject() {
             const saveBtn = document.getElementById('save-storyboard-btn');
-            const title = document.getElementById('storyboard-title').value;
-            const director = document.getElementById('storyboard-director').value;
+            try {
+                const title = document.getElementById('storyboard-title').value.trim();
+                const director = document.getElementById('storyboard-director').value.trim();
 
-            if (!title) return alert("Please input a Storyboard Title!");
+                if (!title) return alert("Please input a Storyboard Title!");
 
-            saveBtn.innerText = "Syncing with cloud matrix...";
-            saveBtn.disabled = true;
+                saveBtn.innerText = "Syncing with cloud matrix...";
+                saveBtn.disabled = true;
 
-            if (editingStoryboardId) {
-                const updatePayload = { title, director, sticky_notes: projectStickies, user_id: currentUser.id };
-                await supabaseClient.from('Storyboards').update(updatePayload).eq('id', editingStoryboardId);
-                editingStoryboardId = null;
-                saveBtn.style.background = "var(--accent)";
-            } else {
-                await supabaseClient.from('Storyboards').insert([
-                    { title, director, sticky_notes: projectStickies, user_id: currentUser.id }
-                ]);
+                if (editingStoryboardId) {
+                    const updatePayload = { title, director, sticky_notes: projectStickies, user_id: currentUser.id };
+                    const { error } = await supabaseClient.from('Storyboards').update(updatePayload).eq('id', editingStoryboardId);
+                    if (error) throw error;
+                    
+                    editingStoryboardId = null;
+                    saveBtn.style.background = "var(--accent)";
+                } else {
+                    const { error } = await supabaseClient.from('Storyboards').insert([
+                        { title, director, sticky_notes: projectStickies, user_id: currentUser.id }
+                    ]);
+                    if (error) throw error;
+                }
+
+                document.getElementById('storyboard-title').value = '';
+                document.getElementById('storyboard-director').value = '';
+                projectStickies = [];
+                addStoryboardSticky(); 
+                
+                saveBtn.innerHTML = "💾 Save Storyboard to Dashboard";
+                saveBtn.disabled = false;
+                fetchStoryboards();
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            } catch(err) {
+                alert("🚨 DATABASE SAVE REJECTED: \n" + err.message);
+                saveBtn.innerHTML = "💾 Save Storyboard to Dashboard";
+                saveBtn.disabled = false;
             }
-
-            document.getElementById('storyboard-title').value = '';
-            document.getElementById('storyboard-director').value = '';
-            projectStickies = [];
-            addStoryboardSticky(); // Reset with blank note
-            
-            saveBtn.innerHTML = "💾 Save Storyboard to Dashboard";
-            saveBtn.disabled = false;
-            fetchStoryboards();
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
 
         function startEditStoryboard(id) {
@@ -712,6 +749,56 @@
         // ==========================================
         // 🎬 TAB 1: PRODUCTION NOTEBOOK CORE
         // ==========================================
+        
+        function triggerAutoSave() {
+            const titleEl = document.getElementById('movie-title');
+            if(!titleEl) return;
+            
+            const titleInput = titleEl.value.trim();
+            const scriptText = quill ? quill.getText().trim() : '';
+            
+            if(titleInput.length > 0 || scriptText.length > 0) {
+                const draftData = {
+                    editingId: editingMovieId,
+                    title: titleInput,
+                    director: document.getElementById('movie-director').value,
+                    script: quill.root.innerHTML
+                };
+                localStorage.setItem('studio_auto_draft', JSON.stringify(draftData));
+                
+                const statusText = document.getElementById('autosave-status');
+                if(statusText) {
+                    statusText.innerText = `✓ Local backup saved`;
+                    statusText.style.opacity = 1;
+                    setTimeout(() => { statusText.style.opacity = 0; }, 3000);
+                }
+            }
+        }
+
+        setInterval(triggerAutoSave, 5000);
+        document.getElementById('movie-title').addEventListener('input', triggerAutoSave);
+        
+        function restoreDraftIfFound() {
+            const rawDraft = localStorage.getItem('studio_auto_draft');
+            if (rawDraft) {
+                const draft = JSON.parse(rawDraft);
+                if(confirm("We found an unsaved script backup! Do you want to restore it?")) {
+                    editingMovieId = draft.editingId || null;
+                    document.getElementById('movie-title').value = draft.title || '';
+                    document.getElementById('movie-director').value = draft.director || '';
+                    if(draft.script && quill) quill.clipboard.dangerouslyPasteHTML(0, draft.script);
+                    
+                    if(editingMovieId) {
+                        const saveBtn = document.getElementById('save-movie-btn');
+                        saveBtn.innerText = "Update Script Changes";
+                        saveBtn.style.background = "#3498db";
+                    }
+                } else {
+                    localStorage.removeItem('studio_auto_draft');
+                }
+            }
+        }
+
         let canvas, ctx;
         let isDrawing = false;
         let canvasHistory = [];
@@ -807,106 +894,122 @@
 
         async function fetchMovies() {
             const container = document.getElementById('movies-dashboard');
-            
-            const { data, error } = await supabaseClient.from('Movies')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .order('created_at', { ascending: false });
+            try {
+                const { data, error } = await supabaseClient.from('Movies')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
 
-            if (error) {
-                container.innerHTML = `<p style="color: red;">Dashboard error: ${error.message}</p>`;
-                return;
-            }
+                if (error) throw error;
 
-            data.sort((a, b) => {
-                if (a.is_pinned === b.is_pinned) return 0;
-                return a.is_pinned ? -1 : 1;
-            });
+                data.sort((a, b) => {
+                    if (a.is_pinned === b.is_pinned) return 0;
+                    return a.is_pinned ? -1 : 1;
+                });
 
-            rawMovies = data; 
-            container.innerHTML = ''; 
-            
-            data.forEach(movie => {
-                const card = document.createElement('div');
-                card.className = `movie-card ${movie.is_pinned ? 'pinned' : ''}`;
+                rawMovies = data; 
+                container.innerHTML = ''; 
                 
-                let scriptHtml = movie.script && movie.script !== '<p><br></p>' ? `<div class="script-display">${movie.script}</div>` : '';
-                let pdfHtml = movie.pdf_url ? `<a href="${movie.pdf_url}" target="_blank" class="pdf-attachment">📄 View Attached Script PDF</a>` : '';
-                let sketchHtml = movie.sketch_data ? `<img src="${movie.sketch_data}" class="sketch-display-frame" alt="Storyboard Sketch">` : '';
+                data.forEach(movie => {
+                    const card = document.createElement('div');
+                    card.className = `movie-card ${movie.is_pinned ? 'pinned' : ''}`;
+                    
+                    let scriptHtml = movie.script && movie.script !== '<p><br></p>' ? `<div class="script-display">${movie.script}</div>` : '';
+                    let pdfHtml = movie.pdf_url ? `<a href="${movie.pdf_url}" target="_blank" class="pdf-attachment">📄 View Attached Script PDF</a>` : '';
+                    let sketchHtml = movie.sketch_data ? `<img src="${movie.sketch_data}" class="sketch-display-frame" alt="Storyboard Sketch">` : '';
 
-                card.innerHTML = `
-                    <div class="pin-badge" onclick="togglePin('${movie.id}', ${movie.is_pinned})" title="Pin to top">📌</div>
-                    <div>
-                        <p class="movie-title">${movie.title}</p>
-                        <span class="movie-director">Directed/Written by ${movie.director}</span>
-                        ${scriptHtml}
-                        ${pdfHtml}
-                        ${sketchHtml}
-                    </div>
-                    <div class="card-footer">
-                        <span class="card-timestamp">Logged: ${formatDisplayDate(movie.created_at)}</span>
-                        <div class="card-actions">
-                            <button class="action-btn btn-view" onclick="viewProject('${movie.id}', 'movie')">View</button>
-                            <button class="action-btn btn-export" onclick="exportProjectToPDF('${movie.id}', this)">PDF</button>
-                            <button class="action-btn btn-edit" onclick="startEditMovie('${movie.id}')">Edit</button>
-                            <button class="action-btn btn-delete" onclick="openDeleteModal('${movie.id}', 'Movies')">Del</button>
+                    card.innerHTML = `
+                        <div class="pin-badge" onclick="togglePin('${movie.id}', ${movie.is_pinned})" title="Pin to top">📌</div>
+                        <div>
+                            <p class="movie-title">${movie.title}</p>
+                            <span class="movie-director">Directed/Written by ${movie.director}</span>
+                            ${scriptHtml}
+                            ${pdfHtml}
+                            ${sketchHtml}
                         </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+                        <div class="card-footer">
+                            <span class="card-timestamp">Logged: ${formatDisplayDate(movie.created_at)}</span>
+                            <div class="card-actions">
+                                <button class="action-btn btn-view" onclick="viewProject('${movie.id}', 'movie')">View</button>
+                                <button class="action-btn btn-export" onclick="exportProjectToPDF('${movie.id}', this)">PDF</button>
+                                <button class="action-btn btn-edit" onclick="startEditMovie('${movie.id}')">Edit</button>
+                                <button class="action-btn btn-delete" onclick="openDeleteModal('${movie.id}', 'Movies')">Del</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                container.innerHTML = `<p style="color: red;">Dashboard error: ${err.message}</p>`;
+            }
         }
 
         async function togglePin(id, currentState) {
-            const newPinState = !currentState;
-            const { error } = await supabaseClient.from('Movies').update({ is_pinned: newPinState }).eq('id', id);
-            if (!error) fetchMovies();
+            try {
+                const newPinState = !currentState;
+                const { error } = await supabaseClient.from('Movies').update({ is_pinned: newPinState }).eq('id', id);
+                if (error) throw error;
+                fetchMovies();
+            } catch (err) {
+                alert("Error pinning project: " + err.message);
+            }
         }
 
         async function saveMovie() {
             const saveBtn = document.getElementById('save-movie-btn');
-            const title = document.getElementById('movie-title').value;
-            const director = document.getElementById('movie-director').value;
-            const fileInput = document.getElementById('file-pdf');
-            
-            const isTextEditorEmpty = quill.getText().trim().length === 0;
-            const isFileEmpty = fileInput.files.length === 0;
-            const isCanvasBlank = isCanvasSurfaceBlank();
+            try {
+                const title = document.getElementById('movie-title').value.trim();
+                const director = document.getElementById('movie-director').value.trim();
+                const fileInput = document.getElementById('file-pdf');
+                
+                const isTextEditorEmpty = quill.getText().trim().length === 0;
+                const isFileEmpty = fileInput.files.length === 0;
+                const isCanvasBlank = isCanvasSurfaceBlank(); // Restored logic here
 
-            if (!title) return alert("Please input a Project Title!");
+                if (!title) return alert("Please input a Project Title!");
 
-            saveBtn.innerText = "Syncing with cloud matrix...";
-            saveBtn.disabled = true;
+                saveBtn.innerText = "Syncing with cloud matrix...";
+                saveBtn.disabled = true;
 
-            let pdfUrl = await uploadPDFToStorage();
-            const scriptContent = isTextEditorEmpty ? null : quill.root.innerHTML;
-            const sketchContent = isCanvasBlank ? null : canvas.toDataURL();
+                let pdfUrl = await uploadPDFToStorage(); // Restored logic here
+                const scriptContent = isTextEditorEmpty ? null : quill.root.innerHTML;
+                const sketchContent = isCanvasBlank ? null : canvas.toDataURL();
 
-            if (editingMovieId) {
-                const oldProject = rawMovies.find(m => String(m.id) === String(editingMovieId));
-                const updatePayload = { title, director, script: scriptContent, sketch_data: sketchContent, is_pinned: oldProject.is_pinned, user_id: currentUser.id };
-                if (pdfUrl) updatePayload.pdf_url = pdfUrl; 
+                if (editingMovieId) {
+                    const oldProject = rawMovies.find(m => String(m.id) === String(editingMovieId));
+                    const updatePayload = { title, director, script: scriptContent, sketch_data: sketchContent, is_pinned: oldProject.is_pinned, user_id: currentUser.id };
+                    if (pdfUrl) updatePayload.pdf_url = pdfUrl; 
 
-                const { error } = await supabaseClient.from('Movies').update(updatePayload).eq('id', editingMovieId);
-                editingMovieId = null;
-                saveBtn.style.background = "var(--accent)";
-            } else {
-                const { error } = await supabaseClient.from('Movies').insert([
-                    { title, director, pdf_url: pdfUrl, script: scriptContent, sketch_data: sketchContent, is_pinned: false, user_id: currentUser.id }
-                ]);
+                    const { error } = await supabaseClient.from('Movies').update(updatePayload).eq('id', editingMovieId);
+                    if (error) throw error;
+                    
+                    editingMovieId = null;
+                    saveBtn.style.background = "var(--accent)";
+                } else {
+                    const { error } = await supabaseClient.from('Movies').insert([
+                        { title, director, pdf_url: pdfUrl, script: scriptContent, sketch_data: sketchContent, is_pinned: false, user_id: currentUser.id }
+                    ]);
+                    if (error) throw error;
+                }
+
+                localStorage.removeItem('studio_auto_draft');
+                document.getElementById('movie-title').value = '';
+                document.getElementById('movie-director').value = '';
+                document.getElementById('file-pdf').value = '';
+                document.getElementById('label-pdf').innerText = "📄 Optional: Attach Script PDF File";
+                document.getElementById('label-pdf').style.color = "var(--text-sub)";
+                quill.root.innerHTML = ''; 
+                if (!isCanvasBlank) clearCanvasSurface();
+                
+                saveBtn.innerHTML = "💾 Save Script to Dashboard";
+                saveBtn.disabled = false;
+                fetchMovies();
+
+            } catch (err) {
+                alert("🚨 DATABASE SAVE REJECTED: \n" + err.message);
+                saveBtn.innerHTML = "💾 Save Script to Dashboard";
+                saveBtn.disabled = false;
             }
-
-            document.getElementById('movie-title').value = '';
-            document.getElementById('movie-director').value = '';
-            document.getElementById('file-pdf').value = '';
-            document.getElementById('label-pdf').innerText = "📄 Optional: Attach Script PDF File";
-            document.getElementById('label-pdf').style.color = "var(--text-sub)";
-            quill.root.innerHTML = ''; 
-            if (!isCanvasBlank) clearCanvasSurface();
-            
-            saveBtn.innerHTML = "💾 Save Script to Dashboard";
-            saveBtn.disabled = false;
-            fetchMovies();
         }
 
         function startEditMovie(id) {
@@ -1087,8 +1190,8 @@
                 document.getElementById('user-display-email').innerText = currentUser.email;
                 document.getElementById('auth-container').classList.add('hidden');
                 document.getElementById('app-container').classList.remove('hidden');
-                fetchMovies(); // Tab 1
-                fetchStoryboards(); // Tab 2
+                fetchMovies(); 
+                fetchStoryboards(); 
             } else {
                 currentUser = null;
                 document.getElementById('auth-container').classList.remove('hidden');
