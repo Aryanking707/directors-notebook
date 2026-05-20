@@ -8,10 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
@@ -1043,6 +1041,83 @@
             .custom-modal-box { padding: 30px 20px; }
             #view-title { font-size: 1.8rem; }
             .close-modal-btn { right: 20px; top: 15px; }
+
+        }
+        /* ==========================================
+           🧘‍♂️ ZEN FOCUS MODE
+           ========================================== */
+        body.zen-active .profile-bar,
+        body.zen-active h1,
+        body.zen-active .studio-nav,
+        body.zen-active .lut-container,
+        body.zen-active #movie-title,
+        body.zen-active #movie-director,
+        body.zen-active .file-upload-box,
+        body.zen-active .canvas-toggle-btn,
+        body.zen-active .canvas-wrapper,
+        body.zen-active #save-movie-btn,
+        body.zen-active #autosave-status,
+        body.zen-active .search-container,
+        body.zen-active #movies-dashboard,
+        body.zen-active #draft-recovery-banner {
+            display: none !important;
+            opacity: 0;
+        }
+
+        /* Expand the editor and remove the glass panel box */
+        body.zen-active #movie-form-panel {
+            max-width: 1000px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            backdrop-filter: none;
+            padding: 0;
+            margin-top: 5vh;
+        }
+
+        body.zen-active #editor-container {
+            height: 70vh !important;
+            font-size: 22px; /* Larger font for pure writing */
+            background: transparent;
+            box-shadow: none;
+            border: none;
+        }
+
+        body.zen-active .ql-toolbar {
+            opacity: 0; /* Hide formatting tools but keep them accessible if hovered */
+            transition: 0.3s;
+        }
+        
+        body.zen-active .ql-toolbar:hover {
+            opacity: 1;
+        }
+
+        body.zen-active .counter-panel {
+            background: transparent;
+            border: none;
+        }
+
+        /* The Exit Button */
+        #exit-zen-btn {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-sub);
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            z-index: 99999;
+            transition: 0.3s;
+        }
+        #exit-zen-btn:hover {
+            background: #fff;
+            color: #000;
         }
     </style>
 </head>
@@ -1098,6 +1173,14 @@
                     </div>
                 </div>
 
+                <div id="draft-recovery-banner" class="hidden" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.1); flex-wrap: wrap; gap: 10px;">
+                    <span style="color: #fff; font-size: 12px; font-weight: 800; letter-spacing: 0.5px;">⚠️ UNSAVED SCRIPT DETECTED IN LOCAL MEMORY</span>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="executeRestore()" style="background: linear-gradient(135deg, #EF4444, #B91C1C); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">Restore</button>
+                        <button onclick="discardDraft()" style="background: transparent; color: var(--text-sub); border: 1px solid var(--text-sub); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">Discard</button>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <input type="text" id="movie-title" placeholder="Script Title / Designation" style="font-size: 18px; font-weight: 900;">
                 </div>
@@ -1117,8 +1200,9 @@
                     <div class="editor-wrapper">
                         <div id="editor-container"></div>
                     </div>
-                    <div class="counter-panel">
+                    <div class="counter-panel" style="align-items: center;">
                         <span>Metrics: <span id="word-count-val" class="counter-highlight">0</span> words</span>
+                        <button onclick="toggleZenMode()" style="background: transparent; border: 1px solid var(--accent-start); color: var(--accent-start); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 800; text-transform: uppercase;">🧘‍♂️ Enter Zen Mode</button>
                         <span>Est Run-Time: <span id="run-time-val" class="counter-highlight">0s</span></span>
                     </div>
                 </div>
@@ -1237,6 +1321,7 @@
         </div>
     </div>
 
+    <button id="exit-zen-btn" class="hidden" onclick="toggleZenMode()">Exit Zen Mode ✖</button>
     <script>
         // --- DATABASE CONFIGURATION ---
         const supabaseUrl = 'https://ovdzrydvtqmzwsuestaf.supabase.co';
@@ -1299,8 +1384,6 @@
         }
 
         // --- 🛠️ HELPER FUNCTIONS ---
-        
-        // BUG FIX: The function was correctly named here, but called wrong in the save block previously.
         function isCanvasSurfaceBlank() {
             if (!canvas) return true; 
             
@@ -1461,7 +1544,7 @@
             } 
         }
 
-        // CONVERSION ENGINE
+        // --- CONVERSION ENGINE ---
         let pendingConvertNoteId = null;
         
         function openConvertModal(noteId) { 
@@ -1740,8 +1823,22 @@
         });
         
         quill.on('text-change', function() { 
-            const w = quill.getText().trim().split(/\s+/).length; 
-            document.getElementById('word-count-val').innerText = w > 0 && quill.getText().trim().length > 0 ? w : 0; 
+            const rawText = quill.getText().trim();
+            if (rawText.length === 0) {
+                document.getElementById('word-count-val').innerText = "0";
+                document.getElementById('run-time-val').innerText = "0s";
+                return;
+            }
+            
+            const w = rawText.split(/\s+/).length; 
+            document.getElementById('word-count-val').innerText = w;
+            
+            // 130 words = 60 seconds
+            const totalSeconds = Math.round((w / 130) * 60);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            document.getElementById('run-time-val').innerText = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
         });
 
         let canvas, ctx, isDrawing = false, canvasHistory = [];
@@ -1808,6 +1905,114 @@
             }
         }
 
+       // ==========================================
+        // 💾 AUTO-SAVE & RECOVERY ENGINE (FIXED)
+        // ==========================================
+        let hasUnsavedChanges = false;
+
+        // 1. The Listeners: Flag the system ONLY when you actually type something
+        quill.on('text-change', function(delta, oldDelta, source) { 
+            if (source === 'user') hasUnsavedChanges = true; 
+        });
+        document.getElementById('movie-title').addEventListener('input', function() { hasUnsavedChanges = true; });
+        document.getElementById('movie-director').addEventListener('input', function() { hasUnsavedChanges = true; });
+
+        function triggerAutoSave() {
+            // 2. The Gatekeeper: Stop immediately if you haven't typed anything new
+            if (!hasUnsavedChanges) return;
+
+            const titleEl = document.getElementById('movie-title');
+            if(!titleEl) return;
+            
+            const titleInput = titleEl.value.trim();
+            const scriptText = quill.getText().trim();
+            
+            if(titleInput.length > 0 || scriptText.length > 0) {
+                const draftData = {
+                    editingId: editingMovieId,
+                    title: titleInput,
+                    director: document.getElementById('movie-director').value,
+                    script: quill.root.innerHTML,
+                    theme: globalActiveTheme
+                };
+                
+                localStorage.setItem('studio_auto_draft', JSON.stringify(draftData));
+                
+                const statusText = document.getElementById('autosave-status');
+                if(statusText) {
+                    statusText.innerText = `✓ Local memory synced`;
+                    statusText.style.opacity = 1;
+                    setTimeout(() => { statusText.style.opacity = 0; }, 3000);
+                }
+                
+                // 3. Reset the guard so it doesn't spam saves until you type again
+                hasUnsavedChanges = false;
+            }
+        }
+
+        setInterval(triggerAutoSave, 5000);
+        
+        function restoreDraftIfFound() {
+            const rawDraft = localStorage.getItem('studio_auto_draft');
+            if (rawDraft) {
+                document.getElementById('draft-recovery-banner').classList.remove('hidden');
+            }
+        }
+        
+        setTimeout(restoreDraftIfFound, 1000);
+
+        function executeRestore() {
+            const rawDraft = localStorage.getItem('studio_auto_draft');
+            if (rawDraft) {
+                const draft = JSON.parse(rawDraft);
+                editingMovieId = draft.editingId || null;
+                document.getElementById('movie-title').value = draft.title || '';
+                document.getElementById('movie-director').value = draft.director || '';
+                
+                if(draft.script && quill) {
+                    // Added a 100ms delay to guarantee the editor is ready to accept text
+                    setTimeout(() => {
+                        quill.clipboard.dangerouslyPasteHTML(0, draft.script);
+                    }, 100);
+                }
+                
+                if(editingMovieId) {
+                    document.getElementById('save-movie-btn').innerText = "Update Record";
+                }
+                
+                // Apply the saved theme
+                if(draft.theme) {
+                    const themeNode = document.querySelector(`#movie-lut-grid .lut-swatch[onclick*="${draft.theme}"]`);
+                    if (themeNode) themeNode.click();
+                }
+
+                // Reset flags and hide banner
+                hasUnsavedChanges = false;
+                document.getElementById('draft-recovery-banner').classList.add('hidden');
+            }
+        }
+
+        function discardDraft() {
+            localStorage.removeItem('studio_auto_draft');
+            hasUnsavedChanges = false; // Prevents the ghost loop!
+            document.getElementById('draft-recovery-banner').classList.add('hidden');
+        }
+
+        // ==========================================
+        // 🧘‍♂️ ZEN MODE ENGINE
+        // ==========================================
+        function toggleZenMode() {
+            const isZen = document.body.classList.toggle('zen-active');
+            
+            if (isZen) {
+                document.getElementById('exit-zen-btn').classList.remove('hidden');
+                // Scroll to top to ensure perfect centering
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                document.getElementById('exit-zen-btn').classList.add('hidden');
+            }
+        }
+        // --- FETCH MOVIES ---
         async function fetchMovies() {
             const container = document.getElementById('movies-dashboard');
             try {
@@ -1871,12 +2076,9 @@
                 saveBtn.innerText = "Commiting Data..."; 
                 saveBtn.disabled = true;
 
-                // Call the helper (The bug was right here!)
                 let pdfUrl = await uploadPDFToStorage(); 
                 
                 const scriptContent = quill.getText().trim().length === 0 ? null : quill.root.innerHTML; 
-                
-                // Fixed function call here as well
                 const sketchContent = isCanvasSurfaceBlank() ? null : canvas.toDataURL();
 
                 if (editingMovieId) {
@@ -1914,7 +2116,6 @@
                 document.getElementById('movie-director').value = ''; 
                 quill.root.innerHTML = ''; 
                 
-                // Fixed function call here
                 if(!isCanvasSurfaceBlank()) {
                     clearCanvasSurface(); 
                 }
