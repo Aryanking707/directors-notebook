@@ -1197,6 +1197,12 @@
                 </div>
                 
                 <div class="form-group" style="margin-bottom: 0;">
+                    <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+ <button id="mic-btn" onclick="toggleDictation()" style="background: rgba(255,255,255,0.05); border: 1px solid var(--accent-start); color: var(--accent-start); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: 0.3s;">
+        🎙️ Start Dictation
+    </button>
+    <span id="mic-status" style="font-size: 10px; color: var(--text-sub); display: none;">● Listening...</span>
+</div>
                     <div class="editor-wrapper">
                         <div id="editor-container"></div>
                     </div>
@@ -2321,6 +2327,54 @@
         
         function formatDisplayDate(iso) { 
             return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); 
+        }
+// ==========================================
+        // 🎙️ BULLETPROOF DICTATION ENGINE
+        // ==========================================
+        let recognition;
+        let lastProcessedIndex = 0; // Tracks what we've already injected
+
+        function toggleDictation() {
+            if (!('webkitSpeechRecognition' in window)) return alert("Dictation not supported on this browser.");
+
+            if (recognition && recognition.isStarted) {
+                recognition.stop();
+                recognition.isStarted = false;
+                document.getElementById('mic-btn').innerText = "🎙️ Start Dictation";
+                return;
+            }
+
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true; // We turn this ON so the API doesn't freeze, but we filter it manually below
+            recognition.isStarted = true;
+            
+            // Reset the tracker every time you hit record
+            lastProcessedIndex = 0; 
+
+            recognition.onresult = (e) => {
+                let finalizedText = "";
+
+                // Loop through results, starting ONLY from the sentences we haven't processed yet
+                for (let i = lastProcessedIndex; i < e.results.length; ++i) {
+                    
+                    // The Gatekeeper: ONLY grab the text if the browser is 100% finished guessing
+                    if (e.results[i].isFinal) {
+                        finalizedText += e.results[i][0].transcript + " ";
+                        lastProcessedIndex = i + 1; // Move the tracker forward so we never repeat this sentence
+                    }
+                }
+
+                // If we got a confirmed, finished phrase, inject it
+                if (finalizedText !== "") {
+                    let cursorPosition = quill.getSelection() ? quill.getSelection().index : quill.getLength();
+                    quill.insertText(cursorPosition, finalizedText);
+                    hasUnsavedChanges = true; // Trigger your auto-save
+                }
+            };
+
+            recognition.start();
+            document.getElementById('mic-btn').innerText = "⏹ Stop Dictation";
         }
     </script>
 </body>
