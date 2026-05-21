@@ -1119,6 +1119,54 @@
             background: #fff;
             color: #000;
         }
+        /* ==========================================
+           🤖 CINEMATIC AI COPILOT ENGINE
+           ========================================== */
+        .ai-toggle-btn { 
+            background: rgba(255,255,255,0.02); color: var(--text-sub); border: 1px solid rgba(255,255,255,0.05); 
+            padding: 12px 20px; border-radius: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; 
+            letter-spacing: 1px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; 
+            transition: 0.3s; margin-top: 5px; 
+        }
+        .ai-toggle-btn:hover, .ai-toggle-btn.active { 
+            border-color: #A855F7; background: rgba(168, 85, 247, 0.05); color: #fff; box-shadow: 0 5px 15px rgba(168, 85, 247, 0.3);
+        }
+        
+        .ai-wrapper { 
+            background: #08080A; border: 1px solid var(--glass-border); border-radius: 12px; margin-top: 15px; 
+            display: flex; flex-direction: column; overflow: hidden; height: 350px; box-shadow: inset 0 5px 20px rgba(0,0,0,0.5);
+        }
+        .ai-header { 
+            display: flex; justify-content: space-between; align-items: center; background: rgba(168, 85, 247, 0.1); 
+            padding: 12px 18px; border-bottom: 1px solid rgba(168, 85, 247, 0.2); 
+        }
+        .ai-chat-window { 
+            flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; font-size: 13px; 
+        }
+        .ai-message { 
+            max-width: 85%; 
+            padding: 15px 20px; 
+            border-radius: 10px; 
+            line-height: 1.6; 
+            white-space: pre-wrap; /* This forces HTML to respect paragraphs! */
+            word-wrap: break-word;
+        }
+        .ai-message.user { 
+            align-self: flex-end; background: var(--accent-start); color: #000; font-weight: 600; border-bottom-right-radius: 2px; 
+        }
+        .ai-message.gemini { 
+            align-self: flex-start; background: rgba(255,255,255,0.05); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.1); border-bottom-left-radius: 2px; 
+        }
+        .ai-input-zone { 
+            display: flex; padding: 10px; background: #0A0A0E; border-top: 1px solid rgba(255,255,255,0.05); gap: 10px; 
+        }
+        .ai-input-zone input { 
+            margin-top: 0; padding: 12px 15px; font-size: 13px; border-radius: 8px; flex: 1; 
+        }
+        .ai-send-btn { 
+            background: #A855F7; color: #fff; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 12px; transition: 0.3s; 
+        }
+        .ai-send-btn:hover { background: #9333EA; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
     </style>
 </head>
 <body class="theme-neon-blue">
@@ -1225,7 +1273,25 @@
                             <button class="canvas-control-btn crt-hover" style="color: var(--danger); border-color: rgba(239,68,68,0.3);" onclick="clearCanvasSurface()">Clear</button>
                         </div>
                     </div>
+
                     <canvas id="doodle-canvas"></canvas>
+                </div>
+                <div class="ai-toggle-btn" id="ai-toggle" onclick="toggleAICopilot()">
+                    ✨ <span>Summon AI Copilot</span>
+                </div>
+                
+                <div class="ai-wrapper hidden" id="ai-section">
+                    <div class="ai-header">
+                        <span style="font-size: 10px; color: #fff; text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px; color: #A855F7;">Cinematic AI Engine (Gemini)</span>
+                        <input type="password" id="gemini-api-key" placeholder="Paste Gemini API Key Here..." style="width: 200px; padding: 6px 10px; margin-top: 0; font-size: 10px; border-radius: 4px; background: rgba(0,0,0,0.5);" onchange="saveApiKey()">
+                    </div>
+                    <div class="ai-chat-window" id="ai-chat-history">
+                        <div class="ai-message gemini">Director, the AI Copilot is online. Paste your Google AI Studio key above to initiate neural link. How can we elevate this script?</div>
+                    </div>
+                    <div class="ai-input-zone">
+                        <input type="text" id="ai-user-input" placeholder="Ask Gemini to analyze a scene, generate ideas, or check facts..." onkeypress="handleAIEnter(event)">
+                        <button class="ai-send-btn" onclick="sendToGemini()">Send</button>
+                    </div>
                 </div>
 
                 <button id="save-movie-btn" class="btn-primary" onclick="saveMovie()">Commit to Database</button>
@@ -2375,6 +2441,124 @@
 
             recognition.start();
             document.getElementById('mic-btn').innerText = "⏹ Stop Dictation";
+        }
+// ==========================================
+        // 🤖 GEMINI AI COPILOT ENGINE (FINAL V7)
+        // ==========================================
+        function toggleAICopilot() { 
+            const aiSection = document.getElementById('ai-section');
+            const toggleBtn = document.getElementById('ai-toggle');
+            
+            // Toggle the visibility of the AI section
+            aiSection.classList.toggle('hidden'); 
+            
+            const isActive = !aiSection.classList.contains('hidden');
+            toggleBtn.classList.toggle('active', isActive);
+            toggleBtn.querySelector('span').innerText = isActive ? "Close AI Copilot" : "Summon AI Copilot";
+
+            // Load saved API key into the input field if it exists in local memory
+            const savedKey = localStorage.getItem('studio_gemini_key');
+            if (savedKey) {
+                document.getElementById('gemini-api-key').value = savedKey;
+            }
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('gemini-api-key').value.trim();
+            if (key) {
+                localStorage.setItem('studio_gemini_key', key);
+            }
+        }
+
+        function handleAIEnter(event) {
+            // Allows the user to hit the Enter key to send a message
+            if (event.key === 'Enter') {
+                sendToGemini();
+            }
+        }
+
+        async function sendToGemini() {
+            const inputEl = document.getElementById('ai-user-input');
+            const chatHistory = document.getElementById('ai-chat-history');
+            
+            // Pull the API key directly from local storage for security
+            const apiKey = localStorage.getItem('studio_gemini_key');
+            
+            const prompt = inputEl.value.trim();
+            
+            // Stop if the input is empty or the key is missing
+            if (!prompt) return;
+            if (!apiKey) {
+                return alert("Please paste your Gemini API Key in the top right box of the AI panel first!");
+            }
+
+            // 1. Render User Message on the screen
+            const userMsg = document.createElement('div');
+            userMsg.className = 'ai-message user';
+            userMsg.innerText = prompt;
+            chatHistory.appendChild(userMsg);
+            
+            // Clear the input box and scroll to the bottom
+            inputEl.value = '';
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            // 2. Render Loading State
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = 'ai-message gemini';
+            loadingMsg.innerText = "Accessing deep neural film analysis...";
+            chatHistory.appendChild(loadingMsg);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            // 3. Connect to the Gemini 2.5 Flash REST API
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({
+                        contents: [{ 
+                            parts: [{ 
+                                // THE BRAIN UPGRADE: Elite Film Theorist Persona
+                                text: `You are an elite, highly intelligent cinematic co-writer, master film theorist, and technical director. Provide deep, insightful, and comprehensive analysis. Break down concepts, lighting, pacing, and narrative structure using professional industry terminology. Do not artificially constrain your response length; give the user the full depth of your knowledge. The user asks: ${prompt}` 
+                            }] 
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                // If Google sends back an error, throw it so the catch block handles it
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                // 4. Grab the raw text from Google
+                let replyText = data.candidates[0].content.parts[0].text;
+                
+                // 🪄 THE FORMATTING ENGINE: Convert Markdown to beautiful HTML
+                
+                // Format Headers (## and ###)
+                replyText = replyText.replace(/^### (.*$)/gim, '<strong style="color: var(--accent-start); font-size: 1.1em; display: block; margin-top: 15px; margin-bottom: 5px;">$1</strong>');
+                replyText = replyText.replace(/^## (.*$)/gim, '<strong style="color: #fff; font-size: 1.3em; display: block; margin-top: 15px; margin-bottom: 5px;">$1</strong>');
+                
+                // Format Bold Text (**text**)
+                replyText = replyText.replace(/\*\*(.*?)\*\*/gim, '<strong style="color: #fff;">$1</strong>');
+                
+                // Format Bullet Points (* text)
+                replyText = replyText.replace(/^\* (.*$)/gim, '<span style="color: var(--accent-start); margin-right: 8px;">•</span> $1');
+
+                // Inject the beautifully formatted HTML into the UI
+                loadingMsg.innerHTML = replyText;
+                
+            } catch (err) {
+                // If anything fails (wrong key, bad connection), show it in red
+                loadingMsg.innerText = `🚨 Neural Link Failed: ${err.message}`;
+                loadingMsg.style.color = "var(--danger)";
+            }
+            
+            // Keep the chat scrolled to the newest message
+            chatHistory.scrollTop = chatHistory.scrollHeight;
         }
     </script>
 </body>
