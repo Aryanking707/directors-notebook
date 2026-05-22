@@ -1167,9 +1167,156 @@
             background: #A855F7; color: #fff; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 12px; transition: 0.3s; 
         }
         .ai-send-btn:hover { background: #9333EA; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
-    </style>
+   
+        /* ==========================================
+           🍱 BENTO BOX & 🔍 OMNIBAR CSS
+           ========================================== */
+        /* The Omnibar Shell */
+        #omnibar-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            z-index: 100000; display: flex; justify-content: center; align-items: flex-start;
+            padding-top: 15vh; opacity: 0; pointer-events: none; transition: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        #omnibar-overlay.active { opacity: 1; pointer-events: all; }
+        .omnibar-box {
+            background: rgba(12,12,16,0.85); width: 90%; max-width: 650px; border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; overflow: hidden; transform: translateY(-20px) scale(0.98); transition: 0.2s;
+        }
+        #omnibar-overlay.active .omnibar-box { transform: translateY(0) scale(1); }
+        .omnibar-input {
+            background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 25px 30px; font-size: 22px; color: #fff; outline: none; border-radius: 0; box-shadow: none; font-weight: 300;
+        }
+        .omnibar-input:focus { box-shadow: none; border-bottom: 1px solid var(--accent-start); background: transparent; }
+        .omnibar-results { max-height: 350px; overflow-y: auto; padding: 10px; }
+        .omni-item {
+            padding: 15px 20px; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between;
+            color: var(--text-sub); transition: 0.2s; border: 1px solid transparent; align-items: center;
+        }
+        .omni-item:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.05); color: #fff; padding-left: 25px;}
+        .omni-badge { background: var(--accent-start); color: #000; font-size: 9px; padding: 3px 8px; border-radius: 100px; font-weight: 800; text-transform: uppercase;}
+
+        /* Desktop Bento Grid */
+        /* Hide mobile search button on desktop */
+        #mobile-search-btn { display: none; }
+       /* ==========================================
+           🍱 DESKTOP BENTO BOX (FLUID ALIGNMENT FIX)
+           ========================================== */
+        @media (min-width: 1024px) {
+            body.zen-active #workspace-scripts { display: block; }
+            
+            #workspace-scripts {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 30px;
+                justify-content: center;
+                align-items: flex-start;
+            }
+            
+            /* The Main Editor - Dead center when alone, shifts left when AI is open */
+            #movie-form-panel { 
+                flex: 1 1 700px; 
+                max-width: 900px; 
+                margin: 0 auto; 
+            }
+            
+            /* The AI Copilot - Takes up the right flank when summoned */
+            #ai-section { 
+                flex: 0 1 450px; 
+                display: flex !important; 
+                height: 100%; 
+                min-height: 500px; 
+                margin-top: 0;
+            }
+            
+            #ai-section.hidden { display: none !important; }
+            
+            /* Forces the dashboard to drop below the bento box */
+            .search-container, #movies-dashboard { 
+                width: 100%; 
+            }
+        }
+            #movie-form-panel { max-width: 100%; margin: 0; grid-column: 1; }
+            #ai-section.hidden { display: none !important; }
+            #ai-section { display: flex !important; height: 100%; min-height: 500px; grid-column: 2; margin-top: 0;}
+            .search-container, #movies-dashboard { grid-column: 1 / -1; }
+            /* 🔍 MOBILE OMNIBAR TRIGGER */
+            #mobile-search-btn {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 60px;
+                height: 60px;
+                border-radius: 30px;
+                font-size: 24px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                z-index: 99990;
+                padding: 0;
+                transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                /* Inherit the glass panel look */
+                background: var(--card-bg); 
+                backdrop-filter: blur(30px); 
+                -webkit-backdrop-filter: blur(30px);
+                border: 1px solid var(--glass-border); 
+                border-top: 1px solid var(--glass-highlight);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+            }
+            
+            #mobile-search-btn:active {
+                transform: scale(0.9);
+                background: var(--accent-start);
+                border-color: #fff;
+            }
+            
+            /* Hide the button when Zen Mode is active */
+            body.zen-active #mobile-search-btn {
+                display: none !important;
+            }
+        
+       /* ==========================================
+           ⛩️ RONIN ENGINE (Japanese Texture & Edge Light)
+           ========================================== */
+        body { background-color: #030305; }
+
+        /* 1. The Japanese Seigaiha (Wave) Texture */
+        #japanese-texture-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -3; pointer-events: none;
+            /* Linter Safe Base64 for subtle Japanese Waves */
+            background-image: radial-gradient(ellipse at center, transparent 0%, rgba(3,3,5,0.95) 100%), url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc1MCcgaGVpZ2h0PSc1MCcgdmlld0JveD0nMCAwIDEwMCAxMDAnPjxnIGZpbGw9JyNmZmZmZmYnIGZpbGwtb3BhY2l0eT0nMC4wMyc+PHBhdGggZD0nTTUwIDUwYy0yNy42IDAtNTAtMjIuNC01MC01MGgxMDBjMCAyNy42LTIyLjQgNTAtNTAgNTB6bTAgNTBjLTI3LjYgMC01MC0yMi40LTUwLTUwaDEwMGMwIDI3LjYtMjIuNCA1MC01MCA1MHonLz48L2c+PC9zdmc+);
+        }
+
+        /* 2. Prep the boards to hold the backlight */
+        #movie-form-panel, #ai-section {
+            position: relative;
+            background-color: rgba(12, 12, 16, 0.95) !important;
+        }
+
+        /* 3. The Edge-Lit Aura (Trapped behind the board) */
+        #movie-form-panel::before, #ai-section::before {
+            content: ""; position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: inherit; z-index: -1;
+            filter: blur(35px); opacity: 0.15;
+            transition: opacity 0.5s ease, filter 0.5s ease;
+            pointer-events: none;
+        }
+
+        /* 4. Assign LUT Colors to the Edges */
+        #movie-form-panel::before { background: var(--accent-start); }
+        #ai-section::before { background: var(--accent-end); }
+
+        /* 5. The Typing Flare (Only the main script board flares when writing) */
+        body.is-typing #movie-form-panel::before { opacity: 0.4; filter: blur(45px); }
+   </style>
 </head>
 <body class="theme-neon-blue">
+   <div id="japanese-texture-overlay"></div>
 
     <div id="auth-container" class="glass-panel">
         <div class="auth-tabs">
@@ -1394,6 +1541,17 @@
     </div>
 
     <button id="exit-zen-btn" class="hidden" onclick="toggleZenMode()">Exit Zen Mode ✖</button>
+    
+    <div id="omnibar-overlay">
+        <div class="omnibar-box">
+            <input type="text" id="omnibar-input" class="omnibar-input" placeholder="Type a command or search scripts... (Cmd + K)">
+            <div id="omnibar-results" class="omnibar-results">
+                </div>
+        </div>
+    </div>
+    <button id="mobile-search-btn" onclick="toggleOmnibar(); playTick();">
+        🔍
+    </button>
     <script>
         // --- DATABASE CONFIGURATION ---
         const supabaseUrl = 'https://ovdzrydvtqmzwsuestaf.supabase.co';
@@ -1408,6 +1566,114 @@
         let rawStoryboards = [];
 
         const stickyColors = ['#FDE68A', '#FBCFE8', '#A7F3D0', '#BFDBFE', '#E9D5FF']; 
+        // ==========================================
+        // 📳 CINEMATIC HAPTICS & SOUND ENGINE
+        // ==========================================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // A soft, premium "tick" sound (like an Apple UI click)
+        function playTick() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime); // Pitch drop
+            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);     // Fade out quickly
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+            
+            // Trigger Phone Vibration (10 milliseconds)
+            if(navigator.vibrate) navigator.vibrate(10);
+        }
+
+        // A double-pulse "Success" sound
+        function playSuccess() {
+            playTick();
+            setTimeout(playTick, 80);
+            if(navigator.vibrate) navigator.vibrate([15, 50, 20]); // Vibe - Pause - Vibe
+        }
+
+        // Wire haptics to the UI (Add more wherever you want!)
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('lut-swatch') || e.target.classList.contains('nav-btn')) {
+                playTick();
+            }
+            if (e.target.id === 'save-movie-btn' || e.target.id === 'save-storyboard-btn') {
+                playSuccess();
+            }
+        });
+
+        // ==========================================
+        // 🔍 OMNIBAR & KEYBOARD COMMAND ENGINE
+        // ==========================================
+        const omniOverlay = document.getElementById('omnibar-overlay');
+        const omniInput = document.getElementById('omnibar-input');
+        const omniResults = document.getElementById('omnibar-results');
+
+        // Listen for Cmd+K (Mac) or Ctrl+K (Windows)
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault(); // Stop default browser search
+                toggleOmnibar();
+            }
+            // Close on Escape
+            if (e.key === 'Escape' && omniOverlay.classList.contains('active')) {
+                toggleOmnibar();
+            }
+        });
+
+        function toggleOmnibar() {
+            const isActive = omniOverlay.classList.toggle('active');
+            triggerFocusPull(isActive); // Blur the background!
+            if (isActive) {
+                omniInput.value = '';
+                omniResults.innerHTML = '';
+                setTimeout(() => omniInput.focus(), 100);
+                playTick();
+            }
+        }
+
+        // Live Search Filtering
+        omniInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            omniResults.innerHTML = '';
+            
+            if (query.length === 0) return;
+
+            // Search Movies
+            const mHits = rawMovies.filter(m => m.title.toLowerCase().includes(query) || (m.director && m.director.toLowerCase().includes(query)));
+            // Search Storyboards
+            const sHits = rawStoryboards.filter(s => s.title.toLowerCase().includes(query));
+
+            mHits.forEach(m => {
+                omniResults.innerHTML += `<div class="omni-item" onclick="startEditMovie('${m.id}'); toggleOmnibar(); playTick();">
+                    <span style="font-weight: 800; color: #fff;">${m.title} <span style="color: #64748B; font-weight: 400;">(${m.director})</span></span>
+                    <span class="omni-badge" style="background: var(--accent-start);">🎬 Script</span>
+                </div>`;
+            });
+
+            sHits.forEach(s => {
+                omniResults.innerHTML += `<div class="omni-item" onclick="startEditStoryboard('${s.id}'); toggleOmnibar(); playTick();">
+                    <span style="font-weight: 800; color: #fff;">${s.title}</span>
+                    <span class="omni-badge" style="background: #A855F7; color: #fff;">🗂️ Storyboard</span>
+                </div>`;
+            });
+            
+            if(mHits.length === 0 && sHits.length === 0) {
+                omniResults.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-sub);">No records found in database.</div>`;
+            }
+        });
+
+        // Close Omnibar if clicking outside the box
+        omniOverlay.addEventListener('click', (e) => {
+            if (e.target === omniOverlay) toggleOmnibar();
+        });
 
         // --- ⏱️ SMPTE TIMECODE ---
         setInterval(() => {
@@ -2560,6 +2826,20 @@
             // Keep the chat scrolled to the newest message
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
+        // ==========================================
+        // ⛩️ RONIN ENGINE (Edge-Lit Typing Logic)
+        // ==========================================
+        let typingTimeout;
+        quill.on('text-change', (delta, oldDelta, source) => {
+            if (source === 'user') {
+                document.body.classList.add('is-typing');
+                
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => {
+                    document.body.classList.remove('is-typing');
+                }, 1000); // Dims the board 1 second after you stop typing
+            }
+        });
     </script>
 </body>
 </html>
