@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Creator's Video Club</title>
+    <meta name="theme-color" content="#140c30">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=VT323&display=swap" rel="stylesheet">
     
@@ -247,7 +250,7 @@ background:repeating-linear-gradient(to bottom,transparent 0 250px,#b9824a 250px
 
 /* pulled-out DVD */
 #dvd-stage{position:fixed;inset:0;z-index:99990;display:flex;align-items:center;justify-content:center;perspective:1700px;background:rgba(5,2,20,0);transition:background .5s;--w:clamp(150px,38vw,290px)}
-#dvd-stage.show{background:rgba(5,2,20,.88)}
+#dvd-stage.show{background:rgba(5,2,20,.95)}
 .dvd-scene{position:relative;width:var(--w);height:calc(var(--w)*1.42);margin-bottom:60px}
 .dvd-case{position:absolute;inset:0;transform-style:preserve-3d;opacity:0;transform:translateY(160px) rotateY(88deg) scale(.3);transition:transform .95s cubic-bezier(.2,.9,.25,1.05),opacity .35s}
 #dvd-stage.show .dvd-case{opacity:1;transform:rotateY(-12deg) scale(1)}
@@ -276,6 +279,131 @@ background:repeating-linear-gradient(to bottom,transparent 0 250px,#b9824a 250px
 .dvd-close{position:fixed;top:16px;right:16px;width:40px;height:40px;background:#000;color:#fff;border:2px solid var(--glass-border);border-radius:4px;cursor:pointer}
 .dvd-close:hover{background:var(--danger);color:#000}
 @media(prefers-reduced-motion:reduce){.dvd-case,.dvd-cover{transition-duration:.01s}}
+
+/* ===== READABLE SHELF + TOUCH ===== */
+.shelf-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 18px}
+.seg{display:inline-flex;border:3px solid #000;border-radius:30px;overflow:hidden;box-shadow:0 3px 0 #000}
+.seg{flex:none}.seg-btn{white-space:nowrap;min-height:42px;padding:8px 16px;border:0;background:linear-gradient(#f6f7fd,#a9aec4 55%,#d9dcea);color:#111;font:12px 'Bungee',sans-serif;cursor:pointer}
+.seg-btn.active{background:linear-gradient(var(--accent-start),var(--accent-end))}
+.shelf-sort{width:auto;margin:0;min-height:42px;padding:8px 12px;background:var(--input-bg);color:var(--text-main);border:2px solid var(--glass-border);border-radius:4px;font:14px 'Courier Prime',monospace}
+.shelf-count{margin-left:auto;font:22px 'VT323',monospace;color:#ffb000}
+.search-container{margin-bottom:14px}
+.dvd{width:62px}
+.dvd .t{white-space:normal;text-overflow:clip;font:700 15px/1.25 'Courier Prime',monospace;letter-spacing:0;padding:8px 0}
+#movies-dashboard.list-mode,#storyboards-dashboard.list-mode{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;padding:0;border:0;background:none;box-shadow:none}
+.list-mode .empty-shelf{grid-column:1/-1;margin:0;height:auto;padding:36px 16px}
+.dvd-row{display:flex;align-items:center;gap:12px;width:100%;min-height:72px;padding:12px 14px;text-align:left;cursor:pointer;color:var(--text-main);background:#0e0a22;border:3px solid #000;border-left:10px solid var(--c);border-radius:4px;box-shadow:4px 4px 0 rgba(0,0,0,.6)}
+.dvd-row:hover,.dvd-row:active{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--c)}
+.dvd-row .disc{flex:none;width:42px;height:42px;animation:none}
+.dvd-row .r-main{min-width:0;flex:1}
+.dvd-row b{display:block;font:700 17px/1.25 'Courier Prime',monospace;color:#fff;overflow-wrap:anywhere}
+.dvd-row small{display:block;margin-top:2px;font:14px 'Courier Prime',monospace;color:var(--text-sub)}
+.dvd-row i{display:block;margin-top:4px;font:normal 13px/1.4 'Courier Prime',monospace;color:#cdbfff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body{padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right));padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+#mobile-search-btn{bottom:calc(18px + env(safe-area-inset-bottom))}
+.dvd-close{top:max(16px,env(safe-area-inset-top))}
+@media(hover:none){body{background-attachment:scroll}}
+@media(max-width:1024px){input,select,textarea{font-size:16px!important}}
+@media(max-width:700px){#dvd-stage{--w:44vw}.shelf-hint{display:none}.shelf-tools{gap:8px}.shelf-sort{flex:1;min-width:0}}
+@media(max-height:560px){#dvd-stage{--w:clamp(110px,32vh,200px)}}
+@media(pointer:coarse){.color-dot{width:26px;height:26px}.delete-sticky{width:36px;height:36px;top:-14px;right:-14px}.lut-swatch{width:42px;height:42px}.action-btn,.dvd-btns .action-btn{padding:13px 12px}.nav-btn{min-height:46px}.logout-btn{padding:12px 16px}}
+
+/* ===== UPRIGHT SPINE TITLES + EXTRAS ===== */
+.dvd .t{writing-mode:vertical-lr;text-orientation:upright;text-transform:uppercase;white-space:normal;letter-spacing:0;line-height:1.1;font-weight:700;padding:8px 0;text-align:start}
+.genre-dots{display:flex;align-items:center;gap:10px;margin:-6px 0 18px}
+.gdot{width:30px;height:30px;padding:0;border-radius:50%;border:3px solid #000;background:var(--c);cursor:pointer;box-shadow:0 3px 0 #000;transition:.15s}
+.gdot.all{width:auto;padding:0 14px;border-radius:30px;background:linear-gradient(#f6f7fd,#a9aec4);color:#111;font:12px 'Bungee',sans-serif}
+.gdot.active{outline:3px solid #fff;outline-offset:2px;transform:scale(1.08)}
+.d-meta{margin:0;font:19px 'VT323',monospace;color:#ffb000}
+@media(pointer:coarse){.gdot{width:38px;height:38px}.gdot.all{width:auto}}
+
+/* ===== ONE-LINE SPINES + MOTION ===== */
+#movies-dashboard,#storyboards-dashboard{background:repeating-linear-gradient(to bottom,transparent 0 290px,#b9824a 290px 294px,#7a4a22 294px 312px),repeating-linear-gradient(90deg,#24150b 0 6px,#2b1a0f 6px 12px)}
+#movies-dashboard.list-mode,#storyboards-dashboard.list-mode{background:none}
+.dvd{width:58px;animation:dvdIn .5s cubic-bezier(.2,.9,.3,1.2) backwards;transition:transform .25s,box-shadow .25s,opacity .3s,filter .3s}
+.dvd .t{writing-mode:vertical-rl;text-orientation:upright;text-transform:uppercase;white-space:nowrap;overflow:hidden;font:700 15px/1 'Courier Prime',monospace;letter-spacing:0;padding:6px 0;text-align:start}
+.dvd:hover,.dvd:focus-visible{transform:translateY(-20px) rotate(-1.5deg);box-shadow:inset 0 0 0 1px var(--c),0 0 18px var(--c)}
+.dvd::after{content:attr(data-title);position:absolute;bottom:100%;left:50%;max-width:260px;padding:6px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#000;color:#fff;border:2px solid var(--c);font:700 13px 'Courier Prime',monospace;opacity:0;pointer-events:none;transform:translateX(-50%) translateY(8px);transition:.2s;z-index:30}
+.dvd:hover::after{opacity:1;transform:translateX(-50%) translateY(-6px)}
+@media(hover:none){.dvd::after{display:none}}
+.dvd.pinned .band{animation:glow 2.4s ease-in-out infinite}
+.shelf-item.pulled{opacity:.15;filter:grayscale(1);pointer-events:none}
+.dvd-row{animation:rowIn .4s ease backwards}
+@keyframes dvdIn{from{opacity:0;transform:translateY(-40px) rotate(-5deg)}}
+@keyframes rowIn{from{opacity:0;transform:translateX(-24px)}}
+@keyframes glow{50%{box-shadow:0 0 16px var(--c)}}
+@keyframes tabIn{from{opacity:0;transform:translateY(14px)}}
+@keyframes stickyIn{from{opacity:0;transform:scale(.6) rotate(-12deg)}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@keyframes bob{50%{transform:translateY(-7px)}}
+@keyframes popOut{0%{transform:translateY(0) scale(.7)}60%{transform:translateY(-26px) scale(1.12) rotate(180deg)}100%{transform:translateY(0) scale(1) rotate(360deg)}}
+#workspace-scripts,#workspace-storyboards,#workspace-wall{animation:tabIn .4s ease}
+.global-sticky,.project-sticky{animation:stickyIn .45s cubic-bezier(.2,.9,.3,1.3) backwards}
+.dvd-scene{perspective:1700px}
+.dvd-tilt{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .2s ease-out}
+.face.front::after{background:radial-gradient(circle at var(--mx,30%) var(--my,15%),rgba(255,255,255,.4),transparent 55%),linear-gradient(115deg,rgba(255,255,255,.16) 0 22%,transparent 23%)}
+#dvd-stage.open .dvd-scene{animation:bob 4s ease-in-out 1.3s infinite}
+#dvd-stage.open .dvd-disc{animation:popOut .9s cubic-bezier(.2,.9,.3,1.2),spin 7s linear .9s infinite}
+.dvd-btns{opacity:1;transition:none}
+.dvd-btns .action-btn{opacity:0}
+#dvd-stage.open .dvd-btns .action-btn{opacity:1;animation:rise .4s ease backwards;animation-delay:calc(var(--i,0)*70ms + .35s)}
+@media(prefers-reduced-motion:reduce){.dvd,.dvd-row,.global-sticky,.project-sticky,.dvd.pinned .band,#dvd-stage.open .dvd-scene,#dvd-stage.open .dvd-btns .action-btn{animation:none!important}}
+
+/* ===== TOOLBAR ALIGNMENT ===== */
+.shelf-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.seg{display:inline-flex;height:44px;flex:none}
+.seg-btn{display:flex;align-items:center;justify-content:center;gap:6px;height:100%;padding:0 18px;white-space:nowrap}
+.shelf-count{margin-left:auto}
+.genre-dots{flex-wrap:wrap}
+@media(max-width:700px){
+ .shelf-tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+ .seg{width:100%}.seg-btn{flex:1;padding:0 6px;font-size:11px}
+ .shelf-count{grid-column:1/-1;margin:0;text-align:right}
+}
+
+/* ===== MORE MOTION ===== */
+@keyframes neonOn{0%{opacity:0}8%{opacity:1}12%{opacity:.2}18%{opacity:1}24%{opacity:.4}30%,100%{opacity:1}}
+@keyframes stripes{to{background-position:72px 0}}
+@keyframes authIn{from{opacity:0;transform:translateY(40px) rotate(-2deg)}}
+@keyframes pop{50%{transform:scale(1.4)}}
+@keyframes msgIn{from{opacity:0;transform:translateY(10px) scale(.96)}}
+@keyframes sheen{to{background-position:-200% 0}}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1.5)}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,40px) scale(.9)}}
+@keyframes toastOut{to{opacity:0;transform:translate(-50%,30px)}}
+.store-sign h1{animation:neonOn 1.6s ease-out,flicker 6s 1.6s infinite}
+.store-sign::before{animation:stripes 6s linear infinite}
+.cd-logo{transition:filter .3s}.cd-logo:hover{animation-duration:1s;filter:brightness(1.3)}
+#auth-container{animation:authIn .7s cubic-bezier(.2,.9,.3,1.2)}
+.lut-swatch.active{animation:pop .35s}
+.ai-message{animation:msgIn .3s ease backwards}
+.custom-modal-box{transition:transform .35s cubic-bezier(.2,.9,.3,1.3)}
+.nav-btn:active,.btn-primary:active,.seg-btn:active,.gdot:active{transform:scale(.95)}
+.dvd:active{transform:translateY(-8px) scale(.96)}
+.dvd-row:active{transform:scale(.98)}
+.dvd:hover+.dvd{transform:translateX(3px) rotate(1deg)}
+.dvd:has(+ .dvd:hover){transform:translateX(-3px) rotate(-1deg)}
+.empty-shelf::before{content:"📀";display:block;font-size:34px;margin-bottom:6px;animation:bob 2.5s ease-in-out infinite}
+#movies-dashboard,#storyboards-dashboard{position:relative}
+#movies-dashboard:not(.list-mode)::before,#storyboards-dashboard:not(.list-mode)::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;background:linear-gradient(100deg,transparent 40%,rgba(255,255,255,.07) 50%,transparent 60%) 0 0/200% 100%;animation:sheen 8s linear infinite}
+.movie-title,.dvd-row b{transition:color .2s}
+.dvd-row:hover b{color:var(--c)}
+.sparkles{position:absolute;inset:0;pointer-events:none}
+.sparkles i{position:absolute;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff,0 0 14px var(--c);opacity:0}
+#dvd-stage.open .sparkles i{animation:twinkle 1.9s ease-in-out infinite}
+.sparkles i:nth-child(1){left:14%;top:12%}.sparkles i:nth-child(2){left:82%;top:10%;animation-delay:.3s!important}.sparkles i:nth-child(3){left:90%;top:38%;animation-delay:.7s!important}
+.sparkles i:nth-child(4){left:8%;top:34%;animation-delay:1s!important}.sparkles i:nth-child(5){left:70%;top:30%;animation-delay:1.3s!important}.sparkles i:nth-child(6){left:28%;top:28%;animation-delay:.5s!important}
+.toast{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100001;padding:12px 20px;background:#000;color:#ffd23f;border:3px solid var(--accent-start);box-shadow:5px 5px 0 var(--accent-start);font:13px 'Bungee',sans-serif;white-space:nowrap;animation:toastIn .45s cubic-bezier(.2,.9,.3,1.3)}
+.toast.out{animation:toastOut .4s ease forwards}
+
+/* ===== iPHONE / iPAD POLISH ===== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,.nav-btn,.dvd,.dvd-row,.seg-btn,.gdot,.action-btn{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#dvd-stage,.modal-overlay,.omnibar-results,.ai-chat-window{overscroll-behavior:contain}
+.dvd .t{-webkit-text-orientation:upright}
+.dvd-scene,.dvd-tilt,.dvd-case,.dvd-cover{-webkit-transform-style:preserve-3d}
+@media(max-width:700px){.toast{max-width:90vw;white-space:normal;text-align:center}.store-sign::before{height:22px}}
+@media(prefers-reduced-motion:reduce){.store-sign h1,.store-sign::before,#auth-container,.ai-message,.empty-shelf::before,.sparkles i,#movies-dashboard::before,#storyboards-dashboard::before{animation:none!important}}
 
 </style>
 </head>
@@ -415,6 +543,7 @@ background:repeating-linear-gradient(to bottom,transparent 0 250px,#b9824a 250px
                 <input type="text" class="search-bar glass-panel" id="search-movie-bar" placeholder="Search the shelf..." oninput="filterDashboards('movie')">
             </div>
             
+            <div class="shelf-tools"><div class="seg"><button type="button" class="seg-btn" data-mode="shelf" onclick="setShelfMode('shelf')">🗄️ Shelf</button><button type="button" class="seg-btn" data-mode="list" onclick="setShelfMode('list')">📋 List</button></div><div class="seg"><button type="button" class="seg-btn" data-sort="new" onclick="setShelfSort('new')">🕒 Newest</button><button type="button" class="seg-btn" data-sort="az" onclick="setShelfSort('az')">🔤 A–Z</button></div><span class="shelf-count" data-type="movie"></span></div>
             <div id="movies-dashboard" class="dashboard-grid"></div>
         </div>
 
@@ -455,6 +584,7 @@ background:repeating-linear-gradient(to bottom,transparent 0 250px,#b9824a 250px
                 <input type="text" class="search-bar glass-panel" id="search-storyboard-bar" placeholder="Search the shelf..." oninput="filterDashboards('storyboard')">
             </div>
             
+            <div class="shelf-tools"><div class="seg"><button type="button" class="seg-btn" data-mode="shelf" onclick="setShelfMode('shelf')">🗄️ Shelf</button><button type="button" class="seg-btn" data-mode="list" onclick="setShelfMode('list')">📋 List</button></div><div class="seg"><button type="button" class="seg-btn" data-sort="new" onclick="setShelfSort('new')">🕒 Newest</button><button type="button" class="seg-btn" data-sort="az" onclick="setShelfSort('az')">🔤 A–Z</button></div><span class="shelf-count" data-type="storyboard"></span></div>
             <div id="storyboards-dashboard" class="dashboard-grid"></div>
         </div>
 
@@ -534,51 +664,105 @@ background:repeating-linear-gradient(to bottom,transparent 0 250px,#b9824a 250px
         let globalNotes = [];
         const THEME_COLORS = {'theme-neon-blue':'#2de2ff','theme-crimson-red':'#ff4d6d','theme-fincher-yellow':'#ffd23f','theme-matrix-green':'#5dff9a','theme-amethyst':'#d46bff','theme-nolan-steel':'#8cb4ff'};
         const itemsOf = type => type === 'movie' ? rawMovies : rawStoryboards;
+        let shelfMode = (function () { try { return localStorage.getItem('studio_shelf_mode'); } catch (e) { return null; } })() || (window.matchMedia('(max-width:700px)').matches ? 'list' : 'shelf');
+        let shelfSort = 'new';
+        let shelfGenre = 'all';
+        const shelfOrder = { movie: [], storyboard: [] };
+        const GENRES = [['theme-neon-blue','Sci-Fi'],['theme-crimson-red','Action'],['theme-fincher-yellow','Thriller'],['theme-matrix-green','Cyber'],['theme-amethyst','Fantasy'],['theme-nolan-steel','Mystery']];
+        function snipOf(item, type, n) {
+            if (type === 'movie') { const d = document.createElement('div'); d.innerHTML = cleanHtml(item.script); return [...d.querySelectorAll('p,h1,h2,h3,li')].map(x => x.textContent.trim()).filter(Boolean).join(' · ').slice(0, n); }
+            return (item.sticky_notes || []).map((x, i) => (i + 1) + '. ' + x.text).join('  ').slice(0, n);
+        }
+        function syncShelfTools() {
+            document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode ? b.dataset.mode === shelfMode : b.dataset.sort === shelfSort));
+            document.querySelectorAll('.shelf-sort').forEach(s => s.value = shelfSort);
+            document.querySelectorAll('.gdot').forEach(b => b.classList.toggle('active', b.dataset.g === shelfGenre));
+        }
+        function setShelfMode(m) { shelfMode = m; try { localStorage.setItem('studio_shelf_mode', m); } catch (e) {} syncShelfTools(); rerenderShelves(); }
+        function setShelfSort(v) { shelfSort = v; syncShelfTools(); rerenderShelves(); }
+        function setGenre(g) { shelfGenre = g; syncShelfTools(); rerenderShelves(); }
+        function rerenderShelves() {
+            renderShelfNow(document.getElementById('movies-dashboard'), rawMovies, 'movie');
+            renderShelfNow(document.getElementById('storyboards-dashboard'), rawStoryboards, 'storyboard');
+        }
         function renderShelfNow(container, data, type) {
-            data.forEach(item => {
-                const h = 250 - (Math.abs((rotFor(item.id) * 10) | 0) % 5) * 5;
+            container.classList.toggle('list-mode', shelfMode === 'list');
+            const countEls = document.querySelectorAll('.shelf-count[data-type="' + type + '"]');
+            if (!data.length) { countEls.forEach(n => n.textContent = '0 items'); return; }
+            let list = shelfGenre === 'all' ? data : data.filter(x => (x.theme || 'theme-neon-blue') === shelfGenre);
+            if (shelfSort === 'az') list = [...list].sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''), undefined, { sensitivity: 'base' }));
+            shelfOrder[type] = list;
+            countEls.forEach(n => n.textContent = list.length + (list.length === 1 ? ' item' : ' items'));
+            container.innerHTML = '';
+            if (!list.length) { container.innerHTML = '<div class="empty-shelf">Nothing in this genre yet.</div>'; return; }
+            list.forEach((item, idx) => {
+                const color = THEME_COLORS[item.theme] || '#2de2ff';
                 const b = document.createElement('button');
-                b.className = 'dvd' + (item.is_pinned ? ' pinned' : '');
-                b.style.cssText = `--c:${THEME_COLORS[item.theme] || '#2de2ff'};height:${h}px;margin-top:${250 - h}px`;
+                b.type = 'button';
                 b.title = item.title || 'Untitled';
+                b.dataset.id = item.id; b.dataset.title = item.title || 'Untitled';
+                b.style.animationDelay = Math.min(idx * 22, 700) + 'ms';
                 b.dataset.search = ((item.title || '') + ' ' + (item.director || '')).toLowerCase();
-                b.innerHTML = `<span class="band">${type === 'movie' ? 'DVD' : 'BOARD'}</span><span class="t">${esc(item.title)}</span><span class="foot"></span>`;
+                b.style.setProperty('--c', color);
+                if (shelfMode === 'list') {
+                    b.className = 'shelf-item dvd-row' + (item.is_pinned ? ' pinned' : '');
+                    b.innerHTML = `<span class="disc"></span><span class="r-main"><b>${esc(item.title || 'Untitled')}</b><small>${esc(item.director || 'No director')} · ${esc(formatDisplayDate(item.created_at))}${item.is_pinned ? ' · ★ pinned' : ''}</small><i>${esc(snipOf(item, type, 90))}</i></span>`;
+                } else {
+                    const h = 290 - (Math.abs((rotFor(item.id) * 10) | 0) % 5) * 5;
+                    b.className = 'shelf-item dvd' + (item.is_pinned ? ' pinned' : '');
+                    b.style.height = h + 'px'; b.style.marginTop = (290 - h) + 'px';
+                    const full = String(item.title || 'Untitled').trim(), short = full.length > 12 ? full.slice(0, 11).trimEnd() + '…' : full;
+                    b.innerHTML = `<span class="band">${type === 'movie' ? 'DVD' : 'BOARD'}</span><span class="t">${esc(short)}</span><span class="foot"></span>`;
+                }
                 b.addEventListener('click', () => openDvd(type, item.id));
                 container.appendChild(b);
             });
+            try { filterDashboards(type === 'movie' ? 'movie' : 'storyboard'); } catch (e) {}
+        }
+        function showToast(msg) {
+            const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
+            setTimeout(() => t.classList.add('out'), 2200); setTimeout(() => t.remove(), 2700);
         }
         function closeDvd(now) {
+            document.body.style.overflow = '';
+            document.querySelectorAll('.shelf-item.pulled').forEach(x => x.classList.remove('pulled'));
             const el = document.getElementById('dvd-stage');
             if (!el) return;
             if (now) { el.remove(); return; }
             el.classList.remove('open');
             setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 500); }, 550);
         }
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDvd(); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeDvd();
+            if (e.key === 'ArrowRight') document.querySelector('#dvd-stage .dvd-next')?.click();
+            if (e.key === 'ArrowLeft') document.querySelector('#dvd-stage .dvd-prev')?.click();
+        });
         function openDvd(type, id) {
             const item = itemsOf(type).find(x => String(x.id) === String(id));
             if (!item) return;
             closeDvd(true);
             playTick();
-            let snippet;
-            if (type === 'movie') { const d = document.createElement('div'); d.innerHTML = cleanHtml(item.script); snippet = [...d.querySelectorAll('p,h1,h2,h3,li')].map(n => n.textContent.trim()).filter(Boolean).join(' · ').slice(0, 170); }
-            else snippet = (item.sticky_notes || []).map((n, i) => (i + 1) + '. ' + n.text).join('  ').slice(0, 170);
+            document.querySelectorAll('.shelf-item').forEach(x => x.classList.toggle('pulled', x.dataset.id === String(id)));
+            const snippet = snipOf(item, type, 170);
             const el = document.createElement('div');
             el.id = 'dvd-stage';
             el.innerHTML = `<div class="dvd-scene" style="--c:${THEME_COLORS[item.theme] || '#2de2ff'}">
-                <div class="dvd-case">
-                    <div class="dvd-inside"><div class="disc dvd-disc"></div><h3 class="d-title"></h3><p class="d-snip"></p></div>
+                <div class="dvd-tilt"><div class="dvd-case">
+                    <div class="dvd-inside"><span class="sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span><div class="disc dvd-disc"></div><h3 class="d-title"></h3><p class="d-meta"></p><p class="d-snip"></p></div>
                     <div class="dvd-cover">
                         <div class="face front"><span class="dvd-logo">DVD VIDEO</span><div class="dvd-art"></div><h2 class="d-title"></h2><span class="d-dir"></span><span class="d-kind"></span></div>
                         <div class="face back"></div>
                     </div>
-                </div>
+                </div></div>
                 <div class="dvd-btns"></div>
             </div><button class="dvd-close" title="Put it back">✖</button>`;
             el.querySelectorAll('.d-title').forEach(n => n.textContent = item.title || 'Untitled');
             el.querySelector('.d-dir').textContent = 'Dir: ' + (item.director || 'Unknown');
             el.querySelector('.d-kind').textContent = type === 'movie' ? 'SCRIPT · ' + formatDisplayDate(item.created_at) : 'STORYBOARD · ' + formatDisplayDate(item.created_at);
             el.querySelector('.d-snip').textContent = snippet || 'Nothing written yet.';
+            const full = snipOf(item, type, 1e6).trim();
+            const words = full ? full.split(/\s+/).length : 0;
+            el.querySelector('.d-meta').textContent = type === 'movie' ? words.toLocaleString() + ' words · ≈ ' + Math.max(1, Math.round(words / 180)) + ' pg' : (item.sticky_notes || []).length + ' scenes';
             const acts = type === 'movie'
                 ? [['▶ Read', 'view'], ['✏️ Edit', 'edit'], ['🖨️ Print Script', 'print'], ['📄 PDF', 'pdf'], [item.is_pinned ? '📌 Unpin' : '📌 Pin', 'pin'], ['🗑 Delete', 'del']]
                 : [['▶ Read', 'view'], ['✏️ Edit', 'edit'], ['🖨️ Print', 'print'], ['🗑 Delete', 'del']];
@@ -591,10 +775,23 @@ background:repeating-linear-gradient(to bottom,transparent 0 250px,#b9824a 250px
                 del: () => { closeDvd(true); openDeleteModal(id, type === 'movie' ? 'Movies' : 'Storyboards'); }
             };
             const bar = el.querySelector('.dvd-btns');
-            acts.forEach(([label, k]) => { const b = document.createElement('button'); b.className = 'action-btn'; b.textContent = label; b.addEventListener('click', () => fn[k](b)); bar.appendChild(b); });
+            const order = shelfOrder[type] || [], pos = order.findIndex(x => String(x.id) === String(id));
+            const go = d => { if (order.length > 1) openDvd(type, order[(pos + d + order.length) % order.length].id); };
+            if (order.length > 1) { const p = document.createElement('button'); p.className = 'action-btn dvd-prev'; p.textContent = '‹ Prev'; p.style.setProperty('--i', 0); p.addEventListener('click', () => go(-1)); bar.appendChild(p); }
+            acts.forEach(([label, k]) => { const b = document.createElement('button'); b.className = 'action-btn'; b.textContent = label; b.addEventListener('click', () => fn[k](b)); b.style.setProperty('--i', bar.children.length); bar.appendChild(b); });
+            if (order.length > 1) { const n = document.createElement('button'); n.className = 'action-btn dvd-next'; n.textContent = 'Next ›'; n.style.setProperty('--i', bar.children.length); n.addEventListener('click', () => go(1)); bar.appendChild(n); }
             el.addEventListener('click', e => { if (e.target === el || e.target.classList.contains('dvd-scene')) closeDvd(); });
             el.querySelector('.dvd-close').addEventListener('click', () => closeDvd());
+            el.addEventListener('pointermove', e => {
+                const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height, sc = el.querySelector('.dvd-scene');
+                sc.style.setProperty('--rx', ((0.5 - y) * 8).toFixed(1) + 'deg'); sc.style.setProperty('--ry', ((x - 0.5) * 12).toFixed(1) + 'deg');
+                sc.style.setProperty('--mx', (x * 100).toFixed(0) + '%'); sc.style.setProperty('--my', (y * 100).toFixed(0) + '%');
+            });
+            let tx = null;
+            el.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+            el.addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; tx = null; if (Math.abs(dx) > 70) el.querySelector(dx < 0 ? '.dvd-next' : '.dvd-prev')?.click(); }, { passive: true });
             document.body.appendChild(el);
+            document.body.style.overflow = 'hidden';
             requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
             setTimeout(() => el.classList.add('open'), 950);
         }
@@ -638,9 +835,16 @@ body{margin:0;font:12pt/1.15 'Courier Prime','Courier New',Courier,monospace;col
 .title p{margin:0 0 6pt}.title .foot{position:absolute;left:0;bottom:0;text-align:left}
 p{margin:0 0 12pt}.scene{font-weight:700;text-transform:uppercase;margin-top:12pt}
 .char{margin:12pt 0 0 2.2in}.paren{margin:0 0 0 1.6in;width:2in}.dial{margin:0 0 12pt 1in;width:3.5in}.trans{text-align:right;text-transform:uppercase}
-</style></head><body>
+@media screen{body{max-width:6.5in;margin:0 auto;padding:70px 16px 40px}}.noprint{position:fixed;top:10px;right:10px;padding:12px 16px;font:600 16px sans-serif;background:#111;color:#fff;border:0;border-radius:8px}@media print{.noprint{display:none}}
+</style></head><body><button class="noprint" onclick="window.print()">🖨️ Print / Save as PDF</button>
 <div class="title"><h1>${esc(item.title || 'Untitled')}</h1><p>Written by</p><p>${esc(item.director || 'Unknown')}</p><div class="foot">${esc(date)}</div></div>
 ${body}</body></html>`;
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+                const w = window.open('', '_blank');
+                if (!w) return alert('Allow pop-ups for this page, then tap Print again.');
+                w.document.open(); w.document.write(html); w.document.close();
+                return;
+            }
             const f = document.createElement('iframe');
             f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
             document.body.appendChild(f);
@@ -655,6 +859,14 @@ ${body}</body></html>`;
             if (quill.getText().trim().length === 0) return alert('Write something first, then print.');
             printItem({ title: document.getElementById('movie-title').value.trim() || 'Untitled', director: document.getElementById('movie-director').value.trim(), script: quill.root.innerHTML, created_at: new Date().toISOString() }, 'movie');
         }
+
+        document.querySelectorAll('.shelf-tools').forEach(t => {
+            const row = document.createElement('div'); row.className = 'genre-dots';
+            row.innerHTML = '<button type="button" class="gdot all" data-g="all">All</button>' + GENRES.map(([k, n]) => `<button type="button" class="gdot" data-g="${k}" title="${n}" aria-label="${n}" style="--c:${THEME_COLORS[k]}"></button>`).join('');
+            row.addEventListener('click', e => { const b = e.target.closest('.gdot'); if (b) setGenre(b.dataset.g); });
+            t.after(row);
+        });
+        syncShelfTools();
 
         const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         function cleanHtml(html) {
@@ -1103,7 +1315,7 @@ ${body}</body></html>`;
                 sortableInstance.destroy();
             }
             sortableInstance = new Sortable(document.getElementById('project-sticky-board'), { 
-                animation: 250, 
+                animation: 250, delay: 150, delayOnTouchOnly: true, touchStartThreshold: 6, 
                 ghostClass: 'sticky-ghost', 
                 onEnd: function (evt) { 
                     const m = projectStickies.splice(evt.oldIndex, 1)[0]; 
@@ -1246,7 +1458,7 @@ ${body}</body></html>`;
                 
                 saveBtn.innerHTML = "Save Storyboard"; 
                 saveBtn.disabled = false; 
-                fetchStoryboards();
+                showToast('🗂️ Storyboard saved!'); fetchStoryboards();
                 
             } catch(err) { 
                 alert(err.message); 
@@ -1525,7 +1737,7 @@ ${body}</body></html>`;
             }
         }
 
-        async function togglePin(id, cur) { 
+        async function togglePin(id, cur) { showToast(cur ? 'Unpinned' : '⭐ Pinned as a hit single'); 
             await supabaseClient.from('Movies').update({ is_pinned: !cur }).eq('id', id); 
             fetchMovies(); 
         }
@@ -1587,7 +1799,7 @@ ${body}</body></html>`;
                     clearCanvasSurface(); 
                 }
                 
-                document.getElementById('label-pdf').innerText = "📄 Attach a Script PDF"; localStorage.removeItem('studio_auto_draft'); hasUnsavedChanges = false; document.getElementById('file-pdf').value = '';
+                document.getElementById('label-pdf').innerText = "📄 Attach a Script PDF"; localStorage.removeItem('studio_auto_draft'); hasUnsavedChanges = false; document.getElementById('file-pdf').value = ''; showToast('💿 Burned to disc!');
                 saveBtn.innerHTML = "Burn to Disc"; 
                 saveBtn.disabled = false; 
                 fetchMovies();
@@ -1693,7 +1905,7 @@ ${body}</body></html>`;
 
         function filterDashboards(type) { 
             const query = document.getElementById(type === 'movie' ? 'search-movie-bar' : 'search-storyboard-bar').value.toLowerCase(); 
-            const cards = document.getElementById(type === 'movie' ? 'movies-dashboard' : 'storyboards-dashboard').getElementsByClassName('dvd'); 
+            const cards = document.getElementById(type === 'movie' ? 'movies-dashboard' : 'storyboards-dashboard').getElementsByClassName('shelf-item'); 
             
             for (let i = 0; i < cards.length; i++) {
                 cards[i].style.display = (cards[i].dataset.search || "").includes(query) ? "" : "none"; 
